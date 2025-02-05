@@ -5,14 +5,17 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
-
+import com.ctre.phoenix6.swerve.SimSwerveDrivetrain;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -23,6 +26,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.ADIS16470_IMUSim;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
@@ -37,6 +42,19 @@ public class DriveSub extends SubsystemBase {
   private final SwerveModule frontRight = new SwerveModule(DriveConstants.SWERVE_MODULE_FR);
   private final SwerveModule backLeft = new SwerveModule(DriveConstants.SWERVE_MODULE_BL);
   private final SwerveModule backRight = new SwerveModule(DriveConstants.SWERVE_MODULE_BR);
+
+
+//  private final SimSwerveDrivetrain drivetrainSim = new SimSwerveDrivetrain(
+//    DriveConstants.DRIVE_KINEMATICS,
+//    DriveConstants.WHEEL_DIAMETER_INCHES / 2,
+//    DriveConstants.MASS,
+//    DriveConstants.MOI,
+//    DriveConstants.WHEEL_FRICTION,
+//    DriveConstants.MOTOR_NOISE
+//);
+
+
+
 
   // The gyro sensor
   private final ADIS16470_IMU imu = new ADIS16470_IMU();
@@ -59,94 +77,103 @@ public class DriveSub extends SubsystemBase {
   // Simulation Variables
   private final ADIS16470_IMUSim imuSim = new ADIS16470_IMUSim(imu);
   private Pose2d poseSim = new Pose2d();
+  
+  //Angle PID
+  private PIDController YawController = new PIDController(
+    DriveConstants.YAW_kP,
+    DriveConstants.YAW_kI,
+    DriveConstants.YAW_kD);
 
-  /** Creates a new DriveSubsystem. */
-  public DriveSub() {
-    zeroHeading();
-    initPathPlanner();
+    
+  
+    /** Creates a new DriveSubsystem. */
+    public DriveSub() {
+      zeroHeading();
+      initPathPlanner();
+  
+      SmartDashboard.putData("Field", field);
+      SmartDashboard.putData("FL Module", frontLeft);
+      SmartDashboard.putData("FR Module", frontRight);
+      SmartDashboard.putData("BL Module", backLeft);
+      SmartDashboard.putData("BR Module", backRight);
 
-    SmartDashboard.putData("Field", field);
-    SmartDashboard.putData("FL Module", frontLeft);
-    SmartDashboard.putData("FR Module", frontRight);
-    SmartDashboard.putData("BL Module", backLeft);
-    SmartDashboard.putData("BR Module", backRight);
-
-    simErrorOffset = new ChassisSpeeds(0, 0, 0.1);
-  }
-
-  @Override
-  public void periodic() {
-    updateOdometry();
-  }
-
-  /**
-   * Initializes PathPlanner.
-   * 
-   * Should be called once upon robot start.
-   */
-  private void initPathPlanner() {
-    try {
-      final var config = RobotConfig.fromGUISettings();
-      AutoBuilder.configure(
-          this::getPose,
-          this::resetOdometry,
-          this::getChassisSpeeds,
-          (speeds, feedforwards) -> drive(speeds, false),
-          new PPHolonomicDriveController(
-              DriveConstants.AUTO_TRANSLATION_PID,
-              DriveConstants.AUTO_ROTATION_PID),
-          config,
-          () -> {
-            // Boolean supplier that controls when the path will be mirrored for the red
-            // alliance
-            // This will flip the path being followed to the red side of the field.
-            // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-            return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
-          },
-          this);
-    } catch (Exception e) {
-      System.err
-          .println("DriveSub: Error: PathPlanner failed to initialize! Autos may not work properly. Stack trace:");
-      e.printStackTrace();
+      YawController.enableContinuousInput(-Math.PI, Math.PI);
+      YawController.setTolerance(Math.toRadians((2))); //2 degree tolerance
+  
+      simErrorOffset = new ChassisSpeeds(0, 0, 0.1);
+      
     }
-  }
-
-  /**
-   * Updates the robot's odometry.
-   * 
-   * This should be called every robot tick, in the periodic method.
-   */
-  private void updateOdometry() {
-    poseEstimator.update(getRotation2d(), getModulePositions());
-
-    for (final var cam : photon.cams) {
-      cam.getEstimatedPose()
-          .ifPresent((visionResult) -> {
-            // Reject any egregiously incorrect vision pose estimates
-            final var visionPose = visionResult.estimatedPose.toPose2d();
-            final var currentPose = getPose();
-            final var errorMeters = visionPose.getTranslation().getDistance(currentPose.getTranslation());
-            if (errorMeters > 1)
-              return;
-
-            poseEstimator.addVisionMeasurement(visionPose, visionResult.timestampSeconds);
-          });
+  
+    @Override
+    public void periodic() {
+      updateOdometry();
+      field.setRobotPose(getPose());
     }
-
-    field.setRobotPose(getPose());
+  
+    /**
+     * Initializes PathPlanner.
+     * 
+     * Should be called once upon robot start.
+     */
+    private void initPathPlanner() {
+      try {
+        final var config = RobotConfig.fromGUISettings();
+        AutoBuilder.configure(
+            this::getPose,
+            this::resetOdometry,
+            this::getChassisSpeeds,
+            (speeds, feedforwards) -> drive(speeds, false),
+            new PPHolonomicDriveController(
+                DriveConstants.AUTO_TRANSLATION_PID,
+                DriveConstants.AUTO_ROTATION_PID),
+            config,
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red
+              // alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+  
+              return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
+            },
+            this);
+      } catch (Exception e) {
+        System.err
+            .println("DriveSub: Error: PathPlanner failed to initialize! Autos may not work properly. Stack trace:");
+        e.printStackTrace();
+      }
+    }
+  
+    /**
+     * Updates the robot's odometry.
+     * 
+     * This should be called every robot tick, in the periodic method.
+     */
+    private void updateOdometry() {
+      poseEstimator.update(getRotation2d(), getModulePositions());
+  
+      for (final var cam : photon.cams) {
+        cam.getEstimatedPose()
+            .ifPresent((visionResult) -> {
+              // Reject any egregiously incorrect vision pose estimates
+              final var visionPose = visionResult.estimatedPose.toPose2d();
+              final var currentPose = getPose();
+              final var errorMeters = visionPose.getTranslation().getDistance(currentPose.getTranslation());
+              if (errorMeters > 1)
+                return;
+  
+              poseEstimator.addVisionMeasurement(visionPose, visionResult.timestampSeconds);
+            });
+      }
+  
+      field.setRobotPose(getPose());
+    }
+  
+  
+    public void drive(double xSpeed, double ySpeed, Rotation2d targetYaw) {
+      drive(new Translation2d(xSpeed, ySpeed), targetYaw);
   }
 
-  /**
-   * drives the robot
-   * 
-   * @param speeds field-relative speeds to drive at
-   */
-  public void drive(ChassisSpeeds speeds) {
-    drive(speeds, true);
-  }
-
-  /**
+    /**
    * drives the robot
    * 
    * @param speeds        speeds to drive at
@@ -162,15 +189,51 @@ public class DriveSub extends SubsystemBase {
       speeds = speeds.plus(simErrorOffset.times(speed));
     }
 
-
-    final var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
-    setModuleStates(states);
+        // Desaturate and set module states
+        SwerveModuleState[] states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_SPEED);
+        setModuleStates(states);
   }
 
-  /** @return the currently estimated pose of the robot. */
-  public Pose2d getPose() {
-    return RobotBase.isReal() ? poseEstimator.getEstimatedPosition() : poseSim;
-  }
+  
+  /**
+   * 
+   * @param translation //movement of the robot along cartesian plane
+   * @param targetYaw  //angle of movement of robot
+   */
+    public void drive(Translation2d translation, Rotation2d targetYaw) {
+      double currentYaw = getRotation2d().getRadians();
+      double targetYawRadians = targetYaw.getRadians();
+      double omegaOutput = YawController.calculate(currentYaw,targetYawRadians);
+
+      omegaOutput = MathUtil.clamp(
+        omegaOutput,
+        -Math.PI,
+        Math.PI);
+
+      ChassisSpeeds fieldRelativespeeds = new ChassisSpeeds(
+      translation.getX(),
+      translation.getY(),
+      0
+      );
+
+      ChassisSpeeds robotRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+        fieldRelativespeeds.vxMetersPerSecond, 
+        fieldRelativespeeds.vyMetersPerSecond,
+        fieldRelativespeeds.omegaRadiansPerSecond,
+        getRotation2d());
+  
+      drive(robotRelativeSpeeds,false);
+  
+
+    }
+  
+    /** @return the currently estimated pose of the robot. */
+    public Pose2d getPose() {
+      return RobotBase.isReal() ? poseEstimator.getEstimatedPosition() : poseSim;
+    }
+ 
+
 
   /**
    * Resets the odometry to the specified pose.

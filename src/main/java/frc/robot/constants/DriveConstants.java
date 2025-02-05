@@ -35,6 +35,19 @@ public class DriveConstants {
   /** Max acceleration of robot in meters per second squared */
   public static final double MAX_ACCELERATION = 1; // TODO check this
   public static final double MAX_DECELERATION = 2; // TODO check this
+
+
+/**
+ * For Robot Simulation
+ * 
+ */
+public static final double MASS = 50; // Robot mass (kg)
+public static final double MOI = 5; // Moment of inertia (kg·m²)
+public static final double WHEEL_FRICTION = 0.1; // Wheel friction
+public static final double MOTOR_NOISE = 0.05; // Motor noise
+public static final double WHEEL_DIAMETER_INCHES = 3;
+
+
   /**
    * Max angular speed of robot in radians per second
    * 
@@ -82,6 +95,14 @@ public class DriveConstants {
    * rotates in the opposite direction of the steering motor.
    */
   public static final boolean TURNING_ENCODER_INVERTED = true;
+
+  /** Constants for Angle for Drag */
+  public static final double YAW_kP = 0.5; // Tune this
+
+  public static final double YAW_kI = 0.0;
+  
+  public static final double YAW_kD = 0.01;
+
 
   // Calculations required for driving motor conversion factors and feed forward
   /** Free speed of the driving motor in rps */
