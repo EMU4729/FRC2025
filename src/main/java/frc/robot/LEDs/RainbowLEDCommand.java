@@ -9,9 +9,13 @@ public class RainbowLEDCommand extends LEDCommand {
   private int firstHue = 0;
   private final int hueStep = 2;
   private int delayIdx = 0;
-  private final int delay = 3;
+  private final int delay;
 
   public RainbowLEDCommand() {
+    this.delay = 3;
+  }
+  public RainbowLEDCommand(int delay){
+    this.delay = delay;
   }
 
   @Override
