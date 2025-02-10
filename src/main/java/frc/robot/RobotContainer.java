@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.LEDs.FlashSolidLEDCommand;
+import frc.robot.LEDs.RainbowLEDCommand;
 import frc.robot.LEDs.RepeatedFlashLEDCommand;
 import frc.robot.LEDs.SolidLEDCommand;
 import frc.robot.auto.AutoProvider;
@@ -74,7 +75,7 @@ public class RobotContainer {
     OI.pilot.start()
         .onTrue(
             new InstantCommand(Subsystems.drive::zeroHeading, Subsystems.drive));
-
+    OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
     // Drive bindings handled in teleop command
   }
 

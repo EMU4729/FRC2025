@@ -3,6 +3,7 @@ package frc.robot.LEDs;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystems;
 
@@ -43,5 +44,11 @@ public class LEDCommand extends Command {
   @Override
   public boolean runsWhenDisabled() {
     return true;
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    super.end(interrupted);
+    this.zones.forEach((zone)->zone.apply(Color.kBlack));
   }
 }
