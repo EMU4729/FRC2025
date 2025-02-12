@@ -20,15 +20,18 @@ public class ElevatorSub extends SubsystemBase {
       ElevatorConstants.CONTROLLER_D,
       ElevatorConstants.MOTION_CONSTRAINTS);
 
-  private boolean eStopped = false;
+  private EStopState eStopped = EStopState.NONE;
 
   public ElevatorSub() {
     super();
+    controller.setIntegratorRange(-0.2, 0.2);
+    controller.setIZone(0.05);
 
     final var motorConfig = new TalonFXConfiguration();
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+    motorConfig.Feedback.SensorToMechanismRatio = 91.37833019;
     motor.getConfigurator().apply(motorConfig);
 
     controller.setTolerance(ElevatorConstants.POSITION_TOLERANCE);
@@ -36,7 +39,8 @@ public class ElevatorSub extends SubsystemBase {
     SmartDashboard.putData("Elevator Motor", motor);
     SmartDashboard.putData("Elevator Encoder", encoder);
     SmartDashboard.putData("Elevator Controller", controller);
-    SmartDashboard.putBoolean("Elevator E-Stopped", eStopped);
+    SmartDashboard.putNumber("targetHeight", 0);
+    SmartDashboard.putBoolean("Elevator E-Stopped", eStopped != EStopState.NONE);
   }
 
   public double getPosition() {
@@ -55,29 +59,62 @@ public class ElevatorSub extends SubsystemBase {
     return controller.atGoal();
   }
 
-  private boolean shouldEStop() {
+  private EStopState shouldEStop() {
     final var encoderPosition = getPosition();
     final var motorPosition = motor.getPosition().getValueAsDouble();
+    SmartDashboard.putNumber("motor pos", motorPosition);
 
-    return encoderPosition < 0
-        || encoderPosition > ElevatorConstants.MAX_ALLOWABLE_POSITION
-        || motorPosition < 0
-        || motorPosition > ElevatorConstants.MAX_ALLOWABLE_POSITION;
+    if (encoderPosition < 0 || motorPosition < 0) {
+      return EStopState.BOTTOM;
+    }
+    
+    if (motorPosition > ElevatorConstants.MAX_ALLOWABLE_POSITION ||
+        encoderPosition > ElevatorConstants.MAX_ALLOWABLE_POSITION) {
+      return EStopState.TOP;
+    }
+
+    return EStopState.NONE;
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("Elevator E-Stopped", eStopped);
+    SmartDashboard.putBoolean("Elevator E-Stopped", eStopped != EStopState.NONE);
+    
+    
+    final var position = getPosition();
+    var out = controller.calculate(position);
+    out = MathUtil.clamp(out, -0.1, 0.1);
 
-    if (eStopped || shouldEStop()) {
+    eStopped = shouldEStop();
+    boolean preventMove = false;
+    switch (eStopped) {
+      case NONE:
+        break;
+      case TOP:
+        if (out > 0) preventMove = true;
+        break;
+      case BOTTOM:
+        if (out < 0) preventMove = true;
+      break;
+    }
+
+    if (preventMove) {
       motor.set(0);
       return;
     }
 
-    final var position = getPosition();
-    var out = controller.calculate(position);
-    out = MathUtil.clamp(out, -1, 1);
     motor.set(out);
+    SmartDashboard.putNumber("power", out);
+    SmartDashboard.putNumber("targetHeight", controller.getGoal().position);
+    System.out.println(out);
+  }
+
+  private enum EStopState {
+    NONE,
+    TOP,
+    BOTTOM
   }
 
 }
+
+

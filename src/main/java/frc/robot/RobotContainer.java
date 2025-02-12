@@ -18,6 +18,7 @@ import frc.robot.LEDs.RainbowLEDCommand;
 import frc.robot.LEDs.RepeatedFlashLEDCommand;
 import frc.robot.LEDs.SolidLEDCommand;
 import frc.robot.auto.AutoProvider;
+import frc.robot.constants.ElevatorConstants;
 import frc.robot.teleop.TeleopProvider;
 
 /**
@@ -61,10 +62,10 @@ public class RobotContainer {
 
     // OI.pilot.y().onTrue(new
     // InstantCommand(()->BatteryPercentLEDCommand.runFor(50)));
-    OI.pilot.a().onTrue(new FlashSolidLEDCommand(Color.kCrimson, 1000).withZone());
-    OI.pilot.b().onTrue(new RepeatedFlashLEDCommand(
-        (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 200).withZone(new int[] { 1, 2 })),
-        5).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+    // OI.pilot.a().onTrue(new FlashSolidLEDCommand(Color.kCrimson, 1000).withZone());
+    // OI.pilot.b().onTrue(new RepeatedFlashLEDCommand(
+        // (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 200).withZone(new int[] { 1, 2 })),
+        // 5).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
     OI.pilot.x().onTrue(new RepeatedFlashLEDCommand(
         (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kBlue, 200).withZone(new int[] { 0 })),
         5));
@@ -77,6 +78,19 @@ public class RobotContainer {
             new InstantCommand(Subsystems.drive::zeroHeading, Subsystems.drive));
     OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
     // Drive bindings handled in teleop command
+
+    OI.pilot.y().onTrue(new InstantCommand(() -> 
+      Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L1)
+    ));
+
+    
+    OI.pilot.a().onTrue(new InstantCommand(() -> 
+      Subsystems.elevator.setTargetPosition(1000)
+    ));
+    
+    OI.pilot.b().onTrue(new InstantCommand(() -> 
+      Subsystems.elevator.setTargetPosition(-1000)
+    ));
   }
 
   /**
