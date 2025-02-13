@@ -15,8 +15,8 @@ public class EncoderSupplier implements Supplier<Encoder> {
    * @param port encoder ports, this will likely be 2 DIO ports on RIO
    *      write it as 'new int[] {1,2}' for ports 1 and 2
    * @param motionPerCycle the change in location or angle of a mechanism that will equate to one full cycle of the encoder
-   *      angle = cycles / gearRatio
-   *      location = Final wheel circumference / angle {until the final wheel}
+   *      rotary = cycles / gearRatio
+   *      linear = Final wheel circumference / rotary {until the final wheel}
    * 
    *   cycles will be listed on the product page as something like 'Cycles per Revolution'
    *      REV through bore = 2048

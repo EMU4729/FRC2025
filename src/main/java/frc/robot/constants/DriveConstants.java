@@ -1,6 +1,8 @@
 
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
@@ -9,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import frc.robot.utils.RangeMath.AxesFit;
 import frc.robot.utils.RangeMath.DriveBaseFit;
 
@@ -108,7 +111,7 @@ public class DriveConstants {
   public static final double TURNING_I = 0.05;
   public static final double TURNING_D = 0.15;
   public static final double TURNING_FF = 0;
-  public static final double TURNING_I_ZONE = Math.toRadians(15);
+  public static final Angle TURNING_I_ZONE = Degrees.of(15);
 
   // Auto Constants
   // TODO: Tune these

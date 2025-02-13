@@ -23,6 +23,8 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -30,6 +32,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.DriveConstants.SwerveModuleDetails;
+import frc.robot.utils.motorsupplier.FalconMotorSupplier;
+import frc.robot.utils.motorsupplier.SparkMotorSupplier;
 
 public class SwerveModule implements Sendable {
   private final SwerveModuleDetails details;
@@ -55,60 +59,35 @@ public class SwerveModule implements Sendable {
     this.details = moduleDetails;
 
     // DRIVE MOTOR CONFIG
-    driveMotor = new TalonFX(moduleDetails.driveCANID());
-    final var driveMotorConfig = new TalonFXConfiguration();
-    driveMotorConfig.MotorOutput.Inverted = DriveConstants.DRIVE_MOTOR_INVERTED;
-    driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    // set the Gear Ratio used for encoder reads
-    driveMotorConfig.Feedback.SensorToMechanismRatio = DriveConstants.DRIVE_GEAR_RATIO;
-    // enable and set Current Limiting to prevent brownouts
-    driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 40;
-    // set the PID Config for the drive motor
-    driveMotorConfig.Slot0.kP = DriveConstants.DRIVE_P;
-    driveMotorConfig.Slot0.kI = DriveConstants.DRIVE_I;
-    driveMotorConfig.Slot0.kD = DriveConstants.DRIVE_D;
-
-    driveMotor.getConfigurator().apply(driveMotorConfig);
+    driveMotor = new FalconMotorSupplier(moduleDetails.driveCANID())
+                    .withBrake()
+                    .withInvert()
+                    .withEncoder(DriveConstants.DRIVE_GEAR_RATIO)
+                    .withPID(DriveConstants.DRIVE_P, 
+                             DriveConstants.DRIVE_I, 
+                             DriveConstants.DRIVE_D)
+                    .get();
     driveController = new VelocityVoltage(0).withFeedForward(DriveConstants.DRIVING_FF).withSlot(0);
 
     // TURNING MOTOR CONFIG
-    turnMotor = new SparkMax(moduleDetails.steerCANID(), MotorType.kBrushless);
+    turnMotor = new SparkMotorSupplier(moduleDetails.steerCANID())
+                    .withAbsEncoder(DriveConstants.TURNING_ENCODER_POSITION_FACTOR,
+                                    DriveConstants.TURNING_ENCODER_VELOCITY_FACTOR)
+                    .withPID(DriveConstants.TURNING_P, 
+                             DriveConstants.TURNING_I, 
+                             DriveConstants.TURNING_D, 
+                             DriveConstants.TURNING_FF)
+                    .withPIDIZone(DriveConstants.TURNING_I_ZONE.in(Radians))
+                    .withPositionWrapping(DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT, 
+                                          DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT)
+                    .withBrake()
+                    .get();
+
+    //turnMotor = new SparkMax(moduleDetails.steerCANID(), MotorType.kBrushless);
     turnController = turnMotor.getClosedLoopController();
-    final var turnMotorConfig = new SparkMaxConfig();
 
     // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
     turnEncoder = turnMotor.getAbsoluteEncoder();
-
-    // Apply position and velocity conversion factors for the turning encoder. We
-    // want these in radians and radians per second to use with WPILib's swerve
-    // APIs.
-    turnMotorConfig.absoluteEncoder
-        .positionConversionFactor(DriveConstants.TURNING_ENCODER_POSITION_FACTOR)
-        .velocityConversionFactor(DriveConstants.TURNING_ENCODER_VELOCITY_FACTOR);
-
-    // Set the PID gains for the turning motor and
-    // Enable PID wrap around for the turning motor. This will allow the PID
-    // controller to go through 0 to get to the setpoint
-    turnMotorConfig.closedLoop
-        .pidf(
-            DriveConstants.TURNING_P,
-            DriveConstants.TURNING_I,
-            DriveConstants.TURNING_D,
-            DriveConstants.TURNING_FF)
-        .iZone(Math.toRadians(DriveConstants.TURNING_I_ZONE))
-        .positionWrappingEnabled(true)
-        .positionWrappingInputRange(
-            DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT,
-            DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT)
-        .outputRange(-1, 1)
-        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-
-    // enable and set Current Limiting to prevent brownouts
-    turnMotorConfig.smartCurrentLimit(30).idleMode(IdleMode.kBrake);
-
-    // Save the SPARK MAX configurations (Brownout protection).
-    turnMotor.configure(turnMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
     // --------------GO TO DEFAULTS--------------
     desiredState.angle = new Rotation2d(turnEncoder.getPosition());

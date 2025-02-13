@@ -10,9 +10,10 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ElevatorConstants;
+import frc.robot.utils.motorsupplier.FalconMotorSupplier;
 
 public class ElevatorSub extends SubsystemBase {
-  private final TalonFX motor = new TalonFX(ElevatorConstants.MOTOR_ID);
+  private final TalonFX motor;
   private final Encoder encoder = ElevatorConstants.ENCODER_ID.get();
   private final ProfiledPIDController controller = new ProfiledPIDController(
       ElevatorConstants.CONTROLLER_P,
@@ -27,12 +28,9 @@ public class ElevatorSub extends SubsystemBase {
     controller.setIntegratorRange(-0.2, 0.2);
     controller.setIZone(0.05);
 
-    final var motorConfig = new TalonFXConfiguration();
-    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
-    motorConfig.Feedback.SensorToMechanismRatio = 91.37833019;
-    motor.getConfigurator().apply(motorConfig);
+    motor = new FalconMotorSupplier(ElevatorConstants.MOTOR_ID)
+              .withEncoder(91.37833019)
+              .get();
 
     controller.setTolerance(ElevatorConstants.POSITION_TOLERANCE);
 
