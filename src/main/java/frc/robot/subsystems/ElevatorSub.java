@@ -104,7 +104,6 @@ public class ElevatorSub extends SubsystemBase {
     motor.set(out);
     SmartDashboard.putNumber("power", out);
     SmartDashboard.putNumber("targetHeight", controller.getGoal().position);
-    System.out.println(out);
   }
 
   private enum EStopState {

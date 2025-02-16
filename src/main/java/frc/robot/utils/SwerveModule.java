@@ -82,10 +82,7 @@ public class SwerveModule implements Sendable {
                                           DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT)
                     .withBrake()
                     .get();
-
-    //turnMotor = new SparkMax(moduleDetails.steerCANID(), MotorType.kBrushless);
     turnController = turnMotor.getClosedLoopController();
-
     // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
     turnEncoder = turnMotor.getAbsoluteEncoder();
 
@@ -252,8 +249,8 @@ public class SwerveModule implements Sendable {
     var delta = desiredState.angle.minus(currentAngle);
     double error = Math.abs(delta.getDegrees());
     int limit = lastLimit;
-    System.out
-        .println(limit + " " + error + " " + delta + " " + desiredState.angle + " " + currentAngle + " " + isFlipped);
+    /*System.out
+        .println(limit + " " + error + " " + delta + " " + desiredState.angle + " " + currentAngle + " " + isFlipped);*/
 
     // optimizes by inverting the turn if the module is more than the limit
     if (error < limit) {

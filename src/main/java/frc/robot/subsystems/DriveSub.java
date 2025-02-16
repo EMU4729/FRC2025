@@ -6,6 +6,8 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -47,7 +49,6 @@ public class DriveSub extends SubsystemBase {
   // Field for robot viz
   private final Field2d field = new Field2d();
 
-  private final ChassisSpeeds simErrorOffset;
 
   // Pose estimation class for tracking robot pose
   private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
@@ -71,7 +72,6 @@ public class DriveSub extends SubsystemBase {
     SmartDashboard.putData("BL Module", backLeft);
     SmartDashboard.putData("BR Module", backRight);
 
-    simErrorOffset = new ChassisSpeeds(0, 0, 0.1);
   }
 
   @Override
@@ -118,7 +118,7 @@ public class DriveSub extends SubsystemBase {
    * This should be called every robot tick, in the periodic method.
    */
   private void updateOdometry() {
-    poseEstimator.update(getRotation2d(), getModulePositions());
+    poseEstimator.update(getHeadingR2D(), getModulePositions());
 
     for (final var cam : photon.cams) {
       cam.getEstimatedPose()
@@ -154,12 +154,19 @@ public class DriveSub extends SubsystemBase {
    *                      they are robot-relative
    */
   public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
-    if (fieldRelative) {
-      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getRotation2d());
+    if (fieldRelative) { // convert field rel speeds to robot rel
+      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeadingR2D());
     }
-    if(Robot.isSimulation()){
-      double speed = Math.sqrt(Math.pow(speeds.vxMetersPerSecond,2) + Math.pow(speeds.vxMetersPerSecond,2));
-      speeds = speeds.plus(simErrorOffset.times(speed));
+
+    if(Robot.isSimulation()){ // induce some amount of drift while moving in sim
+      double speedMag = getTranslationSpeed();
+      Rotation2d speedDir = Rotation2d.fromRadians(getTranslationAngle());
+      System.out.println(speedMag +"   "+speedDir);
+      speedDir = speedDir.plus(Rotation2d.fromDegrees(-45));
+      speedMag *= Math.cos(speedDir.getRadians());
+      System.out.println(speedMag +" - "+speedDir);
+
+      speeds = speeds.plus(new ChassisSpeeds(0,0, 0.2*speedMag));
     }
 
 
@@ -184,7 +191,7 @@ public class DriveSub extends SubsystemBase {
       return;
     }
 
-    poseEstimator.resetPosition(getRotation2d(), getModulePositions(), pose);
+    poseEstimator.resetPosition(getHeadingR2D(), getModulePositions(), pose);
   }
 
   /**
@@ -262,7 +269,7 @@ public class DriveSub extends SubsystemBase {
     imu.reset();
   }
 
-  /** @return the robot's heading (deg) */
+  /** @return the robot's heading (direction the robot is pointing field rel) (deg) */
   public double getHeading() {
     return imu.getAngle() * (DriveConstants.GYRO_REVERSED ? -1 : 1);
   }
@@ -272,13 +279,14 @@ public class DriveSub extends SubsystemBase {
     return imu.getRate() * (DriveConstants.GYRO_REVERSED ? -1 : 1);
   }
 
-  /** @return the robot's heading as a {@link Rotation2d} */
-  public Rotation2d getRotation2d() {
+  /** @return the robot's heading as a {@link Rotation2d} (direction the robot is pointing field rel) */
+  public Rotation2d getHeadingR2D() {
     return Rotation2d.fromDegrees(getHeading());
   }
 
   /** @return the current robot-relative {@link ChassisSpeeds} */
   public ChassisSpeeds getChassisSpeeds() {
+    if(Robot.isSimulation()){return getDesiredChassisSpeeds();} //modules are not sim'd correctly
     return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(getModuleStates());
   }
 
@@ -287,10 +295,15 @@ public class DriveSub extends SubsystemBase {
     return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(getModuleDesiredStates());
   }
 
-  /** @return the current translational speed of the robot (m/s) */
+  /** @return the current translational speed of the robot (angle irrelevant) (m/s) */
   public double getTranslationSpeed() {
     final var speeds = getChassisSpeeds();
     return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+  }
+  /** @return the current translational speed of the robot (angle irrelevant) (m/s) */
+  public double getTranslationAngle() {
+    final var speeds = getChassisSpeeds();
+    return Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
   }
 
   @Override
