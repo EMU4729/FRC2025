@@ -142,7 +142,11 @@ public class SwerveModule implements Sendable {
     return getTurnAngle(true);
   }
 
-  /** @return the module's turning angle (rad) */
+  /**
+   * 
+   * @param robotRelative angles returned rel to (True : the robot front CCW+, False : The current module)
+   * @return the angle of the module relative to either Module Frame or Robot Frame
+   */
   public double getTurnAngle(boolean robotRelative) {
     if (robotRelative) {
       return turnEncoder.getPosition() - details.angularOffset().getRadians();
