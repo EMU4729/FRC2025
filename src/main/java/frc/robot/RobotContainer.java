@@ -75,7 +75,7 @@ public class RobotContainer {
 
     OI.pilot.start()
         .onTrue(
-            new InstantCommand(Subsystems.drive::zeroHeading, Subsystems.drive));
+            new InstantCommand(Subsystems.nav::zeroHeading, Subsystems.drive));
     OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
     // Drive bindings handled in teleop command
 
