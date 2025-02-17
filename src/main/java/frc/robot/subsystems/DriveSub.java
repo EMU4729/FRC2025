@@ -12,6 +12,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -48,6 +49,9 @@ public class DriveSub extends SubsystemBase {
 
   // Field for robot viz
   private final Field2d field = new Field2d();
+
+  private final PIDController holdYawPid = new PIDController(0.8, 0, 0);
+
 
 
   // Pose estimation class for tracking robot pose
@@ -136,6 +140,16 @@ public class DriveSub extends SubsystemBase {
 
     field.setRobotPose(getPose());
   }
+
+public void driveAtAngle (ChassisSpeeds speeds, Rotation2d yawAngle) {
+  Rotation2d currentYaw = getHeadingR2D();
+  Rotation2d err = currentYaw.minus(yawAngle);
+  err.getDegrees();
+  speeds.omegaRadiansPerSecond = holdYawPid.calculate(err.getDegrees());
+  drive(speeds);
+
+}
+
 
   /**
    * drives the robot
