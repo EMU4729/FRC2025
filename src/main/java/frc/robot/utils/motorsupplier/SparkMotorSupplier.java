@@ -82,10 +82,10 @@ public class SparkMotorSupplier extends MotorSupplier<SparkMax> {
   public SparkMax get() {
     if (port < 0) {
       System.out.println("MotorInfo : motor port num < 0, check port is defined : " + port);
-      return new SparkMax(port, MotorType.kBrushed);
+      return new SparkMax(port, MotorType.kBrushless);
     }
 
-    final var spark = new SparkMax(port, MotorType.kBrushed);
+    final var spark = new SparkMax(port, MotorType.kBrushless);
     config.inverted(invert);
 
     if (voltageComp) {
