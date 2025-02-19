@@ -1,339 +1,167 @@
-// Originally from https://github.com/REVrobotics/MAXSwerve-Java-Template/blob/main/src/main/java/frc/robot/subsystems/DriveSubsystem.java
-
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.simulation.ADIS16470_IMUSim;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.constants.DriveConstants;
-import frc.robot.utils.PhotonBridge;
 import frc.robot.utils.SwerveModule;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSub extends SubsystemBase {
-  // Swerve Modules
-  private final SwerveModule frontLeft = new SwerveModule(DriveConstants.SWERVE_MODULE_FL);
-  private final SwerveModule frontRight = new SwerveModule(DriveConstants.SWERVE_MODULE_FR);
-  private final SwerveModule backLeft = new SwerveModule(DriveConstants.SWERVE_MODULE_BL);
-  private final SwerveModule backRight = new SwerveModule(DriveConstants.SWERVE_MODULE_BR);
+    // Swerve Modules
+    private final SwerveModule frontLeft = new SwerveModule(DriveConstants.SWERVE_MODULE_FL);
+    private final SwerveModule frontRight = new SwerveModule(DriveConstants.SWERVE_MODULE_FR);
+    private final SwerveModule backLeft = new SwerveModule(DriveConstants.SWERVE_MODULE_BL);
+    private final SwerveModule backRight = new SwerveModule(DriveConstants.SWERVE_MODULE_BR);
 
-  // The gyro sensor
-  private final ADIS16470_IMU imu = new ADIS16470_IMU();
+    // PID controller used for holding yaw in driveAtAngle
+    private final PIDController holdYawPid = new PIDController(0.8, 0, 0);
 
-  // Photon Bridge
-  public final PhotonBridge photon = new PhotonBridge();
+    // Reference to NavigationSub for accessing heading information
+    private final NavigationSub navigationSub;
 
-  // Field for robot viz
-  private final Field2d field = new Field2d();
-
-  private final PIDController holdYawPid = new PIDController(0.8, 0, 0);
-
-
-
-  // Pose estimation class for tracking robot pose
-  private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
-      DriveConstants.DRIVE_KINEMATICS,
-      Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kZ)),
-      getModulePositions(),
-      new Pose2d());
-
-  // Simulation Variables
-  private final ADIS16470_IMUSim imuSim = new ADIS16470_IMUSim(imu);
-  private Pose2d poseSim = new Pose2d();
-
-  /** Creates a new DriveSubsystem. */
-  public DriveSub() {
-    zeroHeading();
-    initPathPlanner();
-
-    SmartDashboard.putData("Field", field);
-    SmartDashboard.putData("FL Module", frontLeft);
-    SmartDashboard.putData("FR Module", frontRight);
-    SmartDashboard.putData("BL Module", backLeft);
-    SmartDashboard.putData("BR Module", backRight);
-
-  }
-
-  @Override
-  public void periodic() {
-    updateOdometry();
-  }
-
-  /**
-   * Initializes PathPlanner.
-   * 
-   * Should be called once upon robot start.
-   */
-  private void initPathPlanner() {
-    try {
-      final var config = RobotConfig.fromGUISettings();
-      AutoBuilder.configure(
-          this::getPose,
-          this::resetOdometry,
-          this::getChassisSpeeds,
-          (speeds, feedforwards) -> drive(speeds, false),
-          new PPHolonomicDriveController(
-              DriveConstants.AUTO_TRANSLATION_PID,
-              DriveConstants.AUTO_ROTATION_PID),
-          config,
-          () -> {
-            // Boolean supplier that controls when the path will be mirrored for the red
-            // alliance
-            // This will flip the path being followed to the red side of the field.
-            // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-            return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
-          },
-          this);
-    } catch (Exception e) {
-      System.err
-          .println("DriveSub: Error: PathPlanner failed to initialize! Autos may not work properly. Stack trace:");
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   * Updates the robot's odometry.
-   * 
-   * This should be called every robot tick, in the periodic method.
-   */
-  private void updateOdometry() {
-    poseEstimator.update(getHeadingR2D(), getModulePositions());
-
-    for (final var cam : photon.cams) {
-      cam.getEstimatedPose()
-          .ifPresent((visionResult) -> {
-            // Reject any egregiously incorrect vision pose estimates
-            final var visionPose = visionResult.estimatedPose.toPose2d();
-            final var currentPose = getPose();
-            final var errorMeters = visionPose.getTranslation().getDistance(currentPose.getTranslation());
-            if (errorMeters > 1)
-              return;
-
-            poseEstimator.addVisionMeasurement(visionPose, visionResult.timestampSeconds);
-          });
+    public DriveSub(NavigationSub navigationSub) {
+        this.navigationSub = navigationSub;
+        SmartDashboard.putData("FL Module", frontLeft);
+        SmartDashboard.putData("FR Module", frontRight);
+        SmartDashboard.putData("BL Module", backLeft);
+        SmartDashboard.putData("BR Module", backRight);
     }
 
-    field.setRobotPose(getPose());
-  }
-
-public void driveAtAngle (ChassisSpeeds speeds, Rotation2d yawAngle) {
-  Rotation2d currentYaw = getHeadingR2D();
-  Rotation2d err = currentYaw.minus(yawAngle);
-  err.getDegrees();
-  speeds.omegaRadiansPerSecond = holdYawPid.calculate(err.getDegrees());
-  drive(speeds);
-
-}
-
-
-  /**
-   * drives the robot
-   * 
-   * @param speeds field-relative speeds to drive at
-   */
-  public void drive(ChassisSpeeds speeds) {
-    drive(speeds, true);
-  }
-
-  /**
-   * drives the robot
-   * 
-   * @param speeds        speeds to drive at
-   * @param fieldRelative true if the provided speeds are field-relative, false if
-   *                      they are robot-relative
-   */
-  public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
-    if (fieldRelative) { // convert field rel speeds to robot rel
-      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeadingR2D());
+    /**
+     * Drives the robot using field-relative speeds by default.
+     */
+    public void drive(ChassisSpeeds speeds) {
+        drive(speeds, true);
     }
 
-    if(Robot.isSimulation()){ // induce some amount of drift while moving in sim
-      double speedMag = getTranslationSpeed();
-      Rotation2d speedDir = Rotation2d.fromRadians(getTranslationAngle());
-      System.out.println(speedMag +"   "+speedDir);
-      speedDir = speedDir.plus(Rotation2d.fromDegrees(-45));
-      speedMag *= Math.cos(speedDir.getRadians());
-      System.out.println(speedMag +" - "+speedDir);
+    /**
+     * Drives the robot with the option for field-relative control.
+     */
+    public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
+        if (fieldRelative) { // Convert field-relative speeds to robot-relative using current heading.
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, navigationSub.getHeadingR2D());
+        }
 
-      speeds = speeds.plus(new ChassisSpeeds(0,0, 0.2*speedMag));
+        if (Robot.isSimulation()) { // Introduce a bit of simulated drift.
+            double speedMag = getTranslationSpeed();
+            Rotation2d speedDir = Rotation2d.fromRadians(getTranslationAngle());
+            System.out.println(speedMag + "   " + speedDir);
+            speedDir = speedDir.plus(Rotation2d.fromDegrees(-45));
+            speedMag *= Math.cos(speedDir.getRadians());
+            System.out.println(speedMag + " - " + speedDir);
+            speeds = speeds.plus(new ChassisSpeeds(0, 0, 0.2 * speedMag));
+        }
+
+        SwerveModuleState[] states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
+        setModuleStates(states);
     }
 
-
-    final var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
-    setModuleStates(states);
-  }
-
-  /** @return the currently estimated pose of the robot. */
-  public Pose2d getPose() {
-    return RobotBase.isReal() ? poseEstimator.getEstimatedPosition() : poseSim;
-  }
-
-  /**
-   * Resets the odometry to the specified pose.
-   *
-   * @param pose The pose to which to set the odometry.
-   */
-  public void resetOdometry(Pose2d pose) {
-    if (RobotBase.isSimulation()) {
-      imuSim.setGyroAngleZ(pose.getRotation().getDegrees());
-      poseSim = pose;
-      return;
+    /**
+     * Drives the robot while holding a specific yaw angle.
+     */
+    public void driveAtAngle(ChassisSpeeds speeds, Rotation2d yawAngle) {
+        Rotation2d currentYaw = navigationSub.getHeadingR2D();
+        Rotation2d error = currentYaw.minus(yawAngle);
+        speeds.omegaRadiansPerSecond = holdYawPid.calculate(error.getDegrees());
+        drive(speeds);
     }
 
-    poseEstimator.resetPosition(getHeadingR2D(), getModulePositions(), pose);
-  }
+    /**
+     * Commands the swerve modules to the desired states.
+     */
+    public void setModuleStates(SwerveModuleState[] desiredStates) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_SPEED);
+        frontLeft.setDesiredState(desiredStates[0]);
+        frontRight.setDesiredState(desiredStates[1]);
+        backLeft.setDesiredState(desiredStates[2]);
+        backRight.setDesiredState(desiredStates[3]);
+    }
 
-  /**
-   * Sets the wheels into an X formation to prevent movement.
-   */
-  public void setX() {
-    frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-    frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    backLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    backRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-  }
+    /** @return the current states of the swerve modules */
+    public SwerveModuleState[] getModuleStates() {
+        return new SwerveModuleState[] {
+            frontLeft.getState(),
+            frontRight.getState(),
+            backLeft.getState(),
+            backRight.getState()
+        };
+    }
 
-  /**
-   * Sets the desired swerve module states.
-   *
-   * @param desiredStates The desired {@link SwerveModuleState}s.
-   */
-  public void setModuleStates(SwerveModuleState[] desiredStates) {
-    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_SPEED);
-    frontLeft.setDesiredState(desiredStates[0]);
-    frontRight.setDesiredState(desiredStates[1]);
-    backLeft.setDesiredState(desiredStates[2]);
-    backRight.setDesiredState(desiredStates[3]);
-  }
+    /** @return the desired states of the swerve modules */
+    public SwerveModuleState[] getModuleDesiredStates() {
+        return new SwerveModuleState[] {
+            frontLeft.getDesiredState(),
+            frontRight.getDesiredState(),
+            backLeft.getDesiredState(),
+            backRight.getDesiredState()
+        };
+    }
 
-  /** @return the modules' current {@link SwerveModuleState}s */
-  public SwerveModuleState[] getModuleStates() {
-    return new SwerveModuleState[] {
-        frontLeft.getState(),
-        frontRight.getState(),
-        backLeft.getState(),
-        backRight.getState()
-    };
-  }
+    /** @return the positions of the swerve modules */
+    public SwerveModulePosition[] getModulePositions() {
+        return new SwerveModulePosition[] {
+            frontLeft.getPosition(),
+            frontRight.getPosition(),
+            backLeft.getPosition(),
+            backRight.getPosition()
+        };
+    }
 
-  /** @return the desired {@link SwerveModuleState}s of the modules */
-  public SwerveModuleState[] getModuleDesiredStates() {
-    return new SwerveModuleState[] {
-        frontLeft.getDesiredState(),
-        frontRight.getDesiredState(),
-        backLeft.getDesiredState(),
-        backRight.getDesiredState()
-    };
-  }
+    /** Resets the drive encoders to zero. */
+    public void resetEncoders() {
+        frontLeft.resetEncoders();
+        frontRight.resetEncoders();
+        backLeft.resetEncoders();
+        backRight.resetEncoders();
+    }
 
-  /** @return the {@link SwerveModulePosition}s of the modules */
-  public SwerveModulePosition[] getModulePositions() {
-    return new SwerveModulePosition[] {
-        frontLeft.getPosition(),
-        frontRight.getPosition(),
-        backLeft.getPosition(),
-        backRight.getPosition()
-    };
-  }
+    /** Resets the integral accumulation of the turn motors. */
+    public void resetIntegral() {
+        frontLeft.resetIntegral();
+        frontRight.resetIntegral();
+        backLeft.resetIntegral();
+        backRight.resetIntegral();
+    }
 
-  /** Resets the drive encoders to currently read a position of 0. */
-  public void resetEncoders() {
-    frontLeft.resetEncoders();
-    backLeft.resetEncoders();
-    frontRight.resetEncoders();
-    backRight.resetEncoders();
-  }
+    /**
+     * Sets the wheels into an X formation to prevent movement.
+     */
+    public void setX() {
+        frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+        frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        backLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        backRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+    }
 
-  /** reset turn motor pid I accumulation to 0 */
-  public void resetIntegral() {
-    frontLeft.resetIntegral();
-    backLeft.resetIntegral();
-    frontRight.resetIntegral();
-    backRight.resetIntegral();
+    /** @return the current robot-relative chassis speeds */
+    public ChassisSpeeds getChassisSpeeds() {
+        if (Robot.isSimulation()) {
+            return getDesiredChassisSpeeds(); // In simulation, modules might not be updated correctly.
+        }
+        return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(getModuleStates());
+    }
 
-  }
+    /** @return the desired robot-relative chassis speeds */
+    public ChassisSpeeds getDesiredChassisSpeeds() {
+        return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(getModuleDesiredStates());
+    }
 
-  /** Zeroes the heading of the robot. */
-  public void zeroHeading() {
-    imu.reset();
-  }
+    /** @return the current translational speed (m/s) */
+    public double getTranslationSpeed() {
+        final var speeds = getChassisSpeeds();
+        return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+    }
 
-  /** @return the robot's heading (direction the robot is pointing field rel) (deg) */
-  public double getHeading() {
-    return imu.getAngle() * (DriveConstants.GYRO_REVERSED ? -1 : 1);
-  }
-
-  /** * @return the turn rate of the robot (deg/s) */
-  public double getTurnRate() {
-    return imu.getRate() * (DriveConstants.GYRO_REVERSED ? -1 : 1);
-  }
-
-  /** @return the robot's heading as a {@link Rotation2d} (direction the robot is pointing field rel) */
-  public Rotation2d getHeadingR2D() {
-    return Rotation2d.fromDegrees(getHeading());
-  }
-
-  /** @return the current robot-relative {@link ChassisSpeeds} */
-  public ChassisSpeeds getChassisSpeeds() {
-    if(Robot.isSimulation()){return getDesiredChassisSpeeds();} //modules are not sim'd correctly
-    return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(getModuleStates());
-  }
-
-  /** @return the desired robot-relative {@link ChassisSpeeds} */
-  public ChassisSpeeds getDesiredChassisSpeeds() {
-    return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(getModuleDesiredStates());
-  }
-
-  /** @return the current translational speed of the robot (angle irrelevant) (m/s) */
-  public double getTranslationSpeed() {
-    final var speeds = getChassisSpeeds();
-    return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
-  }
-  /** @return the current translational speed of the robot (angle irrelevant) (m/s) */
-  public double getTranslationAngle() {
-    final var speeds = getChassisSpeeds();
-    return Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    final var speeds = getDesiredChassisSpeeds();
-
-    imuSim.setGyroRateZ(Math.toDegrees(speeds.omegaRadiansPerSecond));
-    // imuSim.setGyroAngleZ(getHeading().plus(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond
-    // * 0.02)).getDegrees());
-    imuSim.setGyroAngleZ(field.getRobotPose().getRotation().getDegrees());
-    poseSim = poseSim.exp(
-        new Twist2d(
-            speeds.vxMetersPerSecond * 0.02,
-            speeds.vyMetersPerSecond * 0.02,
-            speeds.omegaRadiansPerSecond * 0.02));
-
-    photon.simulationPeriodic(getPose());
-  }
+    /** @return the current translational direction (radians) */
+    public double getTranslationAngle() {
+        final var speeds = getChassisSpeeds();
+        return Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
+    }
 }
