@@ -1,8 +1,11 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -40,16 +43,16 @@ public class ElevatorSub extends SubsystemBase {
     SmartDashboard.putBoolean("Elevator E-Stopped", eStopped != EStopState.NONE);
   }
 
-  public double getPosition() {
-    return encoder.getDistance();
+  public Distance getPosition() {
+    return Meters.of(encoder.getDistance());
   }
 
-  public void setTargetPosition(double position) {
-    controller.setGoal(position);
+  public void setTargetPosition(Distance position) {
+    controller.setGoal(position.in(Meters));
   }
 
-  public double getTargetPosition() {
-    return controller.getGoal().position;
+  public Distance getTargetPosition() {
+    return Meters.of(controller.getGoal().position);
   }
 
   public boolean atTargetPosition() {
@@ -58,20 +61,20 @@ public class ElevatorSub extends SubsystemBase {
 
   private EStopState shouldEStop() {
     final var encoderPosition = getPosition();
-    final var motorPosition = motor.getPosition().getValueAsDouble();
+    final var motorPosition = Meters.of(motor.getPosition().getValueAsDouble());
 
-    if (Math.abs(motorPosition - encoderPosition) > 0.05) {
+    if (motorPosition.minus(encoderPosition).abs(Meters) > 0.05) {
       return EStopState.ALL;
     }
 
-    SmartDashboard.putNumber("motor pos", motorPosition);
+    SmartDashboard.putNumber("motor pos", motorPosition.in(Meters));
 
-    if (encoderPosition < 0 || motorPosition < 0) {
+    if (encoderPosition.in(Meters) < 0 || motorPosition.in(Meters) < 0) {
       return EStopState.BOTTOM;
     }
     
-    if (motorPosition > ElevatorConstants.MAX_ALLOWABLE_POSITION ||
-        encoderPosition > ElevatorConstants.MAX_ALLOWABLE_POSITION) {
+    if (motorPosition.gt(ElevatorConstants.MAX_ALLOWABLE_POSITION) ||
+        encoderPosition.gt(ElevatorConstants.MAX_ALLOWABLE_POSITION)) {
       return EStopState.TOP;
     }
 
@@ -85,11 +88,10 @@ public class ElevatorSub extends SubsystemBase {
     var out = 0.0d;
     if (!atTargetPosition()) {
       final var position = getPosition();
-      out = controller.calculate(position);
+      out = controller.calculate(position.in(Meters));
       out = MathUtil.clamp(out, -0.1, 0.1);
     }
     
-
     eStopped = shouldEStop();
 
     if (!disableEStop) {
