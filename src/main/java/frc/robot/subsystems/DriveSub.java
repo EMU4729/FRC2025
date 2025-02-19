@@ -6,16 +6,13 @@
 
 package frc.robot.subsystems;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.Subsystems;
@@ -36,7 +33,7 @@ public class DriveSub extends SubsystemBase {
   // Photon Bridge
   
   // Field for robot viz
-  private final Field2d field = new Field2d();
+  // private final Field2d field = new Field2d();
 
   private final PIDController holdYawPid = new PIDController(0.8, 0, 0);
 
@@ -51,7 +48,7 @@ public class DriveSub extends SubsystemBase {
   /** Creates a new DriveSubsystem. */
   public DriveSub() {
 
-    initPathPlanner();
+    
 
 
     SmartDashboard.putData("FL Module", frontLeft);
@@ -62,41 +59,6 @@ public class DriveSub extends SubsystemBase {
   }
 
   
-
-  /**
-   * Initializes PathPlanner.
-   * 
-   * Should be called once upon robot start.
-   */
-  private void initPathPlanner() {
-    try {
-      final var config = RobotConfig.fromGUISettings();
-      AutoBuilder.configure(
-          Subsystems.nav::getPose,
-          Subsystems.nav::resetOdometry,
-          Subsystems.nav::getChassisSpeeds,
-          (speeds, feedforwards) -> drive(speeds, false),
-          new PPHolonomicDriveController(
-              DriveConstants.AUTO_TRANSLATION_PID,
-              DriveConstants.AUTO_ROTATION_PID),
-          config,
-          () -> {
-            // Boolean supplier that controls when the path will be mirrored for the red
-            // alliance
-            // This will flip the path being followed to the red side of the field.
-            // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-            return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
-          },
-          this);
-    } catch (Exception e) {
-      System.err
-          .println("DriveSub: Error: PathPlanner failed to initialize! Autos may not work properly. Stack trace:");
-      e.printStackTrace();
-    }
-  }
-
- 
 public void driveAtAngle (ChassisSpeeds speeds, Rotation2d yawAngle) {
   Rotation2d currentYaw = Subsystems.nav.getHeadingR2D();
   Rotation2d err = currentYaw.minus(yawAngle);
@@ -225,13 +187,10 @@ public void driveAtAngle (ChassisSpeeds speeds, Rotation2d yawAngle) {
   }
 
   /** Zeroes the heading of the robot. */
- 
-  
 
   /** return the robot's heading (direction the robot is pointing field rel) (deg) */
  
   /** * return the turn rate of the robot (deg/s) */
-  
 
   /** return the robot's heading as a {@link Rotation2d} (direction the robot is pointing field rel) */
  
@@ -241,8 +200,6 @@ public void driveAtAngle (ChassisSpeeds speeds, Rotation2d yawAngle) {
   
   /** return the current translational speed of the robot (angle irrelevant) (m/s) */
   
-  
   /** return the current translational speed of the robot (angle irrelevant) (m/s) */
   
-
 }

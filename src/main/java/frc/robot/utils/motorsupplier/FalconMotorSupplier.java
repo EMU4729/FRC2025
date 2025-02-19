@@ -6,8 +6,6 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj.LEDPattern.GradientType;
-
 public class FalconMotorSupplier {
   public final int port;
 

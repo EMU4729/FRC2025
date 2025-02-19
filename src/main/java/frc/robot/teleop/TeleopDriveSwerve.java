@@ -1,6 +1,9 @@
 package frc.robot.teleop;
 
+import static edu.wpi.first.units.Units.Value;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -20,6 +23,8 @@ public class TeleopDriveSwerve extends Command {
                                                                 -DriveConstants.MAX_DECELERATION, 0);
   private final SlewRateLimiter rLimiter = new SpeedRateLimiter(DriveConstants.MAX_ANGULAR_ACCELERATION, 
                                                                 -DriveConstants.MAX_ANGULAR_DECELERATION, 0);
+  
+  private Rotation2d targetYaw = new Rotation2d(0);
 
   public TeleopDriveSwerve(DriveBaseFit settings) {
     this.settings = settings;
@@ -43,6 +48,8 @@ public class TeleopDriveSwerve extends Command {
     var y = control[1];
     var r = control[2];
 
+
+
     x = xLimiter.calculate(x) * DriveConstants.MAX_SPEED;
     y = yLimiter.calculate(y) * DriveConstants.MAX_SPEED;
     r = rLimiter.calculate(r) * DriveConstants.MAX_ANGULAR_SPEED;
@@ -60,7 +67,13 @@ public class TeleopDriveSwerve extends Command {
     }
 
     final var speeds = new ChassisSpeeds(x, y, r);
-    Subsystems.drive.drive(speeds, fieldRelative);
+    if (r == 0) {
+      Subsystems.drive.driveAtAngle(speeds, targetYaw);
+    } else {
+      Subsystems.drive.drive(speeds, fieldRelative);
+    }
+
+
   }
 
   @Override
