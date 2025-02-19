@@ -1,9 +1,6 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.Encoder;
@@ -22,6 +19,7 @@ public class ElevatorSub extends SubsystemBase {
       ElevatorConstants.MOTION_CONSTRAINTS);
 
   private EStopState eStopped = EStopState.NONE;
+  private boolean disableEStop = false;
 
   public ElevatorSub() {
     super();
@@ -31,6 +29,7 @@ public class ElevatorSub extends SubsystemBase {
     motor = new FalconMotorSupplier(ElevatorConstants.MOTOR_ID)
               .withEncoder(91.37833019)
               .get();
+    motor.setPosition(encoder.getDistance());
 
     controller.setTolerance(ElevatorConstants.POSITION_TOLERANCE);
 
@@ -60,6 +59,11 @@ public class ElevatorSub extends SubsystemBase {
   private EStopState shouldEStop() {
     final var encoderPosition = getPosition();
     final var motorPosition = motor.getPosition().getValueAsDouble();
+
+    if (Math.abs(motorPosition - encoderPosition) > 0.05) {
+      return EStopState.ALL;
+    }
+
     SmartDashboard.putNumber("motor pos", motorPosition);
 
     if (encoderPosition < 0 || motorPosition < 0) {
@@ -78,27 +82,30 @@ public class ElevatorSub extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putBoolean("Elevator E-Stopped", eStopped != EStopState.NONE);
     
-    
     final var position = getPosition();
     var out = controller.calculate(position);
     out = MathUtil.clamp(out, -0.1, 0.1);
 
     eStopped = shouldEStop();
-    boolean preventMove = false;
-    switch (eStopped) {
-      case NONE:
+    if (!disableEStop) {
+      boolean preventMove = false;
+      switch (eStopped) {
+        case NONE:
+          break;
+        case TOP:
+          if (out > 0) preventMove = true;
+          break;
+        case BOTTOM:
+          if (out < 0) preventMove = true;
+        case ALL:
+          preventMove = true;
         break;
-      case TOP:
-        if (out > 0) preventMove = true;
-        break;
-      case BOTTOM:
-        if (out < 0) preventMove = true;
-      break;
-    }
+      }
 
-    if (preventMove) {
-      motor.set(0);
-      return;
+      if (preventMove) {
+        motor.set(0);
+        return;
+      }
     }
 
     motor.set(out);
@@ -106,10 +113,15 @@ public class ElevatorSub extends SubsystemBase {
     SmartDashboard.putNumber("targetHeight", controller.getGoal().position);
   }
 
+  public void toggleDisableEStop() {
+    disableEStop = !disableEStop;
+  }
+
   private enum EStopState {
     NONE,
     TOP,
-    BOTTOM
+    BOTTOM,
+    ALL
   }
 
 }
