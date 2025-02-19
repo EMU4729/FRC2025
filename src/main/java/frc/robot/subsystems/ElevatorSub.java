@@ -82,11 +82,16 @@ public class ElevatorSub extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putBoolean("Elevator E-Stopped", eStopped != EStopState.NONE);
     
-    final var position = getPosition();
-    var out = controller.calculate(position);
-    out = MathUtil.clamp(out, -0.1, 0.1);
+    var out = 0.0d;
+    if (!atTargetPosition()) {
+      final var position = getPosition();
+      out = controller.calculate(position);
+      out = MathUtil.clamp(out, -0.1, 0.1);
+    }
+    
 
     eStopped = shouldEStop();
+
     if (!disableEStop) {
       boolean preventMove = false;
       switch (eStopped) {
