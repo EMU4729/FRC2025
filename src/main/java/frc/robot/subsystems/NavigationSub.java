@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -24,17 +22,16 @@ import frc.robot.Subsystems;
 import frc.robot.constants.DriveConstants;
 import frc.robot.utils.PhotonBridge;
 
-public class NavigationSub extends SubsystemBase{
-  
+public class NavigationSub extends SubsystemBase {
   private final ADIS16470_IMU imu = new ADIS16470_IMU();
   private final Field2d field = new Field2d();
   private final ADIS16470_IMUSim imuSim = new ADIS16470_IMUSim(imu);
   private Pose2d poseSim = new Pose2d();
+  public final PhotonBridge photon = new PhotonBridge();
 
-
-// Pose estimation class for tracking robot pose
+  // Pose estimation class for tracking robot pose
   private final SwerveDrivePoseEstimator poseEstimator;
-  
+
   public NavigationSub() {
     zeroHeading();
     initPathPlanner();
@@ -42,13 +39,13 @@ public class NavigationSub extends SubsystemBase{
     SmartDashboard.putData("Field", field);
 
     poseEstimator = new SwerveDrivePoseEstimator(
-      DriveConstants.DRIVE_KINEMATICS,
-      Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kZ)),
-      Subsystems.drive.getModulePositions(),
-      new Pose2d());
+        DriveConstants.DRIVE_KINEMATICS,
+        Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kZ)),
+        Subsystems.drive.getModulePositions(),
+        new Pose2d());
   }
 
-   /**
+  /**
    * Initializes PathPlanner.
    * 
    * Should be called once upon robot start.
@@ -81,13 +78,12 @@ public class NavigationSub extends SubsystemBase{
     }
   }
 
- 
-
   @Override
   public void periodic() {
     updateOdometry();
   }
- /**
+
+  /**
    * Updates the robot's odometry.
    * 
    * This should be called every robot tick, in the periodic method.
@@ -112,34 +108,34 @@ public class NavigationSub extends SubsystemBase{
     field.setRobotPose(getPose());
   }
 
-
- /** @return the currently estimated pose of the robot. */
- public Pose2d getPose() {
-  return RobotBase.isReal() ? poseEstimator.getEstimatedPosition() : poseSim;
-}
-
-/**
- * Resets the odometry to the specified pose.
- *
- * @param pose The pose to which to set the odometry.
- */
-public void resetOdometry(Pose2d pose) {
-  if (RobotBase.isSimulation()) {
-    imuSim.setGyroAngleZ(pose.getRotation().getDegrees());
-    poseSim = pose;
-    return;
+  /** @return the currently estimated pose of the robot. */
+  public Pose2d getPose() {
+    return RobotBase.isReal() ? poseEstimator.getEstimatedPosition() : poseSim;
   }
 
-  poseEstimator.resetPosition(getHeadingR2D(), Subsystems.drive.getModulePositions(), pose);
-}
+  /**
+   * Resets the odometry to the specified pose.
+   *
+   * @param pose The pose to which to set the odometry.
+   */
+  public void resetOdometry(Pose2d pose) {
+    if (RobotBase.isSimulation()) {
+      imuSim.setGyroAngleZ(pose.getRotation().getDegrees());
+      poseSim = pose;
+      return;
+    }
 
+    poseEstimator.resetPosition(getHeadingR2D(), Subsystems.drive.getModulePositions(), pose);
+  }
 
-   /** Zeroes the heading of the robot. */
-   public void zeroHeading() {
+  /** Zeroes the heading of the robot. */
+  public void zeroHeading() {
     imu.reset();
   }
 
-  /** @return the robot's heading (direction the robot is pointing field rel) (deg) */
+  /**
+   * @return the robot's heading (direction the robot is pointing field rel) (deg)
+   */
   public double getHeading() {
     return imu.getAngle() * (DriveConstants.GYRO_REVERSED ? -1 : 1);
   }
@@ -149,14 +145,19 @@ public void resetOdometry(Pose2d pose) {
     return imu.getRate() * (DriveConstants.GYRO_REVERSED ? -1 : 1);
   }
 
-  /** @return the robot's heading as a {@link Rotation2d} (direction the robot is pointing field rel) */
+  /**
+   * @return the robot's heading as a {@link Rotation2d} (direction the robot is
+   *         pointing field rel)
+   */
   public Rotation2d getHeadingR2D() {
     return Rotation2d.fromDegrees(getHeading());
   }
 
   /** @return the current robot-relative {@link ChassisSpeeds} */
   public ChassisSpeeds getChassisSpeeds() {
-    if(Robot.isSimulation()){return getDesiredChassisSpeeds();} //modules are not sim'd correctly
+    if (Robot.isSimulation()) {
+      return getDesiredChassisSpeeds();
+    } // modules are not sim'd correctly
     return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(Subsystems.drive.getModuleStates());
   }
 
@@ -165,12 +166,17 @@ public void resetOdometry(Pose2d pose) {
     return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(Subsystems.drive.getModuleDesiredStates());
   }
 
-  /** @return the current translational speed of the robot (angle irrelevant) (m/s) */
+  /**
+   * @return the current translational speed of the robot (angle irrelevant) (m/s)
+   */
   public double getTranslationSpeed() {
     final var speeds = getChassisSpeeds();
     return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
   }
-  /** @return the current translational speed of the robot (angle irrelevant) (m/s) */
+
+  /**
+   * @return the current translational speed of the robot (angle irrelevant) (m/s)
+   */
   public double getTranslationAngle() {
     final var speeds = getChassisSpeeds();
     return Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
@@ -192,7 +198,4 @@ public void resetOdometry(Pose2d pose) {
 
     photon.simulationPeriodic(getPose());
   }
-
-
-public final PhotonBridge photon = new PhotonBridge();
 }

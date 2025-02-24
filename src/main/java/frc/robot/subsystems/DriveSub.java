@@ -12,7 +12,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.Subsystems;
@@ -27,47 +26,24 @@ public class DriveSub extends SubsystemBase {
   private final SwerveModule backLeft = new SwerveModule(DriveConstants.SWERVE_MODULE_BL);
   private final SwerveModule backRight = new SwerveModule(DriveConstants.SWERVE_MODULE_BR);
 
-  // The gyro sensor
-  
-
-  // Photon Bridge
-  
-  // Field for robot viz
-  // private final Field2d field = new Field2d();
-
   private final PIDController holdYawPid = new PIDController(0.8, 0, 0);
-
-
-
-  // Pose estimation class for tracking robot pose
-
-
-  // Simulation Variables
-  
 
   /** Creates a new DriveSubsystem. */
   public DriveSub() {
-
-    
-
-
     SmartDashboard.putData("FL Module", frontLeft);
     SmartDashboard.putData("FR Module", frontRight);
     SmartDashboard.putData("BL Module", backLeft);
     SmartDashboard.putData("BR Module", backRight);
-
   }
 
   
-public void driveAtAngle (ChassisSpeeds speeds, Rotation2d yawAngle) {
-  Rotation2d currentYaw = Subsystems.nav.getHeadingR2D();
-  Rotation2d err = currentYaw.minus(yawAngle);
-  err.getDegrees();
-  speeds.omegaRadiansPerSecond = holdYawPid.calculate(err.getDegrees());
-  drive(speeds);
-
-}
-
+  public void driveAtAngle (ChassisSpeeds speeds, Rotation2d yawAngle) {
+    Rotation2d currentYaw = Subsystems.nav.getHeadingR2D();
+    Rotation2d err = currentYaw.minus(yawAngle);
+    err.getDegrees();
+    speeds.omegaRadiansPerSecond = holdYawPid.calculate(err.getDegrees());
+    drive(speeds);
+  }
 
   /**
    * drives the robot
@@ -90,7 +66,7 @@ public void driveAtAngle (ChassisSpeeds speeds, Rotation2d yawAngle) {
       speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, Subsystems.nav.getHeadingR2D());
     }
 
-    if(Robot.isSimulation()){ // induce some amount of drift while moving in sim
+    if (Robot.isSimulation()) { // induce some amount of drift while moving in sim
       double speedMag = Subsystems.nav.getTranslationSpeed();
       Rotation2d speedDir = Rotation2d.fromRadians(Subsystems.nav.getTranslationAngle());
       System.out.println(speedMag +"   "+speedDir);
@@ -105,16 +81,6 @@ public void driveAtAngle (ChassisSpeeds speeds, Rotation2d yawAngle) {
     final var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
     setModuleStates(states);
   }
-
-  /** @return the currently estimated pose of the robot. */
- 
-  
-
-  /**
-   * Resets the odometry to the specified pose.
-   *
-   * 
-
 
   /**
    * Sets the wheels into an X formation to prevent movement.
@@ -185,21 +151,4 @@ public void driveAtAngle (ChassisSpeeds speeds, Rotation2d yawAngle) {
     backRight.resetIntegral();
 
   }
-
-  /** Zeroes the heading of the robot. */
-
-  /** return the robot's heading (direction the robot is pointing field rel) (deg) */
- 
-  /** * return the turn rate of the robot (deg/s) */
-
-  /** return the robot's heading as a {@link Rotation2d} (direction the robot is pointing field rel) */
- 
-  /** return the current robot-relative {@link ChassisSpeeds} */
- 
-  /** return the desired robot-relative {@link ChassisSpeeds} */
-  
-  /** return the current translational speed of the robot (angle irrelevant) (m/s) */
-  
-  /** return the current translational speed of the robot (angle irrelevant) (m/s) */
-  
 }
