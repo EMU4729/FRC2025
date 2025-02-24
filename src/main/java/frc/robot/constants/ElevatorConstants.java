@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
@@ -24,7 +25,7 @@ public class ElevatorConstants {
   public static final Distance MAX_ALLOWABLE_POSITION = Meters.of(0.75);
 
   public static class ElevatorStops {
-    public static final Distance INTAKE = Inches.of((3 * 12) + 1 + (1 / 2)).minus(GROUND_TO_ELEVATOR);
+    public static final Distance INTAKE = Inches.of((3 * 12) + 1 + (1 / 2)).minus(GROUND_TO_ELEVATOR).plus(Feet.of(3));
     public static final Distance L1 = Inches.of((1 * 12) + 6).minus(GROUND_TO_ELEVATOR);
     public static final Distance L2 = Inches.of((2 * 12) + 7 + (7 / 8)).minus(GROUND_TO_ELEVATOR);
     public static final Distance L3 = Inches.of((3 * 12) + 11 + (5 / 8)).minus(GROUND_TO_ELEVATOR);

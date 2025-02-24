@@ -9,6 +9,10 @@ package frc.robot.utils;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
@@ -16,7 +20,13 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
+
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -50,28 +60,28 @@ public class SwerveModule implements Sendable {
 
     // DRIVE MOTOR CONFIG
     driveMotor = new FalconMotorSupplier(moduleDetails.driveCANID())
-                    .withBrake()
-                    .withInvert()
-                    .withEncoder(DriveConstants.DRIVE_GEAR_RATIO)
-                    .withPID(DriveConstants.DRIVE_P, 
-                             DriveConstants.DRIVE_I, 
-                             DriveConstants.DRIVE_D)
-                    .get();
+        .withBrake()
+        .withInvert()
+        .withEncoder(DriveConstants.DRIVE_GEAR_RATIO)
+        .withPID(DriveConstants.DRIVE_P,
+            DriveConstants.DRIVE_I,
+            DriveConstants.DRIVE_D)
+        .get();
     driveController = new VelocityVoltage(0).withFeedForward(DriveConstants.DRIVING_FF).withSlot(0);
 
     // TURNING MOTOR CONFIG
     turnMotor = new SparkMotorSupplier(moduleDetails.steerCANID())
-                    .withAbsEncoder(DriveConstants.TURNING_ENCODER_POSITION_FACTOR,
-                                    DriveConstants.TURNING_ENCODER_VELOCITY_FACTOR)
-                    .withPID(DriveConstants.TURNING_P, 
-                             DriveConstants.TURNING_I, 
-                             DriveConstants.TURNING_D, 
-                             DriveConstants.TURNING_FF)
-                    .withPIDIZone(DriveConstants.TURNING_I_ZONE.in(Radians))
-                    .withPositionWrapping(DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT, 
-                                          DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT)
-                    .withBrake()
-                    .get();
+        .withAbsEncoder(DriveConstants.TURNING_ENCODER_POSITION_FACTOR,
+            DriveConstants.TURNING_ENCODER_VELOCITY_FACTOR)
+        .withPID(DriveConstants.TURNING_P,
+            DriveConstants.TURNING_I,
+            DriveConstants.TURNING_D,
+            DriveConstants.TURNING_FF)
+        .withPIDIZone(DriveConstants.TURNING_I_ZONE.in(Radians))
+        .withPositionWrapping(DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT,
+            DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT)
+        .withBrake()
+        .get();
     turnController = turnMotor.getClosedLoopController();
     // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
     turnEncoder = turnMotor.getAbsoluteEncoder();
@@ -96,52 +106,55 @@ public class SwerveModule implements Sendable {
 
     builder.addDoubleProperty(
         "Current Turn Angle (deg)",
-        () -> Math.toDegrees(getTurnAngle()),
+        () -> getTurnAngle().in(Degrees),
         (newValue) -> {
         });
     builder.addDoubleProperty(
         "Current Drive Distance (m)",
-        this::getDrivePosition,
+        () -> this.getDrivePosition().in(Meters),
         (newValue) -> {
         });
 
     builder.addDoubleProperty(
         "Current Turn Speed (deg/s)",
-        () -> Math.toDegrees(getTurnVelocity()),
+        () -> getTurnVelocity().in(DegreesPerSecond),
         (newValue) -> {
         });
     builder.addDoubleProperty(
         "Current Drive Speed (m/s)",
-        this::getDriveVelocity,
+        () -> this.getDriveVelocity().in(MetersPerSecond),
         (newValue) -> {
         });
   }
 
   /** @return the module's drive wheel position (m) */
-  public double getDrivePosition() {
-    return driveMotor.getPosition().getValueAsDouble() * DriveConstants.WHEEL_CIRCUMFERENCE_METERS;
+  public Distance getDrivePosition() {
+    return Meters.of(driveMotor.getPosition().getValue().in(Radians) * DriveConstants.WHEEL_CIRCUMFERENCE.in(Meters));
   }
 
   /** @return the module's drive wheel velocity (m/s) */
-  public double getDriveVelocity() {
-    return driveMotor.getVelocity().getValueAsDouble() * DriveConstants.WHEEL_CIRCUMFERENCE_METERS;
+  public LinearVelocity getDriveVelocity() {
+    return MetersPerSecond
+        .of(driveMotor.getVelocity().getValue().in(RadiansPerSecond) * DriveConstants.WHEEL_CIRCUMFERENCE.in(Meters));
   }
 
   /** @return the module's robot-relative turning angle (rad) */
-  public double getTurnAngle() {
+  public Angle getTurnAngle() {
     return getTurnAngle(true);
   }
 
   /**
    * 
-   * @param robotRelative angles returned rel to (True : the robot front CCW+, False : The current module)
-   * @return the angle of the module relative to either Module Frame or Robot Frame
+   * @param robotRelative angles returned rel to (True : the robot front CCW+,
+   *                      False : The current module)
+   * @return the angle of the module relative to either Module Frame or Robot
+   *         Frame
    */
-  public double getTurnAngle(boolean robotRelative) {
+  public Angle getTurnAngle(boolean robotRelative) {
     if (robotRelative) {
-      return turnEncoder.getPosition() - details.angularOffset().getRadians();
+      return Radians.of(turnEncoder.getPosition() - details.angularOffset().getRadians());
     }
-    return turnEncoder.getPosition();
+    return Radians.of(turnEncoder.getPosition());
   }
 
   /** @return the module's robot-relative turning angle as a {@link Rotation2d} */
@@ -155,8 +168,8 @@ public class SwerveModule implements Sendable {
   }
 
   /** @return the module's turning velocity (rad/s) */
-  public double getTurnVelocity() {
-    return turnEncoder.getVelocity();
+  public AngularVelocity getTurnVelocity() {
+    return RadiansPerSecond.of(turnEncoder.getVelocity());
   }
 
   /** @return the module's current robot-relative state */
@@ -188,7 +201,7 @@ public class SwerveModule implements Sendable {
 
     state = optimize(state, getTurnRotation2d(false));
     driveMotor.setControl(
-        driveController.withVelocity(state.speedMetersPerSecond / DriveConstants.WHEEL_CIRCUMFERENCE_METERS));
+        driveController.withVelocity(state.speedMetersPerSecond / DriveConstants.WHEEL_CIRCUMFERENCE.in(Meters)));
     turnController.setReference(state.angle.getRadians(), ControlType.kPosition);
 
     desiredState = state;
@@ -243,8 +256,11 @@ public class SwerveModule implements Sendable {
     var delta = desiredState.angle.minus(currentAngle);
     double error = Math.abs(delta.getDegrees());
     int limit = lastLimit;
-    /*System.out
-        .println(limit + " " + error + " " + delta + " " + desiredState.angle + " " + currentAngle + " " + isFlipped);*/
+    /*
+     * System.out
+     * .println(limit + " " + error + " " + delta + " " + desiredState.angle + " " +
+     * currentAngle + " " + isFlipped);
+     */
 
     // optimizes by inverting the turn if the module is more than the limit
     if (error < limit) {
