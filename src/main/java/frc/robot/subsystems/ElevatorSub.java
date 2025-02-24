@@ -30,8 +30,8 @@ public class ElevatorSub extends SubsystemBase {
     controller.setIZone(0.05);
 
     motor = new FalconMotorSupplier(ElevatorConstants.MOTOR_ID)
-              .withEncoder(91.37833019)
-              .get();
+        .withEncoder(91.37833019)
+        .get();
     motor.setPosition(encoder.getDistance());
 
     controller.setTolerance(ElevatorConstants.POSITION_TOLERANCE);
@@ -72,7 +72,7 @@ public class ElevatorSub extends SubsystemBase {
     if (encoderPosition.in(Meters) < 0 || motorPosition.in(Meters) < 0) {
       return EStopState.BOTTOM;
     }
-    
+
     if (motorPosition.gt(ElevatorConstants.MAX_ALLOWABLE_POSITION) ||
         encoderPosition.gt(ElevatorConstants.MAX_ALLOWABLE_POSITION)) {
       return EStopState.TOP;
@@ -84,14 +84,14 @@ public class ElevatorSub extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putBoolean("Elevator E-Stopped", eStopped != EStopState.NONE);
-    
+
     var out = 0.0d;
     if (!atTargetPosition()) {
       final var position = getPosition();
       out = controller.calculate(position.in(Meters));
       out = MathUtil.clamp(out, -0.1, 0.1);
     }
-    
+
     eStopped = shouldEStop();
 
     if (!disableEStop) {
@@ -100,13 +100,15 @@ public class ElevatorSub extends SubsystemBase {
         case NONE:
           break;
         case TOP:
-          if (out > 0) preventMove = true;
+          if (out > 0)
+            preventMove = true;
           break;
         case BOTTOM:
-          if (out < 0) preventMove = true;
+          if (out < 0)
+            preventMove = true;
         case ALL:
           preventMove = true;
-        break;
+          break;
       }
 
       if (preventMove) {
@@ -132,5 +134,3 @@ public class ElevatorSub extends SubsystemBase {
   }
 
 }
-
-

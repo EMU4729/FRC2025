@@ -4,19 +4,16 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.LEDs.FlashSolidLEDCommand;
 import frc.robot.LEDs.RainbowLEDCommand;
 import frc.robot.LEDs.RepeatedFlashLEDCommand;
-import frc.robot.LEDs.SolidLEDCommand;
 import frc.robot.auto.AutoProvider;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.teleop.TeleopProvider;
@@ -75,7 +72,7 @@ public class RobotContainer {
 
     OI.pilot.start()
         .onTrue(
-            new InstantCommand(Subsystems.drive::zeroHeading, Subsystems.drive));
+            new InstantCommand(Subsystems.nav::zeroHeading, Subsystems.drive));
     OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
     // Drive bindings handled in teleop command
 

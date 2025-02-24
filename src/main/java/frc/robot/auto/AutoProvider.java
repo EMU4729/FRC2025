@@ -29,7 +29,7 @@ public class AutoProvider {
     // I now see why WPILib's docs recommend dependency-injecting subsystems rather
     // than global static access. - Neel
     @SuppressWarnings("unused")
-    final var _drive = Subsystems.drive;
+    final var _nav = Subsystems.nav;
 
     try {
       final var path = PathPlannerPath.fromPathFile("TestPath");
