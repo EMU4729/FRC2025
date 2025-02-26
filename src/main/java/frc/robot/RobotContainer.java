@@ -80,13 +80,13 @@ public class RobotContainer {
     OI.copilot.a().onTrue(new InstantCommand(() -> 
       Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.INTAKE)
     ));
-    OI.copilot.povUp().onTrue(new InstantCommand(() -> 
+    OI.copilot.povDown().onTrue(new InstantCommand(() -> 
       Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L1)
     ));
-    OI.copilot.povUp().onTrue(new InstantCommand(() -> 
+    OI.copilot.povLeft().onTrue(new InstantCommand(() -> 
       Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L2)
     ));
-    OI.copilot.povUp().onTrue(new InstantCommand(() -> 
+    OI.copilot.povRight().onTrue(new InstantCommand(() -> 
       Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L3)
     ));
     OI.copilot.povUp().onTrue(new InstantCommand(() -> 
@@ -96,7 +96,14 @@ public class RobotContainer {
     OI.copilot.back().onTrue(new InstantCommand(() ->
       Subsystems.elevator.toggleDisableEStop()
     ));
-
+    // coral holder
+    OI.copilot.leftTrigger().onTrue(new InstantCommand(() -> 
+      Subsystems.coralHolder.reverse()
+    ));
+    OI.copilot.rightTrigger().onTrue(new InstantCommand(() -> 
+      Subsystems.coralHolder.forward()
+    ));
+    
   }
 
   /**
