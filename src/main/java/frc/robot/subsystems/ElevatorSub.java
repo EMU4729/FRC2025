@@ -83,6 +83,10 @@ public class ElevatorSub extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (true) {
+      return;
+    }
+
     SmartDashboard.putBoolean("Elevator E-Stopped", eStopped != EStopState.NONE);
 
     var out = 0.0d;
