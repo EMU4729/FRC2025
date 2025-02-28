@@ -70,9 +70,6 @@ public class RobotContainer {
     // 200).withZone(new int[] { 0 })),
     // 5));
 
-    OI.pilot.rightTrigger().onTrue(new InstantCommand(() -> Subsystems.coralHolder.forward()));
-    OI.pilot.leftTrigger().whileTrue(Subsystems.coralHolder.intakeCommand());
-
     OI.pilot.start()
         .onTrue(
             new InstantCommand(Subsystems.nav::zeroHeading, Subsystems.drive));
@@ -93,8 +90,8 @@ public class RobotContainer {
     // disable elevator E stop
     OI.copilot.back().onTrue(new InstantCommand(() -> Subsystems.elevator.toggleDisableEStop()));
     // coral holder
-    OI.copilot.leftTrigger().onTrue(new InstantCommand(() -> Subsystems.coralHolder.reverse()));
-    OI.copilot.rightTrigger().onTrue(new InstantCommand(() -> Subsystems.coralHolder.forward()));
+    OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.intakeCommand());
+    OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.forwardCommand());
 
   }
 

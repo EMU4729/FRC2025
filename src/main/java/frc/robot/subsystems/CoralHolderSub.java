@@ -38,8 +38,16 @@ public class CoralHolderSub extends SubsystemBase {
     motorLeft.set(TalonSRXControlMode.PercentOutput, leftThrottleMultiplier * CoralHolderConstants.THROTTLE);
   }
 
+  public Command forwardCommand() {
+    return this.startEnd(this::forward, this::stop);
+  }
+
   public void reverse() {
     motorLeft.set(TalonSRXControlMode.PercentOutput, rightThrottleMultiplier * CoralHolderConstants.THROTTLE);
+  }
+
+  public Command reverseCommand() {
+    return this.startEnd(this::reverse, this::stop);
   }
 
   public void stop() {
@@ -51,12 +59,6 @@ public class CoralHolderSub extends SubsystemBase {
    *         limit switch is triggered, indicating that a coral was intaken.
    */
   public Command intakeCommand() {
-    return new FunctionalCommand(
-        this::reverse,
-        () -> {
-        },
-        (interrupted) -> stop(),
-        limitSwitch::get,
-        this);
+    return reverseCommand().until(limitSwitch::get);
   }
 }
