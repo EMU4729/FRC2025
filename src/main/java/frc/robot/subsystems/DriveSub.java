@@ -68,10 +68,10 @@ public class DriveSub extends SubsystemBase {
     if (Robot.isSimulation()) { // induce some amount of drift while moving in sim
       double speedMag = Subsystems.nav.getTranslationSpeed();
       Rotation2d speedDir = Rotation2d.fromRadians(Subsystems.nav.getTranslationAngle());
-      System.out.println(speedMag + "   " + speedDir);
+      // System.out.println(speedMag + " " + speedDir);
       speedDir = speedDir.plus(Rotation2d.fromDegrees(-45));
       speedMag *= Math.cos(speedDir.getRadians());
-      System.out.println(speedMag + " - " + speedDir);
+      // System.out.println(speedMag + " - " + speedDir);
 
       speeds = speeds.plus(new ChassisSpeeds(0, 0, 0.2 * speedMag));
     }
