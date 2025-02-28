@@ -12,42 +12,51 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CoralHolderConstants;
 
 public class CoralHolderSub extends SubsystemBase {
+  private final TalonSRX motorLeft;
+  private final TalonSRX motorRight;
+  private final DigitalInput limitSwitch;
 
-    private TalonSRX motorLeft;
-    private TalonSRX motorRight;
-    private DigitalInput limitSwitch;
+  private double leftThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? -1 : 1;
+  private double rightThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? 1 : -1;
 
-    private double leftThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? -1 : 1;
-    private double rightThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? 1 : -1;
+  public CoralHolderSub() {
+    motorLeft = new TalonSRX(CoralHolderConstants.LEFT_CAN_ID);
+    motorRight = new TalonSRX(CoralHolderConstants.RIGHT_CAN_ID);
 
-    public CoralHolderSub() {
-        motorLeft = new TalonSRX(CoralHolderConstants.LEFT_CAN_ID);
-        motorRight = new TalonSRX(CoralHolderConstants.RIGHT_CAN_ID);
-        
-        var config = new TalonSRXConfiguration();
-        
-        motorLeft.configAllSettings(config);
-        motorRight.configAllSettings(config);
-        
-        motorRight.setInverted(InvertType.OpposeMaster);
-        motorRight.follow(motorLeft);
+    var config = new TalonSRXConfiguration();
 
-        limitSwitch = new DigitalInput(CoralHolderConstants.LIMIT_SW_ID);
-    }
+    motorLeft.configAllSettings(config);
+    motorRight.configAllSettings(config);
 
-    public void forward() {
-        motorLeft.set(TalonSRXControlMode.PercentOutput, leftThrottleMultiplier * CoralHolderConstants.THROTTLE);
-    }
+    motorRight.setInverted(InvertType.OpposeMaster);
+    motorRight.follow(motorLeft);
 
-    public void reverse() {
-        motorLeft.set(TalonSRXControlMode.PercentOutput, rightThrottleMultiplier * CoralHolderConstants.THROTTLE);
-    }
+    limitSwitch = new DigitalInput(CoralHolderConstants.LIMIT_SW_ID);
+  }
 
-    public void stop() {
-      motorLeft.set(TalonSRXControlMode.PercentOutput, 0);
-    }
+  public void forward() {
+    motorLeft.set(TalonSRXControlMode.PercentOutput, leftThrottleMultiplier * CoralHolderConstants.THROTTLE);
+  }
 
-    public Command runUntilEndCommand() {
-      return new FunctionalCommand(this::reverse, () -> {}, (interrupted) -> stop(), limitSwitch::get, this);
-    }
+  public void reverse() {
+    motorLeft.set(TalonSRXControlMode.PercentOutput, rightThrottleMultiplier * CoralHolderConstants.THROTTLE);
+  }
+
+  public void stop() {
+    motorLeft.set(TalonSRXControlMode.PercentOutput, 0);
+  }
+
+  /**
+   * @return a {@link Command} that runs the coral holder in reverse until the
+   *         limit switch is triggered, indicating that a coral was intaken.
+   */
+  public Command intakeCommand() {
+    return new FunctionalCommand(
+        this::reverse,
+        () -> {
+        },
+        (interrupted) -> stop(),
+        limitSwitch::get,
+        this);
+  }
 }
