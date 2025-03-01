@@ -2,7 +2,7 @@ package frc.robot.constants;
 
 public class CoralHolderConstants {
 
-    public static final double THROTTLE = 0.2;
+    public static final double THROTTLE = 0.6;
 
     public static final boolean INVERT_MOTORS = false;
 

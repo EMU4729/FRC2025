@@ -19,11 +19,12 @@ public class CoralHolderSub extends SubsystemBase {
   private final WPI_VictorSPX motorRight;
   private final DigitalInput limitSwitch;
 
-  private double leftThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? -1 : 1;
-  private double rightThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? 1 : -1;
+  private double leftThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? 1 : -1;
+  private double rightThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? -1 : 1;
 
   public CoralHolderSub() {
     motorLeft = new WPI_VictorSPX(CoralHolderConstants.LEFT_CAN_ID);
+    motorLeft.setInverted(true);
     motorRight = new WPI_VictorSPX(CoralHolderConstants.RIGHT_CAN_ID);
 
     var config = new VictorSPXConfiguration();
@@ -31,7 +32,7 @@ public class CoralHolderSub extends SubsystemBase {
     motorLeft.configAllSettings(config);
     motorRight.configAllSettings(config);
 
-    motorRight.setInverted(InvertType.OpposeMaster);
+    motorRight.setInverted(InvertType.FollowMaster);
     motorRight.follow(motorLeft);
 
     limitSwitch = new DigitalInput(CoralHolderConstants.LIMIT_SW_ID);
