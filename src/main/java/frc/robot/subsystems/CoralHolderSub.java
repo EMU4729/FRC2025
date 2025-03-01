@@ -4,6 +4,9 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.VictorSPXConfiguration;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -12,18 +15,18 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CoralHolderConstants;
 
 public class CoralHolderSub extends SubsystemBase {
-  private final TalonSRX motorLeft;
-  private final TalonSRX motorRight;
+  private final WPI_VictorSPX motorLeft;
+  private final WPI_VictorSPX motorRight;
   private final DigitalInput limitSwitch;
 
   private double leftThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? -1 : 1;
   private double rightThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? 1 : -1;
 
   public CoralHolderSub() {
-    motorLeft = new TalonSRX(CoralHolderConstants.LEFT_CAN_ID);
-    motorRight = new TalonSRX(CoralHolderConstants.RIGHT_CAN_ID);
+    motorLeft = new WPI_VictorSPX(CoralHolderConstants.LEFT_CAN_ID);
+    motorRight = new WPI_VictorSPX(CoralHolderConstants.RIGHT_CAN_ID);
 
-    var config = new TalonSRXConfiguration();
+    var config = new VictorSPXConfiguration();
 
     motorLeft.configAllSettings(config);
     motorRight.configAllSettings(config);
@@ -35,7 +38,7 @@ public class CoralHolderSub extends SubsystemBase {
   }
 
   public void forward() {
-    motorLeft.set(TalonSRXControlMode.PercentOutput, leftThrottleMultiplier * CoralHolderConstants.THROTTLE);
+    motorLeft.set(leftThrottleMultiplier * CoralHolderConstants.THROTTLE);
   }
 
   public Command forwardCommand() {
@@ -43,7 +46,7 @@ public class CoralHolderSub extends SubsystemBase {
   }
 
   public void reverse() {
-    motorLeft.set(TalonSRXControlMode.PercentOutput, rightThrottleMultiplier * CoralHolderConstants.THROTTLE);
+    motorLeft.set(rightThrottleMultiplier * CoralHolderConstants.THROTTLE);
   }
 
   public Command reverseCommand() {
@@ -51,7 +54,7 @@ public class CoralHolderSub extends SubsystemBase {
   }
 
   public void stop() {
-    motorLeft.set(TalonSRXControlMode.PercentOutput, 0);
+    motorLeft.set(0);
   }
 
   /**
