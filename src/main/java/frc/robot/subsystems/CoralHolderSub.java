@@ -1,16 +1,11 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CoralHolderConstants;
 
@@ -33,13 +28,14 @@ public class CoralHolderSub extends SubsystemBase {
     motorRight.configAllSettings(config);
 
     motorRight.setInverted(InvertType.FollowMaster);
-    motorRight.follow(motorLeft);
+    // motorRight.follow(motorLeft);
 
     limitSwitch = new DigitalInput(CoralHolderConstants.LIMIT_SW_ID);
   }
 
   public void forward() {
     motorLeft.set(leftThrottleMultiplier * CoralHolderConstants.THROTTLE);
+    motorRight.set(leftThrottleMultiplier * CoralHolderConstants.THROTTLE_ALT);
   }
 
   public Command forwardCommand() {
@@ -48,6 +44,7 @@ public class CoralHolderSub extends SubsystemBase {
 
   public void reverse() {
     motorLeft.set(rightThrottleMultiplier * CoralHolderConstants.THROTTLE);
+    motorRight.set(rightThrottleMultiplier * CoralHolderConstants.THROTTLE_ALT);
   }
 
   public Command reverseCommand() {
@@ -56,6 +53,7 @@ public class CoralHolderSub extends SubsystemBase {
 
   public void stop() {
     motorLeft.set(0);
+    motorRight.set(0);
   }
 
   /**
