@@ -150,7 +150,7 @@ public class DriveConstants {
   public static DriveBaseFit PILOT_SETTINGS = new DriveBaseFit(
       new AxesFit().withOutputMinMax(0, 0.7).withPow(4).withDeadBand(0.1)
           .withLimiter(0.15).withBooster(1),
-      new AxesFit().withPow(3).withDeadBand(0.1).withLimiter(0.15).inverted());
+      new AxesFit().withPow(3).withDeadBand(0.1).withLimiter(0.15));
 
   /*
    * public static DriveBaseFit PILOT_DEMO_SETTINGS = DriveBaseFit.InitSwerveBot(
@@ -161,7 +161,7 @@ public class DriveConstants {
    */
   public static DriveBaseFit PILOT_DEMO_SETTINGS = new DriveBaseFit(
       new AxesFit().withOutputMinMax(0, 0.2).withPow(2).withDeadBand(0.1).withLimiter(0.15),
-      new AxesFit().withOutputMinMax(0, 0.2).withPow(2).withDeadBand(0.1).withLimiter(0.15).inverted());
+      new AxesFit().withOutputMinMax(0, 0.2).withPow(2).withDeadBand(0.1).withLimiter(0.15));
 
   public static final SwerveModuleDetails SWERVE_MODULE_FL = new SwerveModuleDetails(
       1, // Drive motor CAN ID

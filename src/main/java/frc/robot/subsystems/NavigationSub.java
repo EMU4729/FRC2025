@@ -23,7 +23,7 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.utils.PhotonBridge;
 
 public class NavigationSub extends SubsystemBase {
-  private final ADIS16470_IMU imu = new ADIS16470_IMU();
+  private final ADIS16470_IMU imu = new ADIS16470_IMU(IMUAxis.kX, IMUAxis.kZ, IMUAxis.kY);
   private final Field2d field = new Field2d();
   private final ADIS16470_IMUSim imuSim = new ADIS16470_IMUSim(imu);
   private Pose2d poseSim = new Pose2d();
@@ -40,7 +40,7 @@ public class NavigationSub extends SubsystemBase {
 
     poseEstimator = new SwerveDrivePoseEstimator(
         DriveConstants.DRIVE_KINEMATICS,
-        Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kZ)),
+        Rotation2d.fromDegrees(imu.getAngle()),
         Subsystems.drive.getModulePositions(),
         new Pose2d());
   }
@@ -57,7 +57,10 @@ public class NavigationSub extends SubsystemBase {
           this::getPose,
           this::resetOdometry,
           this::getChassisSpeeds,
-          (speeds, feedforwards) -> Subsystems.drive.drive(speeds, false),
+          (speeds, feedforwards) -> {
+            Subsystems.drive.drive(speeds, false);
+            System.out.println(feedforwards.toString());
+          },
           new PPHolonomicDriveController(
               DriveConstants.AUTO_TRANSLATION_PID,
               DriveConstants.AUTO_ROTATION_PID),
@@ -68,9 +71,9 @@ public class NavigationSub extends SubsystemBase {
             // This will flip the path being followed to the red side of the field.
             // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-            return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
+            return false;//DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
           },
-          this);
+          this, Subsystems.drive);
     } catch (Exception e) {
       System.err
           .println("DriveSub: Error: PathPlanner failed to initialize! Autos may not work properly. Stack trace:");

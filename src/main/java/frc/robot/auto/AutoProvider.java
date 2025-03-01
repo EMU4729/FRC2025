@@ -3,6 +3,7 @@ package frc.robot.auto;
 import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -33,7 +34,7 @@ public class AutoProvider {
 
     try {
       final var path = PathPlannerPath.fromPathFile("TestPath");
-      chooser.addOption("Test Path", AutoBuilder.followPath(path));
+      chooser.addOption("Test Path", new PathPlannerAuto("New Auto"));
     } catch (Exception e) {
       System.err.println("Big oopsies when loading PathPlanner Path");
       e.printStackTrace();
@@ -57,6 +58,6 @@ public class AutoProvider {
   }
 
   public Command getSelected() {
-    return chooser.getSelected();
+    return chooser.getSelected().handleInterrupt(()->System.out.println("inter-----------")).finallyDo(()->System.out.println("fin"));
   }
 }
