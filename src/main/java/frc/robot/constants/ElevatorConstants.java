@@ -29,6 +29,6 @@ public class ElevatorConstants {
     public static final Distance INTAKE = Meters.of(0);
     public static final Distance L1 = Meters.of(0.28);
     public static final Distance L2 = Meters.of(0.4);
-    public static final Distance L3 = Meters.of(0.8);
+    public static final Distance L3 = Meters.of(0.78);
   }
 }

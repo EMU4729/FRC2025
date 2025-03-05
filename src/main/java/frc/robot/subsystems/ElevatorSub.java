@@ -89,10 +89,10 @@ public class ElevatorSub extends SubsystemBase {
     var out = 0.0d;
     if (!atTargetPosition()) {
       final var position = getPosition();
-      out = controller.calculate(position.in(Meters));
-      out = MathUtil.clamp(out, -0.1, 0.1);
+      out = controller.calculate(position.in(Meters)) + 0.1;
+      out = MathUtil.clamp(out, -1, 1);
     }
-
+    
     eStopped = shouldEStop();
 
     if (!disableEStop) {

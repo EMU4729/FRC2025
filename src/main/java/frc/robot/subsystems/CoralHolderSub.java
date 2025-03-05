@@ -65,7 +65,7 @@ public class CoralHolderSub extends SubsystemBase {
    *         limit switch is triggered, indicating that a coral was intaken.
    */
   public Command intakeCommand() {
-    return reverseCommand().until(limitSwitch::get);
+    return forwardCommand().until(() -> !limitSwitch.get());
   }
 
   @Override
