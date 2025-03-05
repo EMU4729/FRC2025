@@ -22,7 +22,7 @@ public class Subsystems {
   public static final ClimberSub climber = new ClimberSub();
 
   public static final List<LEDZone> ledZones = new ArrayList<LEDZone>(Arrays.asList(
-      new LEDZone(new short[] { 60, 92 }, new short[] { 69, 101 }, 0),
-      new LEDZone(70, 91, 1),
-      new LEDZone(0, 59, 2)));
+      new LEDZone(new short[] { 0, 107 }, new short[] { 42, 145 }, 0),
+      new LEDZone(new short[] { 43, 86 }, new short[] { 61, 106 }, 0),
+      new LEDZone(62, 85, 2)));
 }
