@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import frc.robot.LEDs.LEDZone;
+import frc.robot.subsystems.ClimberSub;
 import frc.robot.subsystems.CoralHolderSub;
 import frc.robot.subsystems.DriveSub;
 import frc.robot.subsystems.ElevatorSub;
@@ -18,6 +19,7 @@ public class Subsystems {
   public static final NavigationSub nav = new NavigationSub();
   public static final CoralHolderSub coralHolder = new CoralHolderSub();
   public static final ElevatorSub elevator = new ElevatorSub();
+  public static final ClimberSub climber = new ClimberSub();
 
   public static final List<LEDZone> ledZones = new ArrayList<LEDZone>(Arrays.asList(
       new LEDZone(new short[] { 60, 92 }, new short[] { 69, 101 }, 0),
