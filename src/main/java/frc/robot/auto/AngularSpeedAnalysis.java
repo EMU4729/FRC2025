@@ -40,6 +40,7 @@ public class AngularSpeedAnalysis extends Command {
   }
 
   public void end(boolean interrupted) {
+    System.out.println("-------------------------------------------interupt");
     setSpeed(0);
     accelerationLimiter.reset(0);
   }

@@ -39,6 +39,8 @@ public class TeleopDriveSwerve extends Command {
 
   @Override
   public void execute() {
+
+    System.out.println("tods");
     double limiter = OI.pilot.getRightTriggerAxis();
     double booster = OI.pilot.getHID().getRightBumperButton() ? 1 : 0;
     boolean fieldRelative = !OI.pilot.getHID().getLeftBumperButton();
@@ -72,7 +74,7 @@ public class TeleopDriveSwerve extends Command {
 
     final var speeds = new ChassisSpeeds(x, y, r);
     if (r == 0) {
-      Subsystems.drive.driveAtAngle(speeds, targetYaw);
+      Subsystems.drive.driveAtAngle(speeds, fieldRelative, targetYaw);
     } else {
       Subsystems.drive.drive(speeds, fieldRelative);
     }

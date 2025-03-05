@@ -36,12 +36,20 @@ public class DriveSub extends SubsystemBase {
     SmartDashboard.putData("BR Module", backRight);
   }
 
-  public void driveAtAngle(ChassisSpeeds speeds, Rotation2d yawAngle) {
+  @Override
+  public void periodic() {
+    final var cmd = this.getCurrentCommand();
+    if (cmd != null) {
+      System.out.println(cmd.getName());
+    }
+  }
+
+  public void driveAtAngle(ChassisSpeeds speeds, boolean fieldRelative, Rotation2d yawAngle) {
+    drive(speeds, fieldRelative);
     Rotation2d currentYaw = Subsystems.nav.getHeadingR2D();
     Rotation2d err = currentYaw.minus(yawAngle);
     err.getDegrees();
     speeds.omegaRadiansPerSecond = holdYawPid.calculate(err.getDegrees());
-    drive(speeds);
   }
 
   /**
@@ -64,14 +72,16 @@ public class DriveSub extends SubsystemBase {
     if (fieldRelative) { // convert field rel speeds to robot rel
       speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, Subsystems.nav.getHeadingR2D());
     }
+    System.out.println(speeds.toString());
+
 
     if (Robot.isSimulation()) { // induce some amount of drift while moving in sim
       double speedMag = Subsystems.nav.getTranslationSpeed();
       Rotation2d speedDir = Rotation2d.fromRadians(Subsystems.nav.getTranslationAngle());
-      System.out.println(speedMag + "   " + speedDir);
+      // System.out.println(speedMag + " " + speedDir);
       speedDir = speedDir.plus(Rotation2d.fromDegrees(-45));
       speedMag *= Math.cos(speedDir.getRadians());
-      System.out.println(speedMag + " - " + speedDir);
+      // System.out.println(speedMag + " - " + speedDir);
 
       speeds = speeds.plus(new ChassisSpeeds(0, 0, 0.2 * speedMag));
     }

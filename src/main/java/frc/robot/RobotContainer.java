@@ -59,43 +59,48 @@ public class RobotContainer {
 
     // OI.pilot.y().onTrue(new
     // InstantCommand(()->BatteryPercentLEDCommand.runFor(50)));
-    // OI.pilot.a().onTrue(new FlashSolidLEDCommand(Color.kCrimson, 1000).withZone());
+    // OI.pilot.a().onTrue(new FlashSolidLEDCommand(Color.kCrimson,
+    // 1000).withZone());
     // OI.pilot.b().onTrue(new RepeatedFlashLEDCommand(
-        // (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 200).withZone(new int[] { 1, 2 })),
-        // 5).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+    // (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow,
+    // 200).withZone(new int[] { 1, 2 })),
+    // 5).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
     // OI.pilot.x().onTrue(new RepeatedFlashLEDCommand(
-        // (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kBlue, 200).withZone(new int[] { 0 })),
-        // 5));
-
-    OI.pilot.rightTrigger().onTrue(new InstantCommand(() -> Subsystems.coralHolder.forward()));
-    OI.pilot.leftTrigger().whileTrue(Subsystems.coralHolder.runUntilEndCommand());
+    // (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kBlue,
+    // 200).withZone(new int[] { 0 })),
+    // 5));
 
     OI.pilot.start()
-        .onTrue(
-            new InstantCommand(Subsystems.nav::zeroHeading, Subsystems.drive));
+        .onTrue(new InstantCommand(Subsystems.nav::zeroHeading, Subsystems.drive));
     OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
     // Drive bindings handled in teleop command
 
     // elevator elevations
-    OI.copilot.a().onTrue(new InstantCommand(() -> 
-      Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.INTAKE)
-    ));
-    OI.copilot.povUp().onTrue(new InstantCommand(() -> 
-      Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L1)
-    ));
-    OI.copilot.povUp().onTrue(new InstantCommand(() -> 
-      Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L2)
-    ));
-    OI.copilot.povUp().onTrue(new InstantCommand(() -> 
-      Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L3)
-    ));
-    OI.copilot.povUp().onTrue(new InstantCommand(() -> 
-      Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L4)
-    ));
+    OI.copilot.a().onTrue(
+        new InstantCommand(
+            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.INTAKE),
+            Subsystems.elevator));
+    OI.copilot.povDown()
+        .onTrue(new InstantCommand(
+            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L1),
+            Subsystems.elevator));
+    OI.copilot.povLeft()
+        .onTrue(new InstantCommand(
+            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L2),
+            Subsystems.elevator));
+    OI.copilot.povRight()
+        .onTrue(new InstantCommand(
+            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L3),
+            Subsystems.elevator));
+    OI.copilot.povUp()
+        .onTrue(new InstantCommand(
+            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L4),
+            Subsystems.elevator));
     // disable elevator E stop
-    OI.copilot.back().onTrue(new InstantCommand(() ->
-      Subsystems.elevator.toggleDisableEStop()
-    ));
+    OI.copilot.back().onTrue(new InstantCommand(() -> Subsystems.elevator.toggleDisableEStop()));
+    // coral holder
+    OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.intakeCommand());
+    OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.forwardCommand());
 
   }
 
