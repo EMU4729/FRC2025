@@ -38,10 +38,10 @@ public class DriveSub extends SubsystemBase {
 
   @Override
   public void periodic() {
-    final var cmd = this.getCurrentCommand();
-    if (cmd != null) {
-      System.out.println(cmd.getName());
-    }
+    //final var cmd = this.getCurrentCommand();
+    //if (cmd != null) {
+    //  System.out.println(cmd.getName());
+    //}
   }
 
   public void driveAtAngle(ChassisSpeeds speeds, boolean fieldRelative, Rotation2d yawAngle) {
@@ -72,7 +72,7 @@ public class DriveSub extends SubsystemBase {
     if (fieldRelative) { // convert field rel speeds to robot rel
       speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, Subsystems.nav.getHeadingR2D());
     }
-    System.out.println(speeds.toString());
+    //System.out.println(speeds.toString());
 
 
     if (Robot.isSimulation()) { // induce some amount of drift while moving in sim

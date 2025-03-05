@@ -40,7 +40,7 @@ public class TeleopDriveSwerve extends Command {
   @Override
   public void execute() {
 
-    System.out.println("tods");
+    //System.out.println("tods");
     double limiter = OI.pilot.getRightTriggerAxis();
     double booster = OI.pilot.getHID().getRightBumperButton() ? 1 : 0;
     boolean fieldRelative = !OI.pilot.getHID().getLeftBumperButton();

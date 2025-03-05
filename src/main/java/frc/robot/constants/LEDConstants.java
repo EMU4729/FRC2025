@@ -4,7 +4,7 @@ import frc.robot.Robot;
 
 public class LEDConstants {
   /** LED string length (in leds) */
-  public static final int STRING_LENGTH = 102;
+  public static final int STRING_LENGTH = 150;
   /** LED string port num */
   public static final int STRING_PORT = 3;
   /**

@@ -20,7 +20,7 @@ public class Subsystems {
   public static final ElevatorSub elevator = new ElevatorSub();
 
   public static final List<LEDZone> ledZones = new ArrayList<LEDZone>(Arrays.asList(
-      new LEDZone(new short[] { 0, 107 }, new short[] { 42, 145 }, 0),
-      new LEDZone(new short[] { 43, 86 }, new short[] { 61, 106 }, 0),
-      new LEDZone(62, 85, 2)));
+      new LEDZone(new short[] { 0, 108 }, new short[] { 42, 149 }, 0),
+      new LEDZone(new short[] { 43, 87 }, new short[] { 63, 106 }, 1),
+      new LEDZone(64, 86, 2)));
 }
