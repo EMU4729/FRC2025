@@ -94,10 +94,6 @@ public class RobotContainer {
         .onTrue(new InstantCommand(
             () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L3),
             Subsystems.elevator));
-    OI.copilot.povUp()
-        .onTrue(new InstantCommand(
-            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L4),
-            Subsystems.elevator));
     // disable elevator E stop
     OI.copilot.back().onTrue(new InstantCommand(() -> Subsystems.elevator.toggleDisableEStop()));
     // coral holder

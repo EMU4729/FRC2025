@@ -31,6 +31,7 @@ public class ElevatorSub extends SubsystemBase {
 
     motor = new FalconMotorSupplier(ElevatorConstants.MOTOR_ID)
         .withEncoder(91.37833019)
+        .withBrake()
         .get();
     motor.setPosition(encoder.getDistance());
 
@@ -83,12 +84,8 @@ public class ElevatorSub extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (true) {
-      return;
-    }
-
     SmartDashboard.putBoolean("Elevator E-Stopped", eStopped != EStopState.NONE);
-
+    SmartDashboard.putString("Elevator E-Stop State", eStopped.toString());
     var out = 0.0d;
     if (!atTargetPosition()) {
       final var position = getPosition();
@@ -110,9 +107,11 @@ public class ElevatorSub extends SubsystemBase {
         case BOTTOM:
           if (out < 0)
             preventMove = true;
+          break;
         case ALL:
           preventMove = true;
           break;
+          
       }
 
       if (preventMove) {
