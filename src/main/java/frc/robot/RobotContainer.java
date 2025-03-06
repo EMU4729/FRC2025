@@ -29,8 +29,8 @@ import frc.robot.teleop.TeleopProvider;
  * Subsystemsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final AutoProvider autoProvider = AutoProvider.getInstance();
-  private final TeleopProvider teleopProvider = TeleopProvider.getInstance();
+  private final AutoProvider autoProvider;
+  private final TeleopProvider teleopProvider;
 
   /**
    * The container for the robot. Contains Subsystemsystems, OI devices, and
@@ -39,6 +39,9 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    autoProvider = AutoProvider.getInstance();
+    teleopProvider = TeleopProvider.getInstance();
+
   }
 
   /**
@@ -89,6 +92,7 @@ public class RobotContainer {
     OI.copilot.x().onTrue(elevateIntake);
     OI.copilot.y().onTrue(elevateIntake);
     NamedCommands.registerCommand("elevate Intake", elevateIntake);
+    NamedCommands.hasCommand("elevate Intake");
 
     Command elevateL1 = new InstantCommand(
         () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L1),
