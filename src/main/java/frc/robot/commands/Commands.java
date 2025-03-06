@@ -22,8 +22,3 @@ public class TimedRunCommand extends ParallelCommandGroup {
   }
 }
 
-public class Commands extends sequencegroupcommnd{
-  new InstantCommand(()->Subsystems.drive.drive(0,)),
-  new WaitCommand()
-  new stopcommand()
-}
