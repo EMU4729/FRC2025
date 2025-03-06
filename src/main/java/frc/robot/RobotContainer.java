@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -79,31 +81,41 @@ public class RobotContainer {
     // Drive bindings handled in teleop command
 
     // elevator elevations
-    OI.copilot.a().onTrue(
-        new InstantCommand(
-            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.INTAKE),
-            Subsystems.elevator));
-    OI.copilot.povDown()
-        .onTrue(new InstantCommand(
-            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L1),
-            Subsystems.elevator));
-    OI.copilot.povRight()
-        .onTrue(new InstantCommand(
-            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L2),
-            Subsystems.elevator));
-    OI.copilot.povLeft()
-        .onTrue(new InstantCommand(
-            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L2),
-            Subsystems.elevator));
-    OI.copilot.povUp()
-        .onTrue(new InstantCommand(
-            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L3),
-            Subsystems.elevator));
+    Command elevateIntake = new InstantCommand(
+        () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.INTAKE),
+        Subsystems.elevator);
+    OI.copilot.a().onTrue(elevateIntake);
+    OI.copilot.b().onTrue(elevateIntake);
+    OI.copilot.x().onTrue(elevateIntake);
+    OI.copilot.y().onTrue(elevateIntake);
+    NamedCommands.registerCommand("elevate Intake", elevateIntake);
+
+    Command elevateL1 = new InstantCommand(
+        () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L1),
+        Subsystems.elevator);
+    OI.copilot.povDown().onTrue(elevateL1);
+    NamedCommands.registerCommand("elevate L1", elevateL1);
+
+    Command elevateL2 = new InstantCommand(
+        () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L2),
+        Subsystems.elevator);
+    OI.copilot.povRight().onTrue(elevateL2);
+    OI.copilot.povLeft().onTrue(elevateL2);
+    NamedCommands.registerCommand("elevate L2", elevateL2);
+    
+    Command elevateL3 = new InstantCommand(
+      () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L3),
+      Subsystems.elevator);
+      OI.copilot.povUp().onTrue(elevateL3);
+      NamedCommands.registerCommand("elevate L3", elevateL3);
+
     // disable elevator E stop
     //OI.copilot.back().onTrue(new InstantCommand(() -> Subsystems.elevator.toggleDisableEStop()));
     // coral holder
     OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.autoInCommand().andThen(new SolidLEDCommand(Color.kGreen).withZone()));
+    NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.autoInCommand());
     OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.manualOutCommand());
+    NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.manualOutCommand()); //TODO autoOut
 
   }
 

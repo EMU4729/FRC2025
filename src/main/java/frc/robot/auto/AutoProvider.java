@@ -48,6 +48,9 @@ public class AutoProvider {
     chooser.addOption("Angular Speed Analysis", new AngularSpeedAnalysis());
 
     SmartDashboard.putData("Auto Chooser", chooser);
+
+
+    
   }
 
   public static AutoProvider getInstance() {
