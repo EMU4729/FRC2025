@@ -4,14 +4,14 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DigitalInput;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.LEDs.FlashSolidLEDCommand;
 import frc.robot.LEDs.RainbowLEDCommand;
@@ -29,8 +29,8 @@ import frc.robot.teleop.TeleopProvider;
  * Subsystemsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final AutoProvider autoProvider = AutoProvider.getInstance();
-  private final TeleopProvider teleopProvider = TeleopProvider.getInstance();
+  private final AutoProvider autoProvider;
+  private final TeleopProvider teleopProvider;
 
   /**
    * The container for the robot. Contains Subsystemsystems, OI devices, and
@@ -39,6 +39,9 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    autoProvider = AutoProvider.getInstance();
+    teleopProvider = TeleopProvider.getInstance();
+
   }
 
   /**
@@ -62,35 +65,62 @@ public class RobotContainer {
 
     // OI.pilot.y().onTrue(new
     // InstantCommand(()->BatteryPercentLEDCommand.runFor(50)));
-    // OI.pilot.a().onTrue(new FlashSolidLEDCommand(Color.kCrimson, 1000).withZone());
+    // OI.pilot.a().onTrue(new FlashSolidLEDCommand(Color.kCrimson,
+    // 1000).withZone());
     // OI.pilot.b().onTrue(new RepeatedFlashLEDCommand(
-        // (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 200).withZone(new int[] { 1, 2 })),
-        // 5).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
-    OI.pilot.x().onTrue(new RepeatedFlashLEDCommand(
-        (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kBlue, 200).withZone(new int[] { 0 })),
-        5));
-
-    OI.pilot.rightTrigger().onTrue(new InstantCommand(() -> Subsystems.coralHolder.forward()));
-    OI.pilot.leftTrigger().whileTrue(Subsystems.coralHolder.runUntilEndCommand());
+    // (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow,
+    // 200).withZone(new int[] { 1, 2 })),
+    // 5).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+    // OI.pilot.x().onTrue(new RepeatedFlashLEDCommand(
+    // (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kBlue,
+    // 200).withZone(new int[] { 0 })),
+    // 5));
 
     OI.pilot.start()
-        .onTrue(
-            new InstantCommand(Subsystems.drive::zeroHeading, Subsystems.drive));
-    OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
+        .onTrue(new InstantCommand(Subsystems.nav::zeroHeading, Subsystems.drive));
+    //OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
+    OI.pilot.povUp().whileTrue(Subsystems.climber.upCommand());
+    OI.pilot.povDown().whileTrue(Subsystems.climber.downCommand());
     // Drive bindings handled in teleop command
 
-    OI.pilot.y().onTrue(new InstantCommand(() -> 
-      Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L1)
-    ));
+    // elevator elevations
+    Command elevateIntake = new InstantCommand(
+        () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.INTAKE),
+        Subsystems.elevator);
+    OI.copilot.a().onTrue(elevateIntake);
+    OI.copilot.b().onTrue(elevateIntake);
+    OI.copilot.x().onTrue(elevateIntake);
+    OI.copilot.y().onTrue(elevateIntake);
+    NamedCommands.registerCommand("elevate Intake", elevateIntake);
+    NamedCommands.hasCommand("elevate Intake");
 
+    Command elevateL1 = new InstantCommand(
+        () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L1),
+        Subsystems.elevator);
+    OI.copilot.povDown().onTrue(elevateL1);
+    NamedCommands.registerCommand("elevate L1", elevateL1);
+
+    Command elevateL2 = new InstantCommand(
+        () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L2),
+        Subsystems.elevator);
+    OI.copilot.povRight().onTrue(elevateL2);
+    OI.copilot.povLeft().onTrue(elevateL2);
+    NamedCommands.registerCommand("elevate L2", elevateL2);
     
-    OI.pilot.a().onTrue(new InstantCommand(() -> 
-      Subsystems.elevator.setTargetPosition(1000)
-    ));
-    
-    OI.pilot.b().onTrue(new InstantCommand(() -> 
-      Subsystems.elevator.setTargetPosition(-1000)
-    ));
+    Command elevateL3 = new InstantCommand(
+      () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L3),
+      Subsystems.elevator);
+      OI.copilot.povUp().onTrue(elevateL3);
+      NamedCommands.registerCommand("elevate L3", elevateL3);
+
+    // disable elevator E stop
+    //OI.copilot.back().onTrue(new InstantCommand(() -> Subsystems.elevator.toggleDisableEStop()));
+    // coral holder
+    OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.autoInCommand().andThen(new SolidLEDCommand(Color.kGreen).withZone()));
+    NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.autoInCommand());
+    OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.manualOutCommand());
+    NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.manualOutCommand()); //TODO autoOut
+
   }
 
   /**

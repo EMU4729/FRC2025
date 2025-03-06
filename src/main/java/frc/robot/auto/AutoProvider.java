@@ -3,6 +3,7 @@ package frc.robot.auto;
 import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -29,11 +30,11 @@ public class AutoProvider {
     // I now see why WPILib's docs recommend dependency-injecting subsystems rather
     // than global static access. - Neel
     @SuppressWarnings("unused")
-    final var _drive = Subsystems.drive;
+    final var _nav = Subsystems.nav;
 
     try {
       final var path = PathPlannerPath.fromPathFile("TestPath");
-      chooser.addOption("Test Path", AutoBuilder.followPath(path));
+      chooser.addOption("Test Path", new PathPlannerAuto("New Auto"));
     } catch (Exception e) {
       System.err.println("Big oopsies when loading PathPlanner Path");
       e.printStackTrace();
@@ -47,6 +48,9 @@ public class AutoProvider {
     chooser.addOption("Angular Speed Analysis", new AngularSpeedAnalysis());
 
     SmartDashboard.putData("Auto Chooser", chooser);
+
+
+    
   }
 
   public static AutoProvider getInstance() {
@@ -57,6 +61,6 @@ public class AutoProvider {
   }
 
   public Command getSelected() {
-    return chooser.getSelected();
+    return chooser.getSelected().handleInterrupt(()->System.out.println("inter-----------")).finallyDo(()->System.out.println("fin"));
   }
 }

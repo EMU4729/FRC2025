@@ -29,7 +29,7 @@ public class AngularSpeedAnalysis extends Command {
     final var v = accelerationLimiter.calculate(MODULE_FREE_SPEED);
     setSpeed(v);
 
-    final var chassisSpeeds = Subsystems.drive.getChassisSpeeds();
+    final var chassisSpeeds = Subsystems.nav.getChassisSpeeds();
     final var speed = Math.abs(chassisSpeeds.omegaRadiansPerSecond);
 
     SmartDashboard.putNumber("Angular Speed", speed);
@@ -40,6 +40,7 @@ public class AngularSpeedAnalysis extends Command {
   }
 
   public void end(boolean interrupted) {
+    System.out.println("-------------------------------------------interupt");
     setSpeed(0);
     accelerationLimiter.reset(0);
   }

@@ -10,9 +10,25 @@ public class EncoderSupplier implements Supplier<Encoder> {
 
   private boolean invert = false;
 
-  public EncoderSupplier(int[] port, double steps) {
+  /** <pre>
+   * 
+   * @param port encoder ports, this will likely be 2 DIO ports on RIO
+   *      write it as 'new int[] {1,2}' for ports 1 and 2
+   * @param motionPerCycle the change in location or angle of a mechanism that will equate to one full cycle of the encoder
+   *      rotary = cycles / gearRatio
+   *      linear = Final wheel circumference / rotary {until the final wheel}
+   * 
+   *   cycles will be listed on the product page as something like 'Cycles per Revolution'
+   *      REV through bore = 2048
+   *      AMT103 = 2048
+   * 
+   *   Final wheel circumference of a gear,sprocket,pully should be based on its pitch diameter
+   *      #25 chain = (Teeth * 2.0193  {PD in mm}) * PI
+   * </pre>
+   */
+  public EncoderSupplier(int[] port, double motionPerCycle) {
     this.port = port;
-    this.steps = steps;
+    this.steps = motionPerCycle;
   }
 
   public EncoderSupplier withInvert() {

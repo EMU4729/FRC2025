@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
     new RainbowLEDCommand().withZone().schedule();
     System.out
         .println("Disabled ----------------------------------------------------------------------------------------");
-    new TeamColorLEDCommand().withZone(new int[] { 1, 2 }).schedule();
+    new TeamColorLEDCommand().withZone(new int[] { 1 }).schedule();
     batteryLEDDisplay = new BatteryPercentLEDCommand();
     batteryLEDDisplay.schedule();
   }

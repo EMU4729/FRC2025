@@ -6,28 +6,16 @@
 
 package frc.robot.subsystems;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.ADIS16470_IMU;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.simulation.ADIS16470_IMUSim;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.robot.Subsystems;
 import frc.robot.constants.DriveConstants;
-import frc.robot.utils.PhotonBridge;
 import frc.robot.utils.SwerveModule;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -38,103 +26,30 @@ public class DriveSub extends SubsystemBase {
   private final SwerveModule backLeft = new SwerveModule(DriveConstants.SWERVE_MODULE_BL);
   private final SwerveModule backRight = new SwerveModule(DriveConstants.SWERVE_MODULE_BR);
 
-  // The gyro sensor
-  private final ADIS16470_IMU imu = new ADIS16470_IMU();
-
-  // Photon Bridge
-  public final PhotonBridge photon = new PhotonBridge();
-
-  // Field for robot viz
-  private final Field2d field = new Field2d();
-
-  private final ChassisSpeeds simErrorOffset;
-
-  // Pose estimation class for tracking robot pose
-  private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
-      DriveConstants.DRIVE_KINEMATICS,
-      Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kZ)),
-      getModulePositions(),
-      new Pose2d());
-
-  // Simulation Variables
-  private final ADIS16470_IMUSim imuSim = new ADIS16470_IMUSim(imu);
-  private Pose2d poseSim = new Pose2d();
+  private final PIDController holdYawPid = new PIDController(0.8, 0, 0);
 
   /** Creates a new DriveSubsystem. */
   public DriveSub() {
-    zeroHeading();
-    initPathPlanner();
-
-    SmartDashboard.putData("Field", field);
     SmartDashboard.putData("FL Module", frontLeft);
     SmartDashboard.putData("FR Module", frontRight);
     SmartDashboard.putData("BL Module", backLeft);
     SmartDashboard.putData("BR Module", backRight);
-
-    simErrorOffset = new ChassisSpeeds(0, 0, 0.1);
   }
 
   @Override
   public void periodic() {
-    updateOdometry();
+    //final var cmd = this.getCurrentCommand();
+    //if (cmd != null) {
+    //  System.out.println(cmd.getName());
+    //}
   }
 
-  /**
-   * Initializes PathPlanner.
-   * 
-   * Should be called once upon robot start.
-   */
-  private void initPathPlanner() {
-    try {
-      final var config = RobotConfig.fromGUISettings();
-      AutoBuilder.configure(
-          this::getPose,
-          this::resetOdometry,
-          this::getChassisSpeeds,
-          (speeds, feedforwards) -> drive(speeds, false),
-          new PPHolonomicDriveController(
-              DriveConstants.AUTO_TRANSLATION_PID,
-              DriveConstants.AUTO_ROTATION_PID),
-          config,
-          () -> {
-            // Boolean supplier that controls when the path will be mirrored for the red
-            // alliance
-            // This will flip the path being followed to the red side of the field.
-            // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-            return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
-          },
-          this);
-    } catch (Exception e) {
-      System.err
-          .println("DriveSub: Error: PathPlanner failed to initialize! Autos may not work properly. Stack trace:");
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   * Updates the robot's odometry.
-   * 
-   * This should be called every robot tick, in the periodic method.
-   */
-  private void updateOdometry() {
-    poseEstimator.update(getRotation2d(), getModulePositions());
-
-    for (final var cam : photon.cams) {
-      cam.getEstimatedPose()
-          .ifPresent((visionResult) -> {
-            // Reject any egregiously incorrect vision pose estimates
-            final var visionPose = visionResult.estimatedPose.toPose2d();
-            final var currentPose = getPose();
-            final var errorMeters = visionPose.getTranslation().getDistance(currentPose.getTranslation());
-            if (errorMeters > 1)
-              return;
-
-            poseEstimator.addVisionMeasurement(visionPose, visionResult.timestampSeconds);
-          });
-    }
-
-    field.setRobotPose(getPose());
+  public void driveAtAngle(ChassisSpeeds speeds, boolean fieldRelative, Rotation2d yawAngle) {
+    drive(speeds, fieldRelative);
+    Rotation2d currentYaw = Subsystems.nav.getHeadingR2D();
+    Rotation2d err = currentYaw.minus(yawAngle);
+    err.getDegrees();
+    speeds.omegaRadiansPerSecond = holdYawPid.calculate(err.getDegrees());
   }
 
   /**
@@ -154,37 +69,25 @@ public class DriveSub extends SubsystemBase {
    *                      they are robot-relative
    */
   public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
-    if (fieldRelative) {
-      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getRotation2d());
+    if (fieldRelative) { // convert field rel speeds to robot rel
+      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, Subsystems.nav.getHeadingR2D());
     }
-    if(Robot.isSimulation()){
-      double speed = Math.sqrt(Math.pow(speeds.vxMetersPerSecond,2) + Math.pow(speeds.vxMetersPerSecond,2));
-      speeds = speeds.plus(simErrorOffset.times(speed));
-    }
+    //System.out.println(speeds.toString());
 
+
+    if (Robot.isSimulation()) { // induce some amount of drift while moving in sim
+      double speedMag = Subsystems.nav.getTranslationSpeed();
+      Rotation2d speedDir = Rotation2d.fromRadians(Subsystems.nav.getTranslationAngle());
+      // System.out.println(speedMag + " " + speedDir);
+      speedDir = speedDir.plus(Rotation2d.fromDegrees(-45));
+      speedMag *= Math.cos(speedDir.getRadians());
+      // System.out.println(speedMag + " - " + speedDir);
+
+      speeds = speeds.plus(new ChassisSpeeds(0, 0, 0.2 * speedMag));
+    }
 
     final var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
     setModuleStates(states);
-  }
-
-  /** @return the currently estimated pose of the robot. */
-  public Pose2d getPose() {
-    return RobotBase.isReal() ? poseEstimator.getEstimatedPosition() : poseSim;
-  }
-
-  /**
-   * Resets the odometry to the specified pose.
-   *
-   * @param pose The pose to which to set the odometry.
-   */
-  public void resetOdometry(Pose2d pose) {
-    if (RobotBase.isSimulation()) {
-      imuSim.setGyroAngleZ(pose.getRotation().getDegrees());
-      poseSim = pose;
-      return;
-    }
-
-    poseEstimator.resetPosition(getRotation2d(), getModulePositions(), pose);
   }
 
   /**
@@ -255,58 +158,5 @@ public class DriveSub extends SubsystemBase {
     frontRight.resetIntegral();
     backRight.resetIntegral();
 
-  }
-
-  /** Zeroes the heading of the robot. */
-  public void zeroHeading() {
-    imu.reset();
-  }
-
-  /** @return the robot's heading (deg) */
-  public double getHeading() {
-    return imu.getAngle() * (DriveConstants.GYRO_REVERSED ? -1 : 1);
-  }
-
-  /** * @return the turn rate of the robot (deg/s) */
-  public double getTurnRate() {
-    return imu.getRate() * (DriveConstants.GYRO_REVERSED ? -1 : 1);
-  }
-
-  /** @return the robot's heading as a {@link Rotation2d} */
-  public Rotation2d getRotation2d() {
-    return Rotation2d.fromDegrees(getHeading());
-  }
-
-  /** @return the current robot-relative {@link ChassisSpeeds} */
-  public ChassisSpeeds getChassisSpeeds() {
-    return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(getModuleStates());
-  }
-
-  /** @return the desired robot-relative {@link ChassisSpeeds} */
-  public ChassisSpeeds getDesiredChassisSpeeds() {
-    return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(getModuleDesiredStates());
-  }
-
-  /** @return the current translational speed of the robot (m/s) */
-  public double getTranslationSpeed() {
-    final var speeds = getChassisSpeeds();
-    return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    final var speeds = getDesiredChassisSpeeds();
-
-    imuSim.setGyroRateZ(Math.toDegrees(speeds.omegaRadiansPerSecond));
-    // imuSim.setGyroAngleZ(getHeading().plus(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond
-    // * 0.02)).getDegrees());
-    imuSim.setGyroAngleZ(field.getRobotPose().getRotation().getDegrees());
-    poseSim = poseSim.exp(
-        new Twist2d(
-            speeds.vxMetersPerSecond * 0.02,
-            speeds.vyMetersPerSecond * 0.02,
-            speeds.omegaRadiansPerSecond * 0.02));
-
-    photon.simulationPeriodic(getPose());
   }
 }

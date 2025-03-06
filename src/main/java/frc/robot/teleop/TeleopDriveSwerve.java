@@ -1,6 +1,12 @@
 package frc.robot.teleop;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -14,12 +20,17 @@ import frc.robot.utils.RangeMath.DriveBaseFit;
 public class TeleopDriveSwerve extends Command {
   private final DriveBaseFit settings;
 
-  private final SlewRateLimiter xLimiter = new SpeedRateLimiter(DriveConstants.MAX_ACCELERATION,
-                                                                -DriveConstants.MAX_DECELERATION, 0);
-  private final SlewRateLimiter yLimiter = new SpeedRateLimiter(DriveConstants.MAX_ACCELERATION,
-                                                                -DriveConstants.MAX_DECELERATION, 0);
-  private final SlewRateLimiter rLimiter = new SpeedRateLimiter(DriveConstants.MAX_ANGULAR_ACCELERATION, 
-                                                                -DriveConstants.MAX_ANGULAR_DECELERATION, 0);
+  private final SlewRateLimiter xLimiter = new SpeedRateLimiter(
+      DriveConstants.MAX_ACCELERATION.in(MetersPerSecondPerSecond),
+      -DriveConstants.MAX_DECELERATION.in(MetersPerSecondPerSecond), 0);
+  private final SlewRateLimiter yLimiter = new SpeedRateLimiter(
+      DriveConstants.MAX_ACCELERATION.in(MetersPerSecondPerSecond),
+      -DriveConstants.MAX_DECELERATION.in(MetersPerSecondPerSecond), 0);
+  private final SlewRateLimiter rLimiter = new SpeedRateLimiter(
+      DriveConstants.MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond),
+      -DriveConstants.MAX_ANGULAR_DECELERATION.in(RadiansPerSecondPerSecond), 0);
+
+  private Rotation2d targetYaw = new Rotation2d(0);
 
   public TeleopDriveSwerve(DriveBaseFit settings) {
     this.settings = settings;
@@ -28,6 +39,8 @@ public class TeleopDriveSwerve extends Command {
 
   @Override
   public void execute() {
+
+    //System.out.println("tods");
     double limiter = OI.pilot.getRightTriggerAxis();
     double booster = OI.pilot.getHID().getRightBumperButton() ? 1 : 0;
     boolean fieldRelative = !OI.pilot.getHID().getLeftBumperButton();
@@ -43,9 +56,9 @@ public class TeleopDriveSwerve extends Command {
     var y = control[1];
     var r = control[2];
 
-    x = xLimiter.calculate(x) * DriveConstants.MAX_SPEED;
-    y = yLimiter.calculate(y) * DriveConstants.MAX_SPEED;
-    r = rLimiter.calculate(r) * DriveConstants.MAX_ANGULAR_SPEED;
+    x = xLimiter.calculate(x) * DriveConstants.MAX_SPEED.in(MetersPerSecond);
+    y = yLimiter.calculate(y) * DriveConstants.MAX_SPEED.in(MetersPerSecond);
+    r = rLimiter.calculate(r) * DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond);
 
     // if we are on the red alliance and driving field-relative, we should invert
     // driver inputs since the field's origin is taken from the blue alliance
@@ -60,7 +73,12 @@ public class TeleopDriveSwerve extends Command {
     }
 
     final var speeds = new ChassisSpeeds(x, y, r);
-    Subsystems.drive.drive(speeds, fieldRelative);
+    if (r == 0) {
+      Subsystems.drive.driveAtAngle(speeds, fieldRelative, targetYaw);
+    } else {
+      Subsystems.drive.drive(speeds, fieldRelative);
+    }
+
   }
 
   @Override

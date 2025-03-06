@@ -29,7 +29,7 @@ public class LateralSpeedAnalysis extends Command {
     final var v = accelerationLimiter.calculate(MODULE_FREE_SPEED);
     setSpeed(v);
 
-    final var chassisSpeeds = Subsystems.drive.getChassisSpeeds();
+    final var chassisSpeeds = Subsystems.nav.getChassisSpeeds();
     final var speed = Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
 
     SmartDashboard.putNumber("Lateral Speed", speed);
