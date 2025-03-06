@@ -9,16 +9,15 @@ import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Subsystems;
 import frc.robot.constants.CoralHolderConstants;
+import frc.robot.constants.ElevatorConstants;
 
 public class CoralHolderSub extends SubsystemBase {
   private final WPI_VictorSPX motorLeft;
   private final WPI_VictorSPX motorRight;
   private final DigitalInput limitSwitch;
   private final PWM pwm = new PWM(0);
-
-  private double leftThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? 1 : -1;
-  private double rightThrottleMultiplier = CoralHolderConstants.INVERT_MOTORS ? -1 : 1;
 
   public CoralHolderSub() {
     motorLeft = new WPI_VictorSPX(CoralHolderConstants.LEFT_CAN_ID);
@@ -38,34 +37,39 @@ public class CoralHolderSub extends SubsystemBase {
   }
 
   public void forward() {
-    motorLeft.set(leftThrottleMultiplier * 1);
-    motorRight.set(leftThrottleMultiplier * 0.8);
-  }
+    if(Subsystems.elevator.getTargetPosition() == ElevatorConstants.ElevatorStops.L1){
 
-  public Command forwardCommand() {
-    return this.startEnd(this::forward, this::stop);
+      motorLeft.set(0.8); //flick left
+    } else {
+      motorLeft.set(1); //run straight
+    }
+    motorRight.set(0.8);
   }
-
+  
   public void reverse() {
-    motorLeft.set(rightThrottleMultiplier * CoralHolderConstants.THROTTLE);
-    motorRight.set(rightThrottleMultiplier * CoralHolderConstants.THROTTLE_ALT);
+    motorLeft.set(CoralHolderConstants.THROTTLE);
+    motorRight.set(CoralHolderConstants.THROTTLE_ALT);
   }
-
-  public Command reverseCommand() {
-    return this.startEnd(this::reverse, this::stop);
-  }
-
+  
+  
   public void stop() {
     motorLeft.set(0);
     motorRight.set(0);
   }
+  
+  public Command manualOutCommand() {
+    return this.startEnd(this::forward, this::stop);
+  }
 
+  public Command manualReverseCommand() {
+    return this.startEnd(this::reverse, this::stop);
+  }
   /**
    * @return a {@link Command} that runs the coral holder in reverse until the
    *         limit switch is triggered, indicating that a coral was intaken.
    */
-  public Command intakeCommand() {
-    return forwardCommand().until(() -> !limitSwitch.get());
+  public Command autoInCommand() {
+    return manualOutCommand().until(() -> !limitSwitch.get());
   }
 
   @Override

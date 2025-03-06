@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.LEDs.FlashSolidLEDCommand;
 import frc.robot.LEDs.RainbowLEDCommand;
 import frc.robot.LEDs.RepeatedFlashLEDCommand;
+import frc.robot.LEDs.SolidLEDCommand;
 import frc.robot.auto.AutoProvider;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.teleop.TeleopProvider;
@@ -72,7 +73,7 @@ public class RobotContainer {
 
     OI.pilot.start()
         .onTrue(new InstantCommand(Subsystems.nav::zeroHeading, Subsystems.drive));
-    OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
+    //OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
     OI.pilot.povUp().whileTrue(Subsystems.climber.upCommand());
     OI.pilot.povDown().whileTrue(Subsystems.climber.downCommand());
     // Drive bindings handled in teleop command
@@ -86,19 +87,23 @@ public class RobotContainer {
         .onTrue(new InstantCommand(
             () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L1),
             Subsystems.elevator));
+    OI.copilot.povRight()
+        .onTrue(new InstantCommand(
+            () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L2),
+            Subsystems.elevator));
     OI.copilot.povLeft()
         .onTrue(new InstantCommand(
             () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L2),
             Subsystems.elevator));
-    OI.copilot.povRight()
+    OI.copilot.povUp()
         .onTrue(new InstantCommand(
             () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L3),
             Subsystems.elevator));
     // disable elevator E stop
-    OI.copilot.back().onTrue(new InstantCommand(() -> Subsystems.elevator.toggleDisableEStop()));
+    //OI.copilot.back().onTrue(new InstantCommand(() -> Subsystems.elevator.toggleDisableEStop()));
     // coral holder
-    OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.intakeCommand());
-    OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.forwardCommand());
+    OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.autoInCommand().andThen(new SolidLEDCommand(Color.kGreen).withZone()));
+    OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.manualOutCommand());
 
   }
 
