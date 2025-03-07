@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.Subsystems;
@@ -75,7 +76,7 @@ public class DriveSub extends SubsystemBase {
     //System.out.println(speeds.toString());
 
 
-    if (Robot.isSimulation()) { // induce some amount of drift while moving in sim
+    if (Robot.isSimulation() && false) { // induce some amount of drift while moving in sim
       double speedMag = Subsystems.nav.getTranslationSpeed();
       Rotation2d speedDir = Rotation2d.fromRadians(Subsystems.nav.getTranslationAngle());
       // System.out.println(speedMag + " " + speedDir);

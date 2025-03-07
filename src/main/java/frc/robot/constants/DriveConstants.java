@@ -52,7 +52,7 @@ public class DriveConstants {
    * Right now, this is just set to a bit below the maxswerve module's free speed.
    * It should probably be changed.
    */
-  public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(4.8); // TODO check this
+  public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(5); // TODO check this
   /** Max acceleration of robot in meters per second squared */
   public static final LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(1); // TODO check this
   public static final LinearAcceleration MAX_DECELERATION = MetersPerSecondPerSecond.of(1); // TODO check this
