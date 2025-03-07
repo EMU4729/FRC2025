@@ -21,10 +21,7 @@ public class TimedRunCommand extends ParallelCommandGroup {
         new RunCommand(toRun, requirements).withTimeout(duration),
         new WaitCommand(duration));
   }
+
+ 
 }
 
-public class Commands extends sequencegroupcommnd{
-  new InstantCommand(()->Subsystems.drive.drive(0,)),
-  new WaitCommand()
-  new stopcommand()
-}
