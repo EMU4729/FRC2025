@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -16,15 +15,10 @@ public class TimedRunCommand extends ParallelCommandGroup {
    * @param duration     The duration of the command
    * @param requirements The subsystems the command requires
    */
-  public TimedRunCommand(Runnable toRun, Time duration, Subsystem... requirements) {
+  public TimedRunCommand(Runnable toRun, double duration, Subsystem... requirements) {
     addCommands(
         new RunCommand(toRun, requirements).withTimeout(duration),
         new WaitCommand(duration));
   }
 }
 
-public class Commands extends sequencegroupcommnd{
-  new InstantCommand(()->Subsystems.drive.drive(0,)),
-  new WaitCommand()
-  new stopcommand()
-}
