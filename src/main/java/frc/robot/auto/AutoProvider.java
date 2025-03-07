@@ -34,7 +34,7 @@ public class AutoProvider {
 
     try {
       //final var path = PathPlannerPath.fromPathFile("TestPath");
-      chooser.addOption("Test Path", new PathPlannerAuto("New Auto"));
+      chooser.addOption("test", new PathPlannerAuto("test"));
       chooser.addOption("Left Side Auto", new PathPlannerAuto("Left Side Auto"));
       chooser.addOption("Right Side Auto", new PathPlannerAuto("Right Side Auto"));
     } catch (Exception e) {
