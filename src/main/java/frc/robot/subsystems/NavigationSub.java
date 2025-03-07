@@ -33,7 +33,7 @@ public class NavigationSub extends SubsystemBase {
   private final SwerveDrivePoseEstimator poseEstimator;
 
   public NavigationSub() {
-    zeroHeading();
+    resetOdometry(new Pose2d(4.992, 2.826, Rotation2d.k180deg)); 
     initPathPlanner();
 
     SmartDashboard.putData("Field", field);

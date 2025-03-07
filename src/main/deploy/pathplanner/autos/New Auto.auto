@@ -5,15 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "TestPath"
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "elevate L1"
+            "name": null
           }
         }
       ]

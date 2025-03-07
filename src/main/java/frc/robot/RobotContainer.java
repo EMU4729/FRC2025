@@ -92,7 +92,6 @@ public class RobotContainer {
     OI.copilot.x().onTrue(elevateIntake);
     OI.copilot.y().onTrue(elevateIntake);
     NamedCommands.registerCommand("elevate Intake", elevateIntake);
-    NamedCommands.hasCommand("elevate Intake");
 
     Command elevateL1 = new InstantCommand(
         () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L1),
@@ -119,8 +118,7 @@ public class RobotContainer {
     OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.autoInCommand().andThen(new SolidLEDCommand(Color.kGreen).withZone()));
     NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.autoInCommand());
     OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.manualOutCommand());
-    NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.manualOutCommand()); //TODO autoOut
-
+    NamedCommands.registerCommand("coral outTake", Subsystems.coralHolder.autoOutCommand());
   }
 
   /**

@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate L2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "rStart to FRL_peg"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral outTake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "F2FRL_peg to rIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral Intake"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

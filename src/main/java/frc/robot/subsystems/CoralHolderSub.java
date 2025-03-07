@@ -8,7 +8,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Subsystems;
 import frc.robot.constants.CoralHolderConstants;
 import frc.robot.constants.ElevatorConstants;
@@ -70,6 +72,16 @@ public class CoralHolderSub extends SubsystemBase {
    */
   public Command autoInCommand() {
     return manualOutCommand().until(() -> !limitSwitch.get());
+  }
+  /**
+   * @return a {@link Command} that runs the coral holder in reverse until the
+   *         limit switch is triggered, indicating that a coral was intaken.
+   */
+  public Command autoOutCommand() {
+    return this.runOnce(()->forward())                                                      //run
+        .andThen(new InstantCommand().until(()->limitSwitch.get()).withTimeout(3))  //until no coral
+        .andThen(new WaitCommand(1))                                                //ensure it's out
+        .finallyDo(()->stop());                                                             //stop
   }
 
   @Override
