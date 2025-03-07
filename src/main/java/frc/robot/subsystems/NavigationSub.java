@@ -124,6 +124,8 @@ public class NavigationSub extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
+    if (pose == null){ pose = new Pose2d(0,0, new Rotation2d(0));} //path planner can pass null when an auto includes no move command
+
     if (RobotBase.isSimulation()) {
       imuSim.setGyroAngleZ(pose.getRotation().getDegrees());
       poseSim = pose;

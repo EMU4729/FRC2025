@@ -57,6 +57,8 @@ public class RobotContainer {
         .onTrue(new RepeatedFlashLEDCommand(
             (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 300).withZone()), 5));
 
+    NamedCommands.registerCommand("LED Flash", new FlashSolidLEDCommand(Color.kGreen, 500).withZone());
+    
     // +----------------+
     // | PILOT CONTROLS |
     // +----------------+

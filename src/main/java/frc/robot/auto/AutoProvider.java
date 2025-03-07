@@ -32,15 +32,8 @@ public class AutoProvider {
     @SuppressWarnings("unused")
     final var _nav = Subsystems.nav;
 
-    try {
-      //final var path = PathPlannerPath.fromPathFile("TestPath");
-      chooser.addOption("Test Path", new PathPlannerAuto("New Auto"));
-      chooser.addOption("Left Side Auto", new PathPlannerAuto("Left Side Auto"));
-      chooser.addOption("Right Side Auto", new PathPlannerAuto("Right Side Auto"));
-    } catch (Exception e) {
-      System.err.println("Big oopsies when loading PathPlanner Path");
-      e.printStackTrace();
-    }
+    loadPathAuto("Test Path", "New Auto");
+    loadPathAuto("Test L1", "Test Auto L1");
 
     chooser.addOption("Pathfind to Pose Test",
         AutoBuilder.pathfindToPose(
@@ -63,6 +56,15 @@ public class AutoProvider {
   }
 
   public Command getSelected() {
-    return chooser.getSelected().handleInterrupt(()->System.out.println("inter-----------")).finallyDo(()->System.out.println("fin"));
+    return chooser.getSelected();
+  }
+
+  public void loadPathAuto(String name, String key){
+    try {
+      chooser.addOption(name, new PathPlannerAuto(key));
+    } catch (Exception e) {
+      System.err.println("Auto Provider : load failed : Name:"+name+", Key:"+key);
+      //e.printStackTrace();
+    }
   }
 }
