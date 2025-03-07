@@ -1,0 +1,67 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "coral Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LED Flash"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate L2"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LED Flash"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral outTake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LED Flash"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LED Flash"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

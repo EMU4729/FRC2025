@@ -34,6 +34,7 @@ public class AutoProvider {
 
     loadPathAuto("Test Path", "New Auto");
     loadPathAuto("Test L1", "Test Auto L1");
+    loadPathAuto("Test L2", "Test Auto L2");
 
     chooser.addOption("Pathfind to Pose Test",
         AutoBuilder.pathfindToPose(
