@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "TestRotation"
+            "pathName": "TestTranslation"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LED Flash"
           }
         }
       ]

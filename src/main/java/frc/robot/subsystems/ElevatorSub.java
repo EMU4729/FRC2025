@@ -91,12 +91,16 @@ public class ElevatorSub extends SubsystemBase {
       final var position = getPosition();
       out = controller.calculate(position.in(Meters)) + 0.1;
       out = MathUtil.clamp(out, -1, 1);
+    } else {
+
+      motor.setPosition(getPosition().in(Meters));
     }
     
     eStopped = shouldEStop();
 
     if (!disableEStop) {
       boolean preventMove = false;
+      boolean slowMove = false;
       switch (eStopped) {
         case NONE:
           break;
@@ -109,7 +113,8 @@ public class ElevatorSub extends SubsystemBase {
             preventMove = true;
           break;
         case ALL:
-          preventMove = true;
+          preventMove = false;
+          slowMove = true;
           break;
           
       }
@@ -117,6 +122,8 @@ public class ElevatorSub extends SubsystemBase {
       if (preventMove) {
         motor.set(0);
         return;
+      } else if(slowMove) {
+        out = MathUtil.clamp(out, 0.1, 0.1);
       }
     }
 

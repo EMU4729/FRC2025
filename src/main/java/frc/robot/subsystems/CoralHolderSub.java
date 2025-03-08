@@ -33,8 +33,8 @@ public class CoralHolderSub extends SubsystemBase {
     motorLeft.configAllSettings(config);
     motorRight.configAllSettings(config);
 
-    motorRight.setInverted(true);
-    motorLeft.setInverted(true);
+    motorRight.setInverted(false);
+    motorLeft.setInverted(false);
     // motorRight.follow(motorLeft);
 
     limitSwitch = new DigitalInput(CoralHolderConstants.LIMIT_SW_ID);

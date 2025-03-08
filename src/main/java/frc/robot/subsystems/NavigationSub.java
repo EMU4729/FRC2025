@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.ADIS16470_IMUSim;
@@ -124,7 +125,7 @@ public class NavigationSub extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    if (pose == null){ pose = new Pose2d(0,0, new Rotation2d(0));} //path planner can pass null when an auto includes no move command
+    if (pose == null){ pose = new Pose2d(0,0, Rotation2d.kZero);} //path planner can pass null when an auto includes no move command
 
     if (RobotBase.isSimulation()) {
       imuSim.setGyroAngleZ(pose.getRotation().getDegrees());

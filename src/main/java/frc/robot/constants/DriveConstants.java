@@ -138,7 +138,7 @@ public class DriveConstants {
   /** Auto translation PID constants */
   public static final PIDConstants AUTO_TRANSLATION_PID = new PIDConstants(0.1, 0, 0);
   /** Auto rotation PID constants */
-  public static final PIDConstants AUTO_ROTATION_PID = new PIDConstants(0.25, 0, 0);
+  public static final PIDConstants AUTO_ROTATION_PID = new PIDConstants(1, 1, 0);
 
   /*
    * public static DriveBaseFit PILOT_SETTINGS = DriveBaseFit(

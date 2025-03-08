@@ -27,6 +27,8 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -128,13 +130,13 @@ public class SwerveModule implements Sendable {
 
   /** @return the module's drive wheel position (m) */
   public Distance getDrivePosition() {
-    return Meters.of(driveMotor.getPosition().getValue().in(Radians) * DriveConstants.WHEEL_CIRCUMFERENCE.in(Meters));
+    return Meters.of(driveMotor.getPosition().getValue().in(Rotations) * DriveConstants.WHEEL_CIRCUMFERENCE.in(Meters));
   }
 
   /** @return the module's drive wheel velocity (m/s) */
   public LinearVelocity getDriveVelocity() {
     return MetersPerSecond
-        .of(driveMotor.getVelocity().getValue().in(RadiansPerSecond) * DriveConstants.WHEEL_CIRCUMFERENCE.in(Meters));
+        .of(driveMotor.getVelocity().getValue().in(RotationsPerSecond) * DriveConstants.WHEEL_CIRCUMFERENCE.in(Meters));
   }
 
   /** @return the module's robot-relative turning angle (rad) */

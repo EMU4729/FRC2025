@@ -32,7 +32,9 @@ public class AutoProvider {
     @SuppressWarnings("unused")
     final var _nav = Subsystems.nav;
 
-    loadPathAuto("Test Path", "New Auto");
+    loadPathAuto("Test Move", "Test Move");
+    loadPathAuto("Test Turn", "Test Turn");
+    loadPathAuto("run this auto", "test");
     loadPathAuto("Test L1", "Test Auto L1");
     loadPathAuto("Test L2", "Test Auto L2");
 

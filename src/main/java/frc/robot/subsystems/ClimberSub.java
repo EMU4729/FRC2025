@@ -45,6 +45,6 @@ public class ClimberSub extends SubsystemBase {
         || (speed > 0 && distance.gt(ClimberConstants.UPPER_LIMIT))) {
       speed = 0;
     }
-    motor.set(speed);
+    //motor.set(speed);
   }
 }
