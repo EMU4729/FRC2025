@@ -134,6 +134,15 @@ public class DriveSub extends SubsystemBase {
     };
   }
 
+  public SwerveModuleState[] getModuleACtualStates(){
+    return new SwerveModuleState[] {
+      frontLeft.getActualState(),
+      frontRight.getActualState(),
+      backLeft.getActualState(),
+      backRight.getActualState()
+  };
+  }
+
   /** @return the {@link SwerveModulePosition}s of the modules */
   public SwerveModulePosition[] getModulePositions() {
     return new SwerveModulePosition[] {

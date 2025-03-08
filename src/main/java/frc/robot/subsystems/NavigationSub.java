@@ -164,9 +164,13 @@ public class NavigationSub extends SubsystemBase {
   /** @return the current robot-relative {@link ChassisSpeeds} */
   public ChassisSpeeds getChassisSpeeds() {
     if (Robot.isSimulation()) {
-      return getDesiredChassisSpeeds();
+      return getActualChassisSpeeds();
     } // modules are not sim'd correctly
     return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(Subsystems.drive.getModuleStates());
+  }
+
+  public ChassisSpeeds getActualChassisSpeeds(){
+      return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(Subsystems.drive.getModuleACtualStates());
   }
 
   /** @return the desired robot-relative {@link ChassisSpeeds} */

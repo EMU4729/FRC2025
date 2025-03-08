@@ -50,6 +50,7 @@ public class SwerveModule implements Sendable {
 
   /** the module's desired state, <strong>relative to the module.</strong> */
   private SwerveModuleState desiredState = new SwerveModuleState(0, new Rotation2d());
+private SwerveModuleState actualState = new SwerveModuleState(0, new Rotation2d());
 
   /**
    * Constructs a new SwerveModule for a MAX Swerve Module housing a Falcon
@@ -93,7 +94,7 @@ public class SwerveModule implements Sendable {
   }
 
   @Override
-  public void initSendable(SendableBuilder builder) {
+  public void initSendable(SendableBuilder builder, SendableBuilder... simulationBuilder) {
     builder.addDoubleProperty(
         "Desired Turn Angle (deg)",
         () -> getDesiredState().angle.getDegrees(),
@@ -218,6 +219,13 @@ public class SwerveModule implements Sendable {
     return new SwerveModuleState(
         desiredState.speedMetersPerSecond,
         desiredState.angle.minus(details.angularOffset()));
+  }
+
+  public SwerveModuleState getActualState(){
+    return new SwerveModuleState(
+      actualState.speedMetersPerSecond,
+      actualState.angle.minus(details.angularOffset()));
+
   }
 
   // private static final double intertia = 45;
