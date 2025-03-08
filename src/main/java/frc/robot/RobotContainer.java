@@ -117,7 +117,7 @@ public class RobotContainer {
     // disable elevator E stop
     //OI.copilot.back().onTrue(new InstantCommand(() -> Subsystems.elevator.toggleDisableEStop()));
     // coral holder
-    OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.autoInCommand().andThen(new SolidLEDCommand(Color.kGreen).withZone()));
+    OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.autoInCommand());
     NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.autoInCommand());
     OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.manualOutCommand());
     NamedCommands.registerCommand("coral outTake", Subsystems.coralHolder.autoOutCommand());

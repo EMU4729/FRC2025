@@ -50,6 +50,8 @@ public class FalconMotorSupplier {
    *      rotary = gearRatio
    *      linear = Final wheel circumference / gearRatio {until the final wheel}
    * 
+   *    Note: circumference calcs in terms of rotations
+   * 
    *   Final wheel circumference of a gear,sprocket,pully should be based on its pitch diameter
    *      #25 chain = (Teeth * 2.0193  {PD in mm}) * PI
    * </pre>

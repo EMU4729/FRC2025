@@ -33,6 +33,11 @@ public class RepeatedFlashLEDCommand extends Command{
   public boolean isFinished(){
     return loopIdx <= 0;
   }
+
+  @Override
+  public void end(boolean interrupted) {
+    interrupted = interrupted;
+  }
   
   @Override
   public boolean runsWhenDisabled(){
