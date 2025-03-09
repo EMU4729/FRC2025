@@ -45,7 +45,7 @@ public class ElevatorSub extends SubsystemBase {
   }
 
   public Distance getPosition() {
-    return Meters.of(encoder.getDistance());
+    return Meters.of(motor.getPosition().getValueAsDouble());
   }
 
   public void setTargetPosition(Distance position) {
@@ -61,8 +61,8 @@ public class ElevatorSub extends SubsystemBase {
   }
 
   private EStopState shouldEStop() {
-    final var encoderPosition = getPosition();
     final var motorPosition = Meters.of(motor.getPosition().getValueAsDouble());
+    final var encoderPosition = motorPosition;//getPosition();
 
     if (motorPosition.minus(encoderPosition).abs(Meters) > 0.05) {
       return EStopState.ALL;
@@ -93,7 +93,7 @@ public class ElevatorSub extends SubsystemBase {
       out = MathUtil.clamp(out, -1, 1);
     } else {
 
-      motor.setPosition(getPosition().in(Meters));
+      //motor.setPosition(getPosition().in(Meters));
     }
     
     eStopped = shouldEStop();
@@ -123,7 +123,7 @@ public class ElevatorSub extends SubsystemBase {
         motor.set(0);
         return;
       } else if(slowMove) {
-        out = MathUtil.clamp(out, 0.1, 0.1);
+        out = MathUtil.clamp(out, -0.1, 0.1);
       }
     }
 
