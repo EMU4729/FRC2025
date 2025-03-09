@@ -34,7 +34,8 @@ public class AutoProvider {
 
     loadPathAuto("Test Move", "Test Move");
     loadPathAuto("Test Turn", "Test Turn");
-    loadPathAuto("run this auto", "test");
+    loadPathAuto("(left) run this auto", "test left");
+    loadPathAuto("(right) run this auto", "test right");
     loadPathAuto("Test L1", "Test Auto L1");
     loadPathAuto("Test L2", "Test Auto L2");
 
