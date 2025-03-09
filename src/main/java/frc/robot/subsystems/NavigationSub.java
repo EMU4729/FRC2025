@@ -87,11 +87,6 @@ public class NavigationSub extends SubsystemBase {
   @Override
   public void periodic() {
     updateOdometry();
-
-    SmartDashboard.putString("pose", poseEstimator.getEstimatedPosition().toString());
-    SmartDashboard.putString("heading", getHeadingR2D().toString());
-    SmartDashboard.putNumber("imuAngle", imu.getAngle());
-    SmartDashboard.putNumber("imuRate", imu.getRate());
   }
 
   /**

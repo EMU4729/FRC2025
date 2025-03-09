@@ -41,11 +41,15 @@ public class TeleopDriveSwerve extends Command {
   @Override
   public void execute() {
 
+    if (OI.pilot.leftTrigger().getAsBoolean()) {
+      Subsystems.drive.setX();
+      return;
+    }
+    
     //System.out.println("tods");
     double limiter = OI.pilot.getRightTriggerAxis();
     double booster = OI.pilot.getHID().getRightBumperButton() ? 1 : 0;
     boolean fieldRelative = !OI.pilot.getHID().getLeftBumperButton();
-
 
     final var control = settings.fitSwerve(
         -OI.pilot.getLeftY(),
