@@ -74,7 +74,7 @@ public class NavigationSub extends SubsystemBase {
             // This will flip the path being followed to the red side of the field.
             // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-            return false;//DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
+            return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red;
           },
           this, Subsystems.drive);
     } catch (Exception e) {
@@ -87,6 +87,11 @@ public class NavigationSub extends SubsystemBase {
   @Override
   public void periodic() {
     updateOdometry();
+
+    SmartDashboard.putString("pose", poseEstimator.getEstimatedPosition().toString());
+    SmartDashboard.putString("heading", getHeadingR2D().toString());
+    SmartDashboard.putNumber("imuAngle", imu.getAngle());
+    SmartDashboard.putNumber("imuRate", imu.getRate());
   }
 
   /**
@@ -128,7 +133,7 @@ public class NavigationSub extends SubsystemBase {
     if (pose == null){ pose = new Pose2d(0,0, Rotation2d.kZero);} //path planner can pass null when an auto includes no move command
 
     if (RobotBase.isSimulation()) {
-      imuSim.setGyroAngleZ(pose.getRotation().getDegrees());
+      simImuSetAngleYaw(pose.getRotation().getDegrees());
       poseSim = pose;
       return;
     }
@@ -194,10 +199,13 @@ public class NavigationSub extends SubsystemBase {
   public void simulationPeriodic() {
     final var speeds = getDesiredChassisSpeeds();
 
-    imuSim.setGyroRateZ(Math.toDegrees(speeds.omegaRadiansPerSecond));
+    SmartDashboard.putNumber("simImuAngle", field.getRobotPose().getRotation().getDegrees());
+    SmartDashboard.putNumber("simImuRate", Math.toDegrees(speeds.omegaRadiansPerSecond));
+
+    simImuSetRateYaw(Math.toDegrees(speeds.omegaRadiansPerSecond));
     // imuSim.setGyroAngleZ(getHeading().plus(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond
     // * 0.02)).getDegrees());
-    imuSim.setGyroAngleZ(field.getRobotPose().getRotation().getDegrees());
+    simImuSetAngleYaw(field.getRobotPose().getRotation().getDegrees());
     poseSim = poseSim.exp(
         new Twist2d(
             speeds.vxMetersPerSecond * 0.02,
@@ -205,5 +213,27 @@ public class NavigationSub extends SubsystemBase {
             speeds.omegaRadiansPerSecond * 0.02));
 
     photon.simulationPeriodic(getPose());
+  }
+
+  private void simImuSetAngleYaw(double angle) {
+    switch(imu.getYawAxis()) {
+      case kX: imuSim.setGyroAngleX(angle); break;
+      case kY: imuSim.setGyroAngleY(angle); break;
+      case kZ: imuSim.setGyroAngleZ(angle); break;
+      case kRoll: imuSim.setGyroAngleX(angle); break;
+      case kPitch: imuSim.setGyroAngleY(angle); break;
+      case kYaw: imuSim.setGyroAngleZ(angle); break;
+    }
+  }
+
+  private void simImuSetRateYaw(double angle) {
+    switch(imu.getYawAxis()) {
+      case kX: imuSim.setGyroRateX(angle); break;
+      case kY: imuSim.setGyroRateY(angle); break;
+      case kZ: imuSim.setGyroRateZ(angle); break;
+      case kRoll: imuSim.setGyroRateX(angle); break;
+      case kPitch: imuSim.setGyroRateY(angle); break;
+      case kYaw: imuSim.setGyroRateZ(angle); break;
+    }
   }
 }
