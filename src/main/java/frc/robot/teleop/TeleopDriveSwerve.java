@@ -41,10 +41,10 @@ public class TeleopDriveSwerve extends Command {
   @Override
   public void execute() {
 
-    if (OI.pilot.leftTrigger().getAsBoolean()) {
-      Subsystems.drive.setX();
-      return;
-    }
+    //if (OI.pilot.leftTrigger().getAsBoolean()) {
+    //  Subsystems.drive.setX();
+    //  return;
+    //}
     
     //System.out.println("tods");
     double limiter = OI.pilot.getRightTriggerAxis();
