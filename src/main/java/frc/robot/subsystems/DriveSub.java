@@ -23,6 +23,7 @@ import frc.robot.Robot;
 import frc.robot.Subsystems;
 import frc.robot.constants.DriveConstants;
 import frc.robot.utils.SwerveModule;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSub extends SubsystemBase {
@@ -166,6 +167,15 @@ public class DriveSub extends SubsystemBase {
     backLeft.resetIntegral();
     backRight.resetIntegral();
 
+  }
+
+  public SequentialCommandGroup testFunction(){
+    return new SequentialCommandGroup(
+      frontLeft.testFunction(),
+      frontRight.testFunction(),
+      backLeft.testFunction(),
+      backRight.testFunction()
+    );
   }
 
   public void setupSmartDash(){

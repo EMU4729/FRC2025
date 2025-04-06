@@ -20,8 +20,8 @@ public class AngularSpeedAnalysis extends Command {
     Subsystems.drive.setModuleStates(new SwerveModuleState[] {
         new SwerveModuleState(v, Rotation2d.fromDegrees(-45)),
         new SwerveModuleState(v, Rotation2d.fromDegrees(-135)),
-        new SwerveModuleState(v, Rotation2d.fromDegrees(135)),
         new SwerveModuleState(v, Rotation2d.fromDegrees(45)),
+        new SwerveModuleState(v, Rotation2d.fromDegrees(135)),
     });
   }
 

@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.LEDs.BatteryPercentLEDCommand;
@@ -40,6 +41,8 @@ public class Robot extends TimedRobot {
     // start host the deploy dir for Elastic's Remote Layout Download functionality.
     // https://frc-elastic.gitbook.io/docs/additional-features-and-references/remote-layout-downloading
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
+
+    SmartDashboard.putData(CommandScheduler.getInstance());
   }
 
   /**

@@ -6,6 +6,7 @@
 
 package frc.robot.utils;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -15,6 +16,11 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -34,6 +40,8 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import frc.robot.Robot;
+import frc.robot.Subsystems;
+import frc.robot.LEDs.SolidLEDCommand;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.DriveConstants.SwerveModuleDetails;
 import frc.robot.utils.motorsupplier.FalconMotorSupplier;
@@ -158,8 +166,8 @@ public class SwerveModule implements Sendable {
   public Angle getTurnAngle(boolean robotRelative) {
     Angle encoderReading = Radians.of(Robot.isSimulation() ? 
         desiredState.angle.getRadians() : turnEncoder.getPosition());
-
-    return encoderReading.minus(Radians.of(robotRelative ? details.angularOffset().getRadians() : 0));
+    return encoderReading
+        .minus(Radians.of(robotRelative ? details.angularOffset().getRadians() : 0));
   }
 
   /** @return the module's robot-relative turning angle as a {@link Rotation2d} */
@@ -271,12 +279,12 @@ public class SwerveModule implements Sendable {
     if (error < limit) {
       lastLimit = error < 20 ? 90 : 135; // release only when near the target
       // direction
-      isFlipped = true;
+      isFlipped = false;
       return new SwerveModuleState(
           desiredState.speedMetersPerSecond,
           desiredState.angle);
     } else {
-      isFlipped = false;
+      isFlipped = true;
       lastLimit = error > 160 ? 90 : 45; // release only when near the inverted
       // target direction
       return new SwerveModuleState(
@@ -299,5 +307,36 @@ public class SwerveModule implements Sendable {
   public void stop() {
     driveMotor.set(0);
     turnMotor.set(0);
+  }
+
+  public SequentialCommandGroup testFunction(){
+    return new SequentialCommandGroup(
+      //turn to 0 degrees and check
+      new InstantCommand(()->setDesiredState(new SwerveModuleState(MetersPerSecond.of(0), Rotation2d.kZero))),
+      new WaitCommand(1),
+      new ConditionalCommand(new SolidLEDCommand(Color.kGreen).withZone(), new SolidLEDCommand(Color.kRed).withZone(),
+        ()->MathUtil.isNear((getTurnRotation2d().minus(Rotation2d.kZero)).getDegrees(), 0, 5)).withTimeout(0.5),
+
+      //turn to 90 and check
+      new InstantCommand(()->setDesiredState(new SwerveModuleState(MetersPerSecond.of(0), Rotation2d.kCCW_90deg))),
+      new WaitCommand(1),
+      new ConditionalCommand(new SolidLEDCommand(Color.kGreen).withZone(), new SolidLEDCommand(Color.kRed).withZone(),
+        ()->MathUtil.isNear((getTurnRotation2d().minus(Rotation2d.kCCW_90deg)).getDegrees(), 0, 5)).withTimeout(0.5),
+
+      //drive forwards and check
+      new InstantCommand(()->setDesiredState(new SwerveModuleState(MetersPerSecond.of(1), Rotation2d.kCCW_90deg))),
+      new WaitCommand(0.7),
+      new ConditionalCommand(new SolidLEDCommand(Color.kGreen).withZone(), new SolidLEDCommand(Color.kRed).withZone(),
+        ()->MathUtil.isNear((getDriveVelocity().in(MetersPerSecond) - 1), 0, 5)).withTimeout(0.5),
+
+      //drive backwards and check
+      new InstantCommand(()->setDesiredState(new SwerveModuleState(MetersPerSecond.of(-1), Rotation2d.kCCW_90deg))),
+      new WaitCommand(1),
+      new ConditionalCommand(new SolidLEDCommand(Color.kGreen).withZone(), new SolidLEDCommand(Color.kRed).withZone(),
+        ()->MathUtil.isNear((getDriveVelocity().in(MetersPerSecond) - 1), 0, 5)).withTimeout(0.5),
+
+      new InstantCommand(()->setDesiredState(new SwerveModuleState(MetersPerSecond.of(0), Rotation2d.kZero)))
+
+    );
   }
 }
