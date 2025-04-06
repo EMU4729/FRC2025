@@ -32,6 +32,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+
+import frc.robot.Robot;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.DriveConstants.SwerveModuleDetails;
 import frc.robot.utils.motorsupplier.FalconMotorSupplier;
@@ -130,11 +132,13 @@ public class SwerveModule implements Sendable {
 
   /** @return the module's drive wheel position (m) */
   public Distance getDrivePosition() {
+    if(Robot.isSimulation()){return Meters.of(-1);}
     return Meters.of(driveMotor.getPosition().getValue().in(Rotations) * DriveConstants.WHEEL_CIRCUMFERENCE.in(Meters));
   }
 
   /** @return the module's drive wheel velocity (m/s) */
   public LinearVelocity getDriveVelocity() {
+    if(Robot.isSimulation()) { return MetersPerSecond.of(desiredState.speedMetersPerSecond);}
     return MetersPerSecond
         .of(driveMotor.getVelocity().getValue().in(RotationsPerSecond) * DriveConstants.WHEEL_CIRCUMFERENCE.in(Meters));
   }
@@ -152,10 +156,10 @@ public class SwerveModule implements Sendable {
    *         Frame
    */
   public Angle getTurnAngle(boolean robotRelative) {
-    if (robotRelative) {
-      return Radians.of(turnEncoder.getPosition() - details.angularOffset().getRadians());
-    }
-    return Radians.of(turnEncoder.getPosition());
+    Angle encoderReading = Radians.of(Robot.isSimulation() ? 
+        desiredState.angle.getRadians() : turnEncoder.getPosition());
+
+    return encoderReading.minus(Radians.of(robotRelative ? details.angularOffset().getRadians() : 0));
   }
 
   /** @return the module's robot-relative turning angle as a {@link Rotation2d} */

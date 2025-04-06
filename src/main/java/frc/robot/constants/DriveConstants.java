@@ -55,7 +55,7 @@ public class DriveConstants {
   public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(5); // TODO check this
   /** Max acceleration of robot in meters per second squared */
   public static final LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(1); // TODO check this
-  public static final LinearAcceleration MAX_DECELERATION = MetersPerSecondPerSecond.of(1); // TODO check this
+  public static final LinearAcceleration MAX_DECELERATION = MetersPerSecondPerSecond.of(-1); // TODO check this
   /**
    * Max angular speed of robot in radians per second
    * 
@@ -67,7 +67,7 @@ public class DriveConstants {
   public static final AngularAcceleration MAX_ANGULAR_ACCELERATION = RadiansPerSecondPerSecond
       .of(MAX_ANGULAR_SPEED.in(RadiansPerSecond) / 60 * 15);
   public static final AngularAcceleration MAX_ANGULAR_DECELERATION = RadiansPerSecondPerSecond
-      .of(MAX_ANGULAR_SPEED.in(RadiansPerSecond) / 60 * 30);
+      .of(-(MAX_ANGULAR_SPEED.in(RadiansPerSecond) / 60 * 30));
 
   public static final PathConstraints PATH_CONSTRAINTS = new PathConstraints(
       MAX_SPEED, MAX_ACCELERATION,
@@ -164,12 +164,14 @@ public class DriveConstants {
       new AxesFit().withOutputMinMax(0, 0.2).withPow(2).withDeadBand(0.1).withLimiter(0.15));
 
   public static final SwerveModuleDetails SWERVE_MODULE_FL = new SwerveModuleDetails(
+      "Swerve_FL",
       1, // Drive motor CAN ID
       1, // Steer motor CAN ID
       Rotation2d.kCW_90deg, // offset relative to FL
       new Translation2d(WHEEL_BASE.div(2), TRACK_WIDTH.div(2)) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_FR = new SwerveModuleDetails(
+      "Swerve_FR",
       2, // Drive motor CAN ID
       2, // Steer motor CAN ID
       Rotation2d.kZero, // offset relative to FL
@@ -177,12 +179,14 @@ public class DriveConstants {
   );
 
   public static final SwerveModuleDetails SWERVE_MODULE_BL = new SwerveModuleDetails(
+      "Swerve_BL",
       3, // Drive motor CAN ID
       3, // Steer motor CAN ID
       Rotation2d.k180deg, // Offset rel to FL module
       new Translation2d(WHEEL_BASE.div(-2), TRACK_WIDTH.div(2)) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_BR = new SwerveModuleDetails(
+      "Swerve_BR",
       4, // Drive motor CAN ID
       4, // Steer motor CAN ID
       Rotation2d.kCCW_90deg, // Offset rel to FL module
@@ -197,6 +201,7 @@ public class DriveConstants {
       SWERVE_MODULE_BR.location());
 
   public static record SwerveModuleDetails(
+      String name, 
       /** CAN ID for the module's Driving Motor */
       int driveCANID,
       /** CAN ID for the module's Steering Motor */

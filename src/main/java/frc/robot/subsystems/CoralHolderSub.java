@@ -6,6 +6,8 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.VictorSPXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,6 +46,8 @@ public class CoralHolderSub extends SubsystemBase {
     // motorRight.follow(motorLeft);
 
     limitSwitch = new DigitalInput(CoralHolderConstants.LIMIT_SW_ID);
+
+    setupSmartDash();
   }
 
   public void forward() {
@@ -121,7 +125,19 @@ public class CoralHolderSub extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("Coral Loaded", hasCoral());
-    SmartDashboard.putNumber("Coral Power", motorLeft.get());
+    //SmartDashboard.putBoolean("Coral Loaded", hasCoral());
+    //SmartDashboard.putNumber("Coral Power", motorLeft.get());
+  }
+
+  private void setupSmartDash(){
+    
+    SmartDashboard.putData("Coral Sub", new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.addBooleanProperty("Coral Loaded", ()->hasCoral(), null);
+        builder.addDoubleProperty("Power Left", ()->motorLeft.get(), null);
+        builder.addDoubleProperty("Power Right", ()->motorRight.get(), null);
+      }
+    });
   }
 }

@@ -6,12 +6,17 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radians;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
@@ -31,10 +36,12 @@ public class DriveSub extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public DriveSub() {
-    SmartDashboard.putData("FL Module", frontLeft);
-    SmartDashboard.putData("FR Module", frontRight);
-    SmartDashboard.putData("BL Module", backLeft);
-    SmartDashboard.putData("BR Module", backRight);
+    //SmartDashboard.putData("FL Module", frontLeft);
+    //SmartDashboard.putData("FR Module", frontRight);
+    //SmartDashboard.putData("BL Module", backLeft);
+    //SmartDashboard.putData("BR Module", backRight);
+
+    setupSmartDash();
   }
 
   @Override
@@ -147,17 +154,40 @@ public class DriveSub extends SubsystemBase {
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
     frontLeft.resetEncoders();
-    backLeft.resetEncoders();
     frontRight.resetEncoders();
+    backLeft.resetEncoders();
     backRight.resetEncoders();
   }
 
   /** reset turn motor pid I accumulation to 0 */
   public void resetIntegral() {
     frontLeft.resetIntegral();
-    backLeft.resetIntegral();
     frontRight.resetIntegral();
+    backLeft.resetIntegral();
     backRight.resetIntegral();
 
+  }
+
+  public void setupSmartDash(){
+    SmartDashboard.putData("Swerve Drive Sub", new Sendable() {
+        @Override
+        public void initSendable(SendableBuilder builder) {
+          builder.setSmartDashboardType("SwerveDrive");
+
+          builder.addDoubleProperty("Front Left Angle", ()->frontLeft.getTurnAngle().in(Radians), null);
+          builder.addDoubleProperty("Front Left Velocity", ()->frontLeft.getDriveVelocity().in(MetersPerSecond), null);
+          
+          builder.addDoubleProperty("Front Right Angle", ()->frontRight.getTurnAngle().in(Radians), null);
+          builder.addDoubleProperty("Front Right Velocity", ()->frontRight.getDriveVelocity().in(MetersPerSecond), null);
+          
+          builder.addDoubleProperty("Back Left Angle", ()->backLeft.getTurnAngle().in(Radians), null);
+          builder.addDoubleProperty("Back Left Velocity", ()->backLeft.getDriveVelocity().in(MetersPerSecond), null);
+          
+          builder.addDoubleProperty("Back Right Angle", ()->backRight.getTurnAngle().in(Radians), null);
+          builder.addDoubleProperty("Back Right Velocity", ()->backRight.getDriveVelocity().in(MetersPerSecond), null);
+
+          builder.addDoubleProperty("Robot Angle", ()->Subsystems.nav != null ? Subsystems.nav.getHeading().in(Radians) : 0, null);
+        }
+    });
   }
 }

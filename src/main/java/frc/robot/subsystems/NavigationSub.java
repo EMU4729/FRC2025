@@ -1,5 +1,10 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.Radians;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -9,6 +14,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -142,15 +149,15 @@ public class NavigationSub extends SubsystemBase {
   }
 
   /**
-   * @return the robot's heading (direction the robot is pointing field rel) (deg)
+   * @return the robot's heading (direction the robot is pointing field rel)
    */
-  public double getHeading() {
-    return imu.getAngle() * (DriveConstants.GYRO_REVERSED ? -1 : 1);
+  public Angle getHeading() {
+    return Degrees.of(imu.getAngle() * (DriveConstants.GYRO_REVERSED ? -1 : 1));
   }
 
-  /** * @return the turn rate of the robot (deg/s) */
-  public double getTurnRate() {
-    return imu.getRate() * (DriveConstants.GYRO_REVERSED ? -1 : 1);
+  /** * @return the turn rate of the robot */
+  public AngularVelocity getTurnRate() {
+    return DegreesPerSecond.of(imu.getRate() * (DriveConstants.GYRO_REVERSED ? -1 : 1));
   }
 
   /**
@@ -158,7 +165,7 @@ public class NavigationSub extends SubsystemBase {
    *         pointing field rel)
    */
   public Rotation2d getHeadingR2D() {
-    return Rotation2d.fromDegrees(getHeading());
+    return Rotation2d.fromRadians(getHeading().in(Radians));
   }
 
   /** @return the current robot-relative {@link ChassisSpeeds} */

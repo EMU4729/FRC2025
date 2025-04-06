@@ -18,7 +18,6 @@ import frc.robot.OI;
 import frc.robot.Subsystems;
 import frc.robot.constants.DriveConstants;
 import frc.robot.utils.ClosedSlewRateLimiter;
-import frc.robot.utils.SpeedRateLimiter;
 import frc.robot.utils.RangeMath.DriveBaseFit;
 
 public class TeleopDriveSwerve extends Command {
@@ -26,13 +25,13 @@ public class TeleopDriveSwerve extends Command {
 
   private final ClosedSlewRateLimiter xLimiter = new ClosedSlewRateLimiter(
       DriveConstants.MAX_ACCELERATION.in(MetersPerSecondPerSecond),
-      -DriveConstants.MAX_DECELERATION.in(MetersPerSecondPerSecond));
+      DriveConstants.MAX_DECELERATION.in(MetersPerSecondPerSecond));
   private final ClosedSlewRateLimiter yLimiter = new ClosedSlewRateLimiter(
       DriveConstants.MAX_ACCELERATION.in(MetersPerSecondPerSecond),
-      -DriveConstants.MAX_DECELERATION.in(MetersPerSecondPerSecond));
+      DriveConstants.MAX_DECELERATION.in(MetersPerSecondPerSecond));
   private final ClosedSlewRateLimiter rLimiter = new ClosedSlewRateLimiter(
       DriveConstants.MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond),
-      -DriveConstants.MAX_ANGULAR_DECELERATION.in(RadiansPerSecondPerSecond));
+      DriveConstants.MAX_ANGULAR_DECELERATION.in(RadiansPerSecondPerSecond));
 
   private Rotation2d targetYaw = new Rotation2d(0);
 
@@ -43,6 +42,7 @@ public class TeleopDriveSwerve extends Command {
 
   @Override
   public void execute() {
+    if(!DriverStation.isTeleop()){return;}
 
     //if (OI.pilot.leftTrigger().getAsBoolean()) {
     //  Subsystems.drive.setX();
