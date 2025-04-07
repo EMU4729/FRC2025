@@ -18,6 +18,7 @@ import frc.robot.LEDs.RainbowLEDCommand;
 import frc.robot.LEDs.RepeatedFlashLEDCommand;
 import frc.robot.LEDs.SolidLEDCommand;
 import frc.robot.auto.AutoProvider;
+import frc.robot.auto.autoPath;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.teleop.TeleopProvider;
 
@@ -84,6 +85,9 @@ public class RobotContainer {
     OI.pilot.povUp().whileTrue(Subsystems.climber.upCommand());
     OI.pilot.povDown().whileTrue(Subsystems.climber.downCommand());
     // Drive bindings handled in teleop command
+
+    OI.pilot.povLeft().whileTrue(new autoPath(-0.15));
+    OI.pilot.povRight().whileTrue(new autoPath(0.15));
 
     // elevator elevations
     Command elevateIntake = new InstantCommand(

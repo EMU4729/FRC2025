@@ -109,7 +109,6 @@ public class CoralHolderSub extends SubsystemBase {
   private int simHoldlimitState = 0;
   public boolean hasCoral(){
     if(Robot.isSimulation()){
-      Random rand = new Random();
       if(simHoldlimitState < 0){
         simLimitSwitch = !simLimitSwitch;
         simHoldlimitState = 75;
