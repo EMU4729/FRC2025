@@ -40,7 +40,6 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import frc.robot.Robot;
-import frc.robot.Subsystems;
 import frc.robot.LEDs.SolidLEDCommand;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.DriveConstants.SwerveModuleDetails;
@@ -60,6 +59,7 @@ public class SwerveModule implements Sendable {
 
   /** the module's desired state, <strong>relative to the module.</strong> */
   private SwerveModuleState desiredState = new SwerveModuleState(0, new Rotation2d());
+  private int lastOptimiseThreshold = 0;
 
   /**
    * Constructs a new SwerveModule for a MAX Swerve Module housing a Falcon
@@ -232,60 +232,24 @@ public class SwerveModule implements Sendable {
         desiredState.angle.minus(details.angularOffset()));
   }
 
-  // private static final double intertia = 45;
-  /** Optimises wheel angle, using an inertia based system */
-  /*
-   * public SwerveModuleState optimize(SwerveModuleState
-   * desiredState, Rotation2d currentAngle) {
-   * var turnSpeed = 0;//Subsystems.swerveDrive.getTurnRate();
-   * double threshold = 0;//90 + MathUtil.clamp(turnSpeed *
-   * intertia, -80, 80);
-   * 
-   * var delta = desiredState.angle.minus(currentAngle);
-   * if (delta.getDegrees() > threshold || delta.getDegrees()
-   * < 180-threshold) {
-   * isFlipped = true;
-   * return new SwerveModuleState(
-   * -desiredState.speedMetersPerSecond,
-   * desiredState.angle.rotateBy(Rotation2d.fromDegrees(180.0)
-   * ));
-   * } else {
-   * isFlipped = false;
-   * return new
-   * SwerveModuleState(desiredState.speedMetersPerSecond,
-   * desiredState.angle);
-   * }
-   * }
-   */
-
-  private int lastLimit = 0;
-  private boolean isFlipped = false;
-
   /**
-   * Optimises the wheel pivot direction to reduce time spent turning
-   * uses a moving threshold to reduce flip-floping when near the 90deg point
+   * Optimises the wheel pivot direction to reduce time spent turning.
+   * Uses a moving threshold to reduce flip-floping when near the 90deg point
    */
   public SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d currentAngle) {
     var delta = desiredState.angle.minus(currentAngle);
     double error = Math.abs(delta.getDegrees());
-    int limit = lastLimit;
-    /*
-     * System.out
-     * .println(limit + " " + error + " " + delta + " " + desiredState.angle + " " +
-     * currentAngle + " " + isFlipped);
-     */
+    int threshold = lastOptimiseThreshold;
 
-    // optimizes by inverting the turn if the module is more than the limit
-    if (error < limit) {
-      lastLimit = error < 20 ? 90 : 135; // release only when near the target
+    // optimizes by inverting the turn if the module is more than the threshold
+    if (error < threshold) {
+      lastOptimiseThreshold = error < 20 ? 90 : 135; // release only when near the target
       // direction
-      isFlipped = false;
       return new SwerveModuleState(
           desiredState.speedMetersPerSecond,
           desiredState.angle);
     } else {
-      isFlipped = true;
-      lastLimit = error > 160 ? 90 : 45; // release only when near the inverted
+      lastOptimiseThreshold = error > 160 ? 90 : 45; // release only when near the inverted
       // target direction
       return new SwerveModuleState(
           -desiredState.speedMetersPerSecond,
