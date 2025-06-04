@@ -54,11 +54,12 @@ public class DriveSub extends SubsystemBase {
   }
 
   public void driveAtAngle(ChassisSpeeds speeds, boolean fieldRelative, Rotation2d yawAngle) {
-    drive(speeds, fieldRelative);
+    
     Rotation2d currentYaw = Subsystems.nav.getHeadingR2D();
-    Rotation2d err = currentYaw.minus(yawAngle);
-    err.getDegrees();
-    speeds.omegaRadiansPerSecond = holdYawPid.calculate(err.getDegrees());
+    Rotation2d err = yawAngle.minus(currentYaw);
+    
+    speeds.omegaRadiansPerSecond = holdYawPid.calculate(err.getRadians());
+    drive(speeds, fieldRelative);
   }
 
   /**

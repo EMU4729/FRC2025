@@ -5,9 +5,12 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
+import javax.print.attribute.standard.Fidelity;
+
 import com.fasterxml.jackson.databind.ser.std.ClassSerializer;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -47,13 +50,14 @@ public class TeleopDriveSwerve extends Command {
     //if (OI.pilot.leftTrigger().getAsBoolean()) {
     //  Subsystems.drive.setX();
     //  return;
+
+
     //}
-    
-    //System.out.println("tods");
+
     double limiter = OI.pilot.getRightTriggerAxis();
     double booster = OI.pilot.getHID().getRightBumperButton() ? 1 : 0;
     boolean fieldRelative = !OI.pilot.getHID().getLeftBumperButton();
-
+    
     final var control = settings.fitSwerve(
         -OI.pilot.getLeftY(),
         -OI.pilot.getLeftX(),
@@ -84,8 +88,19 @@ public class TeleopDriveSwerve extends Command {
     r = rLimiter.calculate(r, currentSpeeds.omegaRadiansPerSecond);
 
     final var speeds = new ChassisSpeeds(x, y, r);
-    if (r == 0) {
-      Subsystems.drive.driveAtAngle(speeds, fieldRelative, targetYaw);
+    if (OI.pilot.getHID().getAButton()) {
+      
+      double headingangle = Math.atan2(-OI.pilot.getRightX(),-OI.pilot.getRightY());
+      System.out.println(headingangle);
+      r =Math.hypot(OI.pilot.getRightX(), OI.pilot.getRightY());
+      if (r > 0.5){
+        Subsystems.drive.driveAtAngle(speeds, fieldRelative, new Rotation2d(headingangle));
+      }
+      else{
+        speeds.omegaRadiansPerSecond = 0;
+        Subsystems.drive.drive(speeds, fieldRelative);
+      }
+    
     } else {
       Subsystems.drive.drive(speeds, fieldRelative);
     }
