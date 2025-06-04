@@ -37,6 +37,9 @@ public class NavigationSub extends SubsystemBase {
   private Pose2d poseSim = new Pose2d();
   public final PhotonBridge photon = new PhotonBridge();
 
+  private final double baseReadingError = 0.2;
+  private double allowedReadingError = baseReadingError;
+
   // Pose estimation class for tracking robot pose
   private final SwerveDrivePoseEstimator poseEstimator;
 
@@ -102,19 +105,24 @@ public class NavigationSub extends SubsystemBase {
    * This should be called every robot tick, in the periodic method.
    */
   private void updateOdometry() {
-    poseEstimator.update(getHeadingR2D(), Subsystems.drive.getModulePositions());
+    poseEstimator.update(Rotation2d.fromDegrees(imu.getAngle()), Subsystems.drive.getModulePositions());
 
     for (final var cam : photon.cams) {
       cam.getEstimatedPose()
           .ifPresent((visionResult) -> {
             // Reject any egregiously incorrect vision pose estimates
             final var visionPose = visionResult.estimatedPose.toPose2d();
+            SmartDashboard.putString("visionPose", visionPose.toString());
             final var currentPose = getPose();
             final var errorMeters = visionPose.getTranslation().getDistance(currentPose.getTranslation());
-            if (errorMeters > 1)
-              return;
-
-            poseEstimator.addVisionMeasurement(visionPose, visionResult.timestampSeconds);
+            SmartDashboard.putNumber("visionErr", errorMeters);
+            SmartDashboard.putNumber("visionErrLim", allowedReadingError);
+            if (errorMeters > allowedReadingError){
+              allowedReadingError *= 2;
+            } else {
+              allowedReadingError = baseReadingError;
+              poseEstimator.addVisionMeasurement(visionPose, visionResult.timestampSeconds);
+            }
           });
     }
 
@@ -140,7 +148,7 @@ public class NavigationSub extends SubsystemBase {
       return;
     }
 
-    poseEstimator.resetPosition(getHeadingR2D(), Subsystems.drive.getModulePositions(), pose);
+    poseEstimator.resetPosition(Rotation2d.fromDegrees(imu.getAngle()), Subsystems.drive.getModulePositions(), pose);
   }
 
   /** Zeroes the heading of the robot. */
@@ -152,12 +160,12 @@ public class NavigationSub extends SubsystemBase {
    * @return the robot's heading (direction the robot is pointing field rel)
    */
   public Angle getHeading() {
-    return Degrees.of(imu.getAngle() * (DriveConstants.GYRO_REVERSED ? -1 : 1));
+    return Radians.of(poseEstimator.getEstimatedPosition().getRotation().getRadians());
   }
 
   /** * @return the turn rate of the robot */
   public AngularVelocity getTurnRate() {
-    return DegreesPerSecond.of(imu.getRate() * (DriveConstants.GYRO_REVERSED ? -1 : 1));
+    return DegreesPerSecond.of(imu.getRate());
   }
 
   /**

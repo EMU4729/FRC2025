@@ -93,6 +93,7 @@ public class DriveConstants {
 
   // Chassis configuration
 
+  @Deprecated
   /** IMU Gyro Inversion */
   public static final boolean GYRO_REVERSED = false;
 
