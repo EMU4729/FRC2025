@@ -29,6 +29,7 @@ import frc.robot.Robot;
 import frc.robot.Subsystems;
 import frc.robot.constants.DriveConstants;
 import frc.robot.utils.PhotonBridge;
+import frc.robot.utils.pathPlannerFix.AutoBuilderFix;
 
 public class NavigationSub extends SubsystemBase {
   private final ADIS16470_IMU imu = new ADIS16470_IMU(IMUAxis.kX, IMUAxis.kZ, IMUAxis.kY);
@@ -66,7 +67,8 @@ public class NavigationSub extends SubsystemBase {
   private void initPathPlanner() {
     try {
       final var config = RobotConfig.fromGUISettings();
-      AutoBuilder.configure(
+      AutoBuilderFix.configure(
+          true,
           this::getPose,
           this::resetOdometry,
           this::getChassisSpeeds,

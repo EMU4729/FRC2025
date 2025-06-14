@@ -2,7 +2,7 @@ package frc.robot.auto;
 
 import java.util.Optional;
 
-import com.pathplanner.lib.auto.AutoBuilder;
+import frc.robot.utils.pathPlannerFix.AutoBuilderFix;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 
@@ -41,7 +41,7 @@ public class AutoProvider {
     loadPathAuto("Test L2", "Test Auto L2");
 
     chooser.addOption("Pathfind to Pose Test",
-        AutoBuilder.pathfindToPose(
+        AutoBuilderFix.pathfindToPose(
             new Pose2d(1, 1, Rotation2d.k180deg),
             DriveConstants.PATH_CONSTRAINTS));
     chooser.addOption("Lateral Speed Analysis", new LateralSpeedAnalysis());

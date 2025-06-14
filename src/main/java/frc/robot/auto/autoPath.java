@@ -1,6 +1,6 @@
 package frc.robot.auto;
 
-import com.pathplanner.lib.auto.AutoBuilder;
+import frc.robot.utils.pathPlannerFix.AutoBuilderFix;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,7 +24,7 @@ public class autoPath extends Command {
   @Override
   public void initialize() {
     targetLocation = closestReefSide();
-    pathCommand = AutoBuilder.pathfindToPose(targetLocation, DriveConstants.PATH_CONSTRAINTS);
+    pathCommand = AutoBuilderFix.pathfindToPose(targetLocation, DriveConstants.PATH_CONSTRAINTS);
     pathCommand.schedule();
   }
 
