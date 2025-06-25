@@ -13,10 +13,13 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Value;
 
+import java.util.HashMap;
+
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -73,6 +76,28 @@ public class DriveConstants {
       MAX_SPEED, MAX_ACCELERATION,
       MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCELERATION);
 
+
+/**
+ * THIS IS A LIST OF CONSTANTS FOR OFFSETTING THE POINTS OF THE APRILTAG,
+ *  TO DETERMINE THE TARGET LOCATION FOR CORAL
+ * 
+ */
+public static final HashMap<Integer, Translation2d> APRILTAG_TO_TARGET_OFFSETS = new HashMap<>();
+
+static {
+    // Example for RED Alliance Tags (assuming a target near tags 1 and 2)
+    // These values are placeholders and require precise measurement.
+    // e.g., "From Tag 1, the target is 0.5 meters forward and 0.1 meters left"
+    APRILTAG_TO_TARGET_OFFSETS.put(1, new Translation2d(0.5, 0.1)); 
+    APRILTAG_TO_TARGET_OFFSETS.put(2, new Translation2d(0.5, -0.1));
+    // ... add fine-tuned offsets for all other relevant tags
+
+    // Example for BLUE Alliance Tags (assuming a target near tags 8 and 7)
+    APRILTAG_TO_TARGET_OFFSETS.put(8, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(7, new Translation2d(0.5, 0.1));
+    // ... add fine-tuned offsets for all other relevant tags
+}
+  
   /** Direction slew rate in radians per second */
   public static final AngularVelocity DIRECTION_SLEW_RATE = RadiansPerSecond.of(1.2);
   /** Magnitude slew rate in percent per second (1 = 100%) */
