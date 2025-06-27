@@ -30,14 +30,20 @@ public class PhotonBridge {
 
     cams = new PhotonCameraPoseEstimator[] {
         new PhotonCameraPoseEstimator(
-            VisionConstants.PHOTON_CAMERA_NAME,
-            VisionConstants.ROBOT_TO_CAMERA,
+            VisionConstants.PHOTON_CAMERA_NAME[0],
+            VisionConstants.ROBOT_TO_CAMERA[0],
             fieldLayout,
-            camProps)
+            camProps),
+            
+        new PhotonCameraPoseEstimator(
+          VisionConstants.PHOTON_CAMERA_NAME[1],
+          VisionConstants.ROBOT_TO_CAMERA[1],
+          fieldLayout,
+          camProps)
     };
 
     if (RobotBase.isSimulation()) {
-      visionSim = new VisionSystemSim(VisionConstants.PHOTON_CAMERA_NAME);
+      visionSim = new VisionSystemSim(VisionConstants.PHOTON_CAMERA_NAME[0]);
       visionSim.addAprilTags(fieldLayout);
       for (final var cam : cams) {
         visionSim.addCamera(cam.camSim, cam.getRobotToCameraTransform());
