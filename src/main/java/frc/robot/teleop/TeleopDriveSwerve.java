@@ -23,6 +23,9 @@ import frc.robot.utils.RangeMath.DriveBaseFit;
 public class TeleopDriveSwerve extends Command {
   private final DriveBaseFit settings;
 
+  private boolean skidSafteySet = false;
+  private int wheelSkidCount = 0;
+
   private final ClosedSlewRateLimiter xLimiter = new ClosedSlewRateLimiter(
       DriveConstants.MAX_ACCELERATION.in(MetersPerSecondPerSecond),
       DriveConstants.MAX_DECELERATION.in(MetersPerSecondPerSecond));
@@ -43,6 +46,19 @@ public class TeleopDriveSwerve extends Command {
   @Override
   public void execute() {
     if(!DriverStation.isTeleop()){return;}
+    boolean skidding = Subsystems.nav.wheelsInSkid();
+    System.out.println(skidding +" "+ skidSafteySet);
+    if(!skidSafteySet){
+      if(skidding){
+        wheelSkidCount++;
+        skidSafteySet = wheelSkidCount > 25; //0.5 secs
+      } else {
+        wheelSkidCount = 0;
+      }
+    } else {
+      wheelSkidCount--;
+      skidSafteySet = wheelSkidCount > 0;
+    }
 
     //if (OI.pilot.leftTrigger().getAsBoolean()) {
     //  Subsystems.drive.setX();
@@ -78,12 +94,20 @@ public class TeleopDriveSwerve extends Command {
         y *= -1;
       }
     }
+    
+    if(skidSafteySet){
+      x = Math.copySign(Math.min(Math.abs(x), DriveConstants.MAX_SPEED.in(MetersPerSecond)*0.05), x);
+      y = Math.copySign(Math.min(Math.abs(y), DriveConstants.MAX_SPEED.in(MetersPerSecond)*0.05), y);
+      r = Math.copySign(Math.min(Math.abs(r), DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond)*0.05), r);
+    }
+
     //System.out.println("pre "+x+" "+y+" "+r);
     //System.out.println("pre "+currentSpeeds.vxMetersPerSecond+" "+currentSpeeds.vyMetersPerSecond+" "+currentSpeeds.omegaRadiansPerSecond);
     x = xLimiter.calculate(x, currentSpeeds.vxMetersPerSecond);
     y = yLimiter.calculate(y, currentSpeeds.vyMetersPerSecond);
     r = rLimiter.calculate(r, currentSpeeds.omegaRadiansPerSecond);
     //System.out.println("post "+x+" "+y+" "+r);
+
 
     final var speeds = new ChassisSpeeds(x, y, r);
     if (r == 0) {

@@ -1,11 +1,15 @@
 package frc.robot.utils;
 
+import java.util.Random;
+
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.constants.VisionConstants;
 
@@ -51,9 +55,12 @@ public class PhotonBridge {
     }
   }
 
+  private Transform2d simError = new Transform2d();
   public void simulationPeriodic(Pose2d pose) {
     if (visionSim != null) {
-      visionSim.update(pose);
+      simError.plus(new Transform2d((Math.random()-0.5)*2, (Math.random()-0.5)*2, Rotation2d.fromDegrees((Math.random()-0.5)*10)));
+      visionSim.update(pose.plus(simError));
+      
     }
   }
 }

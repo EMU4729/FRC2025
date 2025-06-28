@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.Radians;
 
@@ -12,10 +13,15 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.Acceleration;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -32,13 +38,15 @@ import frc.robot.utils.PhotonBridge;
 import frc.robot.utils.pathPlannerFix.AutoBuilderFix;
 
 public class NavigationSub extends SubsystemBase {
-  private final ADIS16470_IMU imu = new ADIS16470_IMU(IMUAxis.kX, IMUAxis.kZ, IMUAxis.kY);
+  //private final ADIS16470_IMU imu = new ADIS16470_IMU(IMUAxis.kX, IMUAxis.kZ, IMUAxis.kY);
+  private final ADIS16470_IMU imu = new ADIS16470_IMU();
   private final Field2d field = new Field2d();
   private final ADIS16470_IMUSim imuSim = new ADIS16470_IMUSim(imu);
   private Pose2d poseSim = new Pose2d();
   public final PhotonBridge photon = new PhotonBridge();
 
   private final double baseReadingError = 0.2;
+  private final double maxReadingError = baseReadingError * Math.pow(2,64);
   private double allowedReadingError = baseReadingError;
 
   // Pose estimation class for tracking robot pose
@@ -131,9 +139,12 @@ public class NavigationSub extends SubsystemBase {
     field.setRobotPose(getPose());
   }
 
+  private Transform2d simError = new Transform2d();
   /** @return the currently estimated pose of the robot. */
   public Pose2d getPose() {
-    return RobotBase.isReal() ? poseEstimator.getEstimatedPosition() : poseSim;
+    simError.plus(new Transform2d((Math.random()-0.5)*2, (Math.random()-0.5)*2, Rotation2d.fromDegrees((Math.random()-0.5)*10)));
+
+    return RobotBase.isReal() ? poseEstimator.getEstimatedPosition().plus(simError) : poseSim;
   }
 
   /**
@@ -156,6 +167,40 @@ public class NavigationSub extends SubsystemBase {
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     imu.reset();
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public LinearAcceleration getAccelMag(){
+    double x;
+    double y;
+    double z;
+
+    if(Robot.isReal()){
+      x = imu.getAccelX();
+      y = imu.getAccelY();
+      z = imu.getAccelZ();
+    } else {
+      x = simAccel.getX();
+      y = simAccel.getY();
+      z = simAccel.getZ();
+    }
+
+    return MetersPerSecondPerSecond.of(Math.hypot(Math.hypot(x, y), z)*50);
+  }
+
+  private ChassisSpeeds priorSpeeds = new ChassisSpeeds();
+  public boolean wheelsInSkid(){
+    ChassisSpeeds speeds = getChassisSpeeds();
+    ChassisSpeeds diffSpeeds = speeds.minus(priorSpeeds);
+    double wheelAccel = Math.hypot(diffSpeeds.vxMetersPerSecond, diffSpeeds.vyMetersPerSecond)*50;
+    double imuAccel = getAccelMag().in(MetersPerSecondPerSecond);
+
+    priorSpeeds = speeds;
+    System.out.println(imuAccel+" "+wheelAccel);
+    return (imuAccel+0.05)*2 < wheelAccel && wheelAccel > 0.2;
   }
 
   /**
@@ -211,6 +256,8 @@ public class NavigationSub extends SubsystemBase {
     return Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
   }
 
+  Translation2d simulationPeriodicLastRobotLocal = new Translation2d();
+  double simulationPeriodicLastVel = 0;
   @Override
   public void simulationPeriodic() {
     final var speeds = getDesiredChassisSpeeds();
@@ -222,6 +269,15 @@ public class NavigationSub extends SubsystemBase {
     // imuSim.setGyroAngleZ(getHeading().plus(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond
     // * 0.02)).getDegrees());
     simImuSetAngleYaw(field.getRobotPose().getRotation().getDegrees());
+
+    Translation2d pos = field.getRobotObject().getPose().getTranslation();
+    Translation2d tmpPos = pos.minus(simulationPeriodicLastRobotLocal);
+    double vel = Math.hypot(tmpPos.getX(), tmpPos.getY())*50; //50 updates per sec
+    simImuSetLinAccel((vel - simulationPeriodicLastVel)*50);
+    System.out.println(tmpPos+" "+imu.getAccelX()+" "+(vel - simulationPeriodicLastVel)*50);
+    simulationPeriodicLastRobotLocal = pos;
+    simulationPeriodicLastVel = vel;
+
     poseSim = poseSim.exp(
         new Twist2d(
             speeds.vxMetersPerSecond * 0.02,
@@ -251,5 +307,12 @@ public class NavigationSub extends SubsystemBase {
       case kPitch: imuSim.setGyroRateY(angle); break;
       case kYaw: imuSim.setGyroRateZ(angle); break;
     }
+  }
+
+  //sim accel is broken
+  Translation3d simAccel = new Translation3d(); 
+  private void simImuSetLinAccel(double accel) {//TODO improve
+    imuSim.setAccelX(accel);
+    simAccel = new Translation3d(accel,0,0);
   }
 }

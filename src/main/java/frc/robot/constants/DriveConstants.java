@@ -124,7 +124,7 @@ public class DriveConstants {
 
   // TODO tune PID
   public static final double DRIVE_P = 1.6;//0.7;
-  public static final double DRIVE_I = 8;
+  public static final double DRIVE_I = 3;//8;
   public static final double DRIVE_D = 0;
   public static final double DRIVING_FF = 0;
 
