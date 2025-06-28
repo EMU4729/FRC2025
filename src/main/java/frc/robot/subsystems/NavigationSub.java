@@ -100,7 +100,7 @@ public class NavigationSub extends SubsystemBase {
   public void periodic() {
     updateOdometry();
   }
-
+  
   /**
    * Updates the robot's odometry.
    * 
@@ -163,6 +163,10 @@ public class NavigationSub extends SubsystemBase {
    */
   public Angle getHeading() {
     return Radians.of(poseEstimator.getEstimatedPosition().getRotation().getRadians());
+  }
+
+  public Angle getIMUHeading() {
+    return Degrees.of(imu.getAngle());
   }
 
   /** * @return the turn rate of the robot */

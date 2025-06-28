@@ -54,8 +54,8 @@ public class DriveConstants {
    */
   public static final LinearVelocity MAX_SPEED = MetersPerSecond.of(5); // TODO check this
   /** Max acceleration of robot in meters per second squared */
-  public static final LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(1); // TODO check this
-  public static final LinearAcceleration MAX_DECELERATION = MetersPerSecondPerSecond.of(-1); // TODO check this
+  public static final LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(0.3); // TODO check this
+  public static final LinearAcceleration MAX_DECELERATION = MAX_ACCELERATION.times(-2);
   /**
    * Max angular speed of robot in radians per second
    * 
@@ -123,9 +123,9 @@ public class DriveConstants {
   public static final double TURNING_ENCODER_POSITION_PID_MAX_INPUT = TURNING_ENCODER_POSITION_FACTOR; // radians
 
   // TODO tune PID
-  public static final double DRIVE_P = 0.7;
-  public static final double DRIVE_I = 0.05;
-  public static final double DRIVE_D = 0.05;
+  public static final double DRIVE_P = 1.6;//0.7;
+  public static final double DRIVE_I = 8;
+  public static final double DRIVE_D = 0;
   public static final double DRIVING_FF = 0;
 
   public static final double TURNING_P = 1.3;

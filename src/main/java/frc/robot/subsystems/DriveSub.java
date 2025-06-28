@@ -79,7 +79,7 @@ public class DriveSub extends SubsystemBase {
    */
   public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
     if (fieldRelative) { // convert field rel speeds to robot rel
-      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, Subsystems.nav.getHeadingR2D());
+      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, new Rotation2d(Subsystems.nav.getIMUHeading()));
     }
     //System.out.println(speeds.toString());
 

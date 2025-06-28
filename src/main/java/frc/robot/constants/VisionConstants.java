@@ -6,18 +6,18 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 
 public class VisionConstants {
-  public static final String[] PHOTON_CAMERA_NAME = {"photonvision", "photonvision2"};
+  public static final String[] PHOTON_CAMERA_NAME = {"photon1", "photon2"};
 
   // SIMULATION CONSTANTS
   // transform[translation[F+,L+,U+], rotation[R(r+),P(d+),Y(L+)]  
   public static final Transform3d[] ROBOT_TO_CAMERA = {
       new Transform3d(
-          new Translation3d(0.31-0.025,-0.1,0.16),
+          new Translation3d(0.31-0.03,0.31-0.375,0.16),
           new Rotation3d(0, Math.toRadians(-45), 0)
       ),
       new Transform3d(
-        new Translation3d(-0.215,0.155,0.27),
-        new Rotation3d(0, Math.toRadians(0), 0)
+        new Translation3d(-0.215,0.155,0.51),
+        new Rotation3d(0, Math.toRadians(0), Math.toRadians(180))
       )};
   // Here is what the PhotonVision docs had:
   // Our camera is mounted 0.1 meters forward and 0.5 meters up from the robot
