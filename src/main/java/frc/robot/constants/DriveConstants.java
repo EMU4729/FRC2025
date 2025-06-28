@@ -90,6 +90,12 @@ static {
     // e.g., "From Tag 1, the target is 0.5 meters forward and 0.1 meters left"
     APRILTAG_TO_TARGET_OFFSETS.put(1, new Translation2d(0.5, 0.1)); 
     APRILTAG_TO_TARGET_OFFSETS.put(2, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(1, new Translation2d(0.5, 0.1)); 
+    APRILTAG_TO_TARGET_OFFSETS.put(2, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(1, new Translation2d(0.5, 0.1)); 
+    APRILTAG_TO_TARGET_OFFSETS.put(2, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(1, new Translation2d(0.5, 0.1)); 
+    APRILTAG_TO_TARGET_OFFSETS.put(10, new Translation2d(400,20));
     // ... add fine-tuned offsets for all other relevant tags
 
     // Example for BLUE Alliance Tags (assuming a target near tags 8 and 7)

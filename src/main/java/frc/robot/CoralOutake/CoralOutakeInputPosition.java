@@ -1,7 +1,11 @@
 package frc.robot.CoralOutake;
 
+import java.security.Key;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -38,6 +42,8 @@ public class CoralOutakeInputPosition extends Command{
     SetCoordinateValues(); // Populate the AprilTag coordinates upon construction
 }
 
+
+
   public void SetCoordinateValues(){
     AprilTagFieldLayout loadedAprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
@@ -62,58 +68,24 @@ public class CoralOutakeInputPosition extends Command{
     }
    }
 
-   /**
- * Calculates the target pose based on the closest known AprilTag.
- * @return An Optional containing the calculated Pose2d of the target, or empty if no suitable tag is found.
- */
-public Optional<Pose2d> GetOffsetPositionFromAprilTag() {
-  Pose2d robotPose = robotPoseSupplier.get();
 
-  // Find the closest AprilTag from our populated list
-  Optional<Pose2d> closestTagPose = findClosestAprilTag(robotPose);
-
-  if (closestTagPose.isEmpty()) {
-      return Optional.empty(); // No tag found to calculate from
-  }
-
-  // Find the ID of the closest tag
-  // This is a bit inefficient; the 'better implementation' below solves this.
-  int closestTagId = -1;
-  for (var entry : Coordinate_Positions.entrySet()) {
-      if (entry.getValue().equals(closestTagPose.get())) {
-          // Extract the integer ID from the string "ID X"
-          closestTagId = Integer.parseInt(entry.getKey().replace("ID ", ""));
-          break;
-      }
-  }
-
-  if (closestTagId == -1 || !DriveConstants.APRILTAG_TO_TARGET_OFFSETS.containsKey(closestTagId)) {
-      // We found a tag, but we don't have a tuned offset for it
-      return Optional.empty();
-  }
-
-  // Get the manually-tuned offset for this specific tag
-  Translation2d offset = DriveConstants.APRILTAG_TO_TARGET_OFFSETS.get(closestTagId);
-
-  // Calculate the final target pose: Start with the tag's pose and apply the offset
-  Pose2d targetPose = new Pose2d(
-      closestTagPose.get().getTranslation().plus(offset),
-      closestTagPose.get().getRotation() // Assuming target has same orientation as tag
-  );
-
-  return Optional.of(targetPose);
+public Pose2d calculateTargetPoseFromClosestAprilTag(Pose2d robotPose) {
+    return Coordinate_Positions.entrySet().stream()
+            // Filter to only include tags we have an offset for
+            .filter(entry -> DriveConstants.APRILTAG_TO_TARGET_OFFSETS.containsKey(entry.getKey()))
+            // Find the one with the minimum distance
+            .min(Comparator.comparingDouble(entry ->
+                    entry.getValue().getTranslation().getDistance(robotPose.getTranslation())
+            ))
+            // If a tag was found, map it to the final target pose
+            .map(winner -> {
+                Translation2d offset = DriveConstants.APRILTAG_TO_TARGET_OFFSETS.get(winner.getKey());
+                return new Pose2d(winner.getValue().getTranslation().plus(offset), winner.getValue().getRotation());
+            })
+            // Otherwise, return null
+            .orElse(null);
 }
-/**
- * Helper function to find the closest AprilTag to the robot.
- * @param robotPose The current pose of the robot.
- * @return An Optional containing the Pose2d of the closest tag.
- */
-private Optional<Pose2d> findClosestAprilTag(Pose2d robotPose) {
-  return Coordinate_Positions.values().stream()
-          .min((pose1, pose2) -> Double.compare(
-                  pose1.getTranslation().getDistance(robotPose.getTranslation()),
-                  pose2.getTranslation().getDistance(robotPose.getTranslation())));
-}
+
 
 
   

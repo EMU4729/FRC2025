@@ -10,22 +10,29 @@ import javax.print.attribute.standard.Fidelity;
 import com.fasterxml.jackson.databind.ser.std.ClassSerializer;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.OI;
 import frc.robot.Subsystems;
+import frc.robot.CoralOutake.CoralOutakeInputPosition;
 import frc.robot.constants.DriveConstants;
 import frc.robot.utils.ClosedSlewRateLimiter;
 import frc.robot.utils.RangeMath.DriveBaseFit;
 
 public class TeleopDriveSwerve extends Command {
   private final DriveBaseFit settings;
-
+  private final Subsystems drivetrain;
+  private final Pose2d targetPose;
   private final ClosedSlewRateLimiter xLimiter = new ClosedSlewRateLimiter(
       DriveConstants.MAX_ACCELERATION.in(MetersPerSecondPerSecond),
       DriveConstants.MAX_DECELERATION.in(MetersPerSecondPerSecond));
@@ -38,10 +45,33 @@ public class TeleopDriveSwerve extends Command {
 
   private Rotation2d targetYaw = new Rotation2d(0);
 
-  public TeleopDriveSwerve(DriveBaseFit settings) {
+  private final HolonomicDriveController controller;
+
+  public TeleopDriveSwerve(DriveBaseFit settings, Subsystems drivetrain, Pose2d targetPose) {
     this.settings = settings;
     addRequirements(Subsystems.drive);
+
+    this.drivetrain = drivetrain;
+        this.targetPose = targetPose;
+
+        // Initialize the software controller.
+        // TUNE THESE GAINS for robot!
+        this.controller = new HolonomicDriveController(
+                new PIDController(1.5, 0, 0),      // X controller
+                new PIDController(1.5, 0, 0),      // Y controller
+                new ProfiledPIDController(      // Theta controller
+                        3.0, 0, 0,
+                        new TrapezoidProfile.Constraints(
+                                6.28, // Max angular velocity (rad/s)
+                                3.14  // Max angular acceleration (rad/s^2)
+                        )
+                )
+        );
+        controller.getThetaController().enableContinuousInput(-Math.PI, Math.PI);
+
   }
+
+  
 
   @Override
   public void execute() {
@@ -104,6 +134,23 @@ public class TeleopDriveSwerve extends Command {
     } else {
       Subsystems.drive.drive(speeds, fieldRelative);
     }
+
+  }
+  
+
+  public void AutoAlignRobotToCoral(){
+
+    
+    if (OI.pilot.getHID().getBButtonPressed()){
+      Pose2d CurrentPose_fromcam = Subsystems.nav.getPose();
+      CoralOutakeInputPosition coralPositioner = new CoralOutakeInputPosition(null);
+      Pose2d targetcoordinates = coralPositioner.calculateTargetPoseFromClosestAprilTag(CurrentPose_fromcam);
+      ChassisSpeeds speeds = controller.calculate(CurrentPose_fromcam, targetcoordinates, 0, targetcoordinates.getRotation());
+  
+      Subsystems.drive.drive(speeds);
+    }
+
+    
 
   }
 
