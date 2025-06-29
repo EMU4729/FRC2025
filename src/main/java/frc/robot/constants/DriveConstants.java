@@ -90,17 +90,29 @@ static {
     // e.g., "From Tag 1, the target is 0.5 meters forward and 0.1 meters left"
     APRILTAG_TO_TARGET_OFFSETS.put(1, new Translation2d(0.5, 0.1)); 
     APRILTAG_TO_TARGET_OFFSETS.put(2, new Translation2d(0.5, -0.1));
-    APRILTAG_TO_TARGET_OFFSETS.put(1, new Translation2d(0.5, 0.1)); 
-    APRILTAG_TO_TARGET_OFFSETS.put(2, new Translation2d(0.5, -0.1));
-    APRILTAG_TO_TARGET_OFFSETS.put(1, new Translation2d(0.5, 0.1)); 
-    APRILTAG_TO_TARGET_OFFSETS.put(2, new Translation2d(0.5, -0.1));
-    APRILTAG_TO_TARGET_OFFSETS.put(1, new Translation2d(0.5, 0.1)); 
-    APRILTAG_TO_TARGET_OFFSETS.put(10, new Translation2d(400,20));
+    APRILTAG_TO_TARGET_OFFSETS.put(3, new Translation2d(0.5, 0.1)); 
+    APRILTAG_TO_TARGET_OFFSETS.put(4, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(5, new Translation2d(0.5, 0.1)); 
+    APRILTAG_TO_TARGET_OFFSETS.put(6, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(7, new Translation2d(0.5, 0.1)); 
+    APRILTAG_TO_TARGET_OFFSETS.put(8, new Translation2d(400,20));
+    APRILTAG_TO_TARGET_OFFSETS.put(9, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(10, new Translation2d(0.5, 0.1)); 
+    APRILTAG_TO_TARGET_OFFSETS.put(11, new Translation2d(400,20));
     // ... add fine-tuned offsets for all other relevant tags
 
     // Example for BLUE Alliance Tags (assuming a target near tags 8 and 7)
-    APRILTAG_TO_TARGET_OFFSETS.put(8, new Translation2d(0.5, -0.1));
-    APRILTAG_TO_TARGET_OFFSETS.put(7, new Translation2d(0.5, 0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(12, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(13, new Translation2d(0.5, 0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(14, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(15, new Translation2d(0.5, 0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(16, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(17, new Translation2d(0.5, 0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(18, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(19, new Translation2d(0.5, 0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(20, new Translation2d(0.5, -0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(21, new Translation2d(0.5, 0.1));
+    APRILTAG_TO_TARGET_OFFSETS.put(22, new Translation2d(0.5, -0.1));
     // ... add fine-tuned offsets for all other relevant tags
 }
   

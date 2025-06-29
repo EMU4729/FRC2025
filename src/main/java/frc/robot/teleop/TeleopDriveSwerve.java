@@ -31,8 +31,6 @@ import frc.robot.utils.RangeMath.DriveBaseFit;
 
 public class TeleopDriveSwerve extends Command {
   private final DriveBaseFit settings;
-  private final Subsystems drivetrain;
-  private final Pose2d targetPose;
   private final ClosedSlewRateLimiter xLimiter = new ClosedSlewRateLimiter(
       DriveConstants.MAX_ACCELERATION.in(MetersPerSecondPerSecond),
       DriveConstants.MAX_DECELERATION.in(MetersPerSecondPerSecond));
@@ -42,17 +40,18 @@ public class TeleopDriveSwerve extends Command {
   private final ClosedSlewRateLimiter rLimiter = new ClosedSlewRateLimiter(
       DriveConstants.MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond),
       DriveConstants.MAX_ANGULAR_DECELERATION.in(RadiansPerSecondPerSecond));
+      private final CoralOutakeInputPosition coralPositioner;
 
   private Rotation2d targetYaw = new Rotation2d(0);
 
   private final HolonomicDriveController controller;
 
-  public TeleopDriveSwerve(DriveBaseFit settings, Subsystems drivetrain, Pose2d targetPose) {
+  public TeleopDriveSwerve(DriveBaseFit settings) {
     this.settings = settings;
     addRequirements(Subsystems.drive);
+    this.coralPositioner = new CoralOutakeInputPosition(new Pose2d()); 
 
-    this.drivetrain = drivetrain;
-        this.targetPose = targetPose;
+    
 
         // Initialize the software controller.
         // TUNE THESE GAINS for robot!
@@ -68,7 +67,6 @@ public class TeleopDriveSwerve extends Command {
                 )
         );
         controller.getThetaController().enableContinuousInput(-Math.PI, Math.PI);
-
   }
 
   
@@ -76,6 +74,8 @@ public class TeleopDriveSwerve extends Command {
   @Override
   public void execute() {
     if(!DriverStation.isTeleop()){return;}
+
+    AutoAlignRobotToCoral();
 
     //if (OI.pilot.leftTrigger().getAsBoolean()) {
     //  Subsystems.drive.setX();
@@ -141,13 +141,23 @@ public class TeleopDriveSwerve extends Command {
   public void AutoAlignRobotToCoral(){
 
     
-    if (OI.pilot.getHID().getBButtonPressed()){
+    if (OI.pilot.getHID().getBButton()){
+      //System.out.println("AutoAlignRObot Coral working");
+      coralPositioner.SetCoordinateValues();
       Pose2d CurrentPose_fromcam = Subsystems.nav.getPose();
-      CoralOutakeInputPosition coralPositioner = new CoralOutakeInputPosition(null);
+      System.out.println(CurrentPose_fromcam);
+      
       Pose2d targetcoordinates = coralPositioner.calculateTargetPoseFromClosestAprilTag(CurrentPose_fromcam);
+      
+      //TODO this targetcoordinates is null
       ChassisSpeeds speeds = controller.calculate(CurrentPose_fromcam, targetcoordinates, 0, targetcoordinates.getRotation());
   
       Subsystems.drive.drive(speeds);
+
+      if (CurrentPose_fromcam == targetcoordinates){
+        System.out.println("target = current");
+        Subsystems.drive.drive(new ChassisSpeeds(0,0,0));
+      }
     }
 
     
