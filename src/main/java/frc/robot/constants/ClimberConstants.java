@@ -4,7 +4,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Millimeters;
 
 import edu.wpi.first.units.measure.Distance;
-import frc.robot.utils.motorsupplier.FalconMotorSupplier;
+import frc.robot.utils.TypeSupliers.motorsupplier.FalconMotorSupplier;
 
 public class ClimberConstants {
   public static final FalconMotorSupplier MOTOR_ID = new FalconMotorSupplier(9).withBrake().withEncoder(1.0 / 75.0);

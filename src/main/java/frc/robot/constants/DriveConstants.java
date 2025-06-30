@@ -29,13 +29,11 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Per;
-import frc.robot.utils.RangeMath.AxesFit;
-import frc.robot.utils.RangeMath.DriveBaseFit;
+import frc.robot.classes.RangeMath.AxesFit;
+import frc.robot.classes.RangeMath.DriveBaseFit;
 
 public class DriveConstants {
   // NEO Motor Constants
-  /** Free speed of the driving motor in rpm */
-  public static final AngularVelocity FREE_SPEED = Rotations.per(Minute).of(6380);
   /** Distance between centers of left and right wheels on robot in meters */
   public static final Distance TRACK_WIDTH = Meters.of(0.52);
   /** Distance between front and back wheel on robot in meters */
@@ -43,7 +41,7 @@ public class DriveConstants {
   /** Drivebase radius in m (distance from center of robot to farthest module) */
   public static final Distance DRIVEBASE_RADIUS = Meters
       .of(Math.hypot(WHEEL_BASE.in(Meters) / 2, TRACK_WIDTH.in(Meters) / 2));
-
+  
   public static final Translation2d[] FIELD_BOUNDS = {new Translation2d(0,0), new Translation2d(17.5, 8)};
 
   // Driving Parameters - Note that these are not the maximum capable speeds of
@@ -75,13 +73,6 @@ public class DriveConstants {
       MAX_SPEED, MAX_ACCELERATION,
       MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCELERATION);
 
-  /** Direction slew rate in radians per second */
-  public static final AngularVelocity DIRECTION_SLEW_RATE = RadiansPerSecond.of(1.2);
-  /** Magnitude slew rate in percent per second (1 = 100%) */
-  public static final Per<DimensionlessUnit, TimeUnit> MAGNITUDE_SLEW_RATE = Value.per(Second).ofNative(1.8);
-  /** Rotational slew rate in percent per second (1 = 100%) */
-  public static final Per<DimensionlessUnit, TimeUnit> ROTATIONAL_SLEW_RATE = Value.per(Second).ofNative(8.0);
-
   /**
    * Gear ratio of the MAX Swerve Module driving motor (gear ratio upgrade kit
    * extra high speed 1)
@@ -95,21 +86,8 @@ public class DriveConstants {
 
   // Chassis configuration
 
-  @Deprecated
-  /** IMU Gyro Inversion */
-  public static final boolean GYRO_REVERSED = false;
 
   // Module Constants
-  /** Drive motor inversion. */
-  public static final InvertedValue DRIVE_MOTOR_INVERTED = InvertedValue.Clockwise_Positive;
-
-  /**
-   * Whether the turning encoder is inverted or not.
-   * 
-   * In the MAXSwerve module, this should be set to `true`, since the output shaft
-   * rotates in the opposite direction of the steering motor.
-   */
-  public static final boolean TURNING_ENCODER_INVERTED = true;
 
   // Calculations required for driving motor conversion factors and feed forward
   /** Wheel diameter in meters */

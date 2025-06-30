@@ -9,7 +9,7 @@ public class VisionConstants {
   public static final String[] PHOTON_CAMERA_NAME = {"photon1", "photon2"};
 
   // SIMULATION CONSTANTS
-  // transform[translation[F+,L+,U+], rotation[R(r+),P(d+),Y(L+)]  
+  // transform[translation[FB(f+),LR(l+),UD(u+)], rotation[R(r+),P(d+),Y(L+)]  
   public static final Transform3d[] ROBOT_TO_CAMERA = {
       new Transform3d(
           new Translation3d(0.31-0.03,0.31-0.375,0.16),

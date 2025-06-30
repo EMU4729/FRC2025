@@ -19,10 +19,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Robot;
 import frc.robot.Subsystems;
-import frc.robot.LEDs.FlashSolidLEDCommand;
-import frc.robot.LEDs.LEDCommand;
-import frc.robot.LEDs.RepeatedFlashLEDCommand;
-import frc.robot.LEDs.SolidLEDCommand;
+import frc.robot.utils.LEDs.FlashSolidLEDCommand;
+import frc.robot.utils.LEDs.LEDCommand;
+import frc.robot.utils.LEDs.RepeatedFlashLEDCommand;
+import frc.robot.utils.LEDs.SolidLEDCommand;
 import frc.robot.constants.CoralHolderConstants;
 import frc.robot.constants.ElevatorConstants;
 

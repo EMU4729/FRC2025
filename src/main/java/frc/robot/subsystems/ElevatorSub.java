@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ElevatorConstants;
-import frc.robot.utils.motorsupplier.FalconMotorSupplier;
+import frc.robot.utils.TypeSupliers.motorsupplier.FalconMotorSupplier;
 
 public class ElevatorSub extends SubsystemBase {
   private final TalonFX motor;

@@ -33,8 +33,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.Subsystems;
+import frc.robot.classes.photon.PhotonBridge;
 import frc.robot.constants.DriveConstants;
-import frc.robot.utils.PhotonBridge;
 import frc.robot.utils.pathPlannerFix.AutoBuilderFix;
 
 public class NavigationSub extends SubsystemBase {

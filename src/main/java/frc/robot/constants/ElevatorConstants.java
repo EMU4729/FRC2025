@@ -6,7 +6,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Distance;
-import frc.robot.utils.EncoderSupplier;
+import frc.robot.utils.TypeSupliers.EncoderSupplier;
 
 public class ElevatorConstants {
   protected ElevatorConstants() {
