@@ -44,6 +44,8 @@ public class DriveConstants {
   public static final Distance DRIVEBASE_RADIUS = Meters
       .of(Math.hypot(WHEEL_BASE.in(Meters) / 2, TRACK_WIDTH.in(Meters) / 2));
 
+  public static final Translation2d[] FIELD_BOUNDS = {new Translation2d(0,0), new Translation2d(17.5, 8)};
+
   // Driving Parameters - Note that these are not the maximum capable speeds of
   // the robot, rather the allowed maximum speeds
   /**
@@ -124,7 +126,7 @@ public class DriveConstants {
 
   // TODO tune PID
   public static final double DRIVE_P = 1.6;//0.7;
-  public static final double DRIVE_I = 3;//8;
+  public static final double DRIVE_I = 5;//8;
   public static final double DRIVE_D = 0;
   public static final double DRIVING_FF = 0;
 

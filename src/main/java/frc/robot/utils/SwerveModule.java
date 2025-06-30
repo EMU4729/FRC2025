@@ -74,7 +74,6 @@ public class SwerveModule implements Sendable {
     driveMotor = new FalconMotorSupplier(moduleDetails.driveCANID())
         .withBrake()
         .withEncoder(DriveConstants.DRIVE_GEAR_RATIO)
-        .withCurrentLimit(20)
         .withPID(DriveConstants.DRIVE_P,
             DriveConstants.DRIVE_I,
             DriveConstants.DRIVE_D)

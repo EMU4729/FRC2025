@@ -64,7 +64,7 @@ public class NavigationSub extends SubsystemBase {
         Subsystems.drive.getModulePositions(),
         new Pose2d());
         
-    resetOdometry(new Pose2d(4.992, 2.826, Rotation2d.k180deg)); 
+    resetOdometry(new Pose2d(8, 4, Rotation2d.k180deg)); 
   }
 
   /**
@@ -136,16 +136,35 @@ public class NavigationSub extends SubsystemBase {
           });
     }
 
+    normaliseOdometry();
+
     field.setRobotPose(getPose());
   }
 
   private Transform2d simError = new Transform2d();
   /** @return the currently estimated pose of the robot. */
   public Pose2d getPose() {
-    simError.plus(new Transform2d((Math.random()-0.5)*2, (Math.random()-0.5)*2, Rotation2d.fromDegrees((Math.random()-0.5)*10)));
+    if(Robot.isSimulation())
+      simError.plus(new Transform2d((Math.random()-0.5)*2, (Math.random()-0.5)*2, Rotation2d.fromDegrees((Math.random()-0.5)*10)));
 
     return RobotBase.isReal() ? poseEstimator.getEstimatedPosition().plus(simError) : poseSim;
   }
+
+  public void normaliseOdometry(){
+    Translation2d poseCur = getPose().getTranslation();
+    Translation2d minloc = DriveConstants.FIELD_BOUNDS[0];
+    Translation2d maxloc = DriveConstants.FIELD_BOUNDS[1];
+    poseCur = new Translation2d(
+        Math.max(Math.min(poseCur.getX(), maxloc.getX()),minloc.getX()),
+        Math.max(Math.min(poseCur.getY(), maxloc.getY()),minloc.getY())
+        );
+    
+    poseEstimator.resetTranslation(poseCur);
+    if(Robot.isSimulation()){
+      poseSim = new Pose2d(poseCur, poseSim.getRotation());
+    }
+  }
+  
 
   /**
    * Resets the odometry to the specified pose.
@@ -169,39 +188,6 @@ public class NavigationSub extends SubsystemBase {
     imu.reset();
   }
 
-  /**
-   * 
-   * @return
-   */
-  public LinearAcceleration getAccelMag(){
-    double x;
-    double y;
-    double z;
-
-    if(Robot.isReal()){
-      x = imu.getAccelX();
-      y = imu.getAccelY();
-      z = imu.getAccelZ();
-    } else {
-      x = simAccel.getX();
-      y = simAccel.getY();
-      z = simAccel.getZ();
-    }
-
-    return MetersPerSecondPerSecond.of(Math.hypot(Math.hypot(x, y), z)*50);
-  }
-
-  private ChassisSpeeds priorSpeeds = new ChassisSpeeds();
-  public boolean wheelsInSkid(){
-    ChassisSpeeds speeds = getChassisSpeeds();
-    ChassisSpeeds diffSpeeds = speeds.minus(priorSpeeds);
-    double wheelAccel = Math.hypot(diffSpeeds.vxMetersPerSecond, diffSpeeds.vyMetersPerSecond)*50;
-    double imuAccel = getAccelMag().in(MetersPerSecondPerSecond);
-
-    priorSpeeds = speeds;
-    System.out.println(imuAccel+" "+wheelAccel);
-    return (imuAccel+0.05)*2 < wheelAccel && wheelAccel > 0.2;
-  }
 
   /**
    * @return the robot's heading (direction the robot is pointing field rel)
@@ -274,7 +260,6 @@ public class NavigationSub extends SubsystemBase {
     Translation2d tmpPos = pos.minus(simulationPeriodicLastRobotLocal);
     double vel = Math.hypot(tmpPos.getX(), tmpPos.getY())*50; //50 updates per sec
     simImuSetLinAccel((vel - simulationPeriodicLastVel)*50);
-    System.out.println(tmpPos+" "+imu.getAccelX()+" "+(vel - simulationPeriodicLastVel)*50);
     simulationPeriodicLastRobotLocal = pos;
     simulationPeriodicLastVel = vel;
 
