@@ -149,12 +149,12 @@ public class TeleopDriveSwerve extends Command {
       
       Pose2d targetcoordinates = coralPositioner.calculateTargetPoseFromClosestAprilTag(CurrentPose_fromcam);
       
-      //TODO this targetcoordinates is null
+     
       ChassisSpeeds speeds = controller.calculate(CurrentPose_fromcam, targetcoordinates, 0, targetcoordinates.getRotation());
   
       Subsystems.drive.drive(speeds);
 
-      if (CurrentPose_fromcam == targetcoordinates){
+      if (CurrentPose_fromcam.equals(targetcoordinates)){
         System.out.println("target = current");
         Subsystems.drive.drive(new ChassisSpeeds(0,0,0));
       }
