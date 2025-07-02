@@ -23,6 +23,7 @@ import frc.robot.Robot;
 import frc.robot.Subsystems;
 import frc.robot.classes.SwerveModule;
 import frc.robot.constants.DriveConstants;
+import frc.robot.utils.LibUpgrades.SwerveModuleStateUpgrade;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -104,10 +105,10 @@ public class DriveSub extends SubsystemBase {
    * Sets the wheels into an X formation to prevent movement.
    */
   public void setX() {
-    frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-    frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    backLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    backRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+    frontLeft.setDesiredState(new SwerveModuleStateUpgrade(0, Rotation2d.fromDegrees(45)));
+    frontRight.setDesiredState(new SwerveModuleStateUpgrade(0, Rotation2d.fromDegrees(-45)));
+    backLeft.setDesiredState(new SwerveModuleStateUpgrade(0, Rotation2d.fromDegrees(-45)));
+    backRight.setDesiredState(new SwerveModuleStateUpgrade(0, Rotation2d.fromDegrees(45)));
   }
 
   /**
@@ -115,7 +116,7 @@ public class DriveSub extends SubsystemBase {
    *
    * @param desiredStates The desired {@link SwerveModuleState}s.
    */
-  public void setModuleStates(SwerveModuleState[] desiredStates) {
+  public void setModuleStates(SwerveModuleStateUpgrade[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_SPEED);
     frontLeft.setDesiredState(desiredStates[0]);
     frontRight.setDesiredState(desiredStates[1]);
@@ -161,14 +162,7 @@ public class DriveSub extends SubsystemBase {
     backRight.resetEncoders();
   }
 
-  /** reset turn motor pid I accumulation to 0 */
-  public void resetIntegral() {
-    frontLeft.resetIntegral();
-    frontRight.resetIntegral();
-    backLeft.resetIntegral();
-    backRight.resetIntegral();
 
-  }
 
   public SequentialCommandGroup testFunction(){
     return new SequentialCommandGroup(

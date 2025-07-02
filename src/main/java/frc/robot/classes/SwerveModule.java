@@ -44,6 +44,7 @@ import frc.robot.Robot;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.DriveConstants.SwerveModuleDetails;
 import frc.robot.utils.LEDs.SolidLEDCommand;
+import frc.robot.utils.LibUpgrades.SwerveModuleStateUpgrade;
 import frc.robot.utils.TypeSupliers.motorsupplier.FalconMotorSupplier;
 import frc.robot.utils.TypeSupliers.motorsupplier.SparkMotorSupplier;
 
@@ -193,8 +194,8 @@ public class SwerveModule implements Sendable {
   }
 
   /** @return the module's current robot-relative state */
-  public SwerveModuleState getState() {
-    return new SwerveModuleState(getDriveVelocity(), getTurnRotation2d());
+  public SwerveModuleStateUpgrade getState() {
+    return new SwerveModuleStateUpgrade(getDriveVelocity(), getTurnRotation2d());
   }
 
   /** @return the module's current robot-relative position */
@@ -207,7 +208,7 @@ public class SwerveModule implements Sendable {
    * 
    * @param state the desired state, relative to the robot.
    */
-  public void setDesiredState(SwerveModuleState state) {
+  public void setDesiredState(SwerveModuleStateUpgrade state) {
     // convert from robot-relative angle to module-relative angle
     state.angle = state.angle.plus(details.angularOffset());
 
@@ -231,10 +232,10 @@ public class SwerveModule implements Sendable {
    * @return the desired state of the module, relative to the
    *         robot.
    */
-  public SwerveModuleState getDesiredState() {
+  public SwerveModuleStateUpgrade getDesiredState() {
     // we must convert to a robot-relative angle, since desiredState is relative to
     // the module.
-    return new SwerveModuleState(
+    return new SwerveModuleStateUpgrade(
         desiredState.speedMetersPerSecond,
         desiredState.angle.minus(details.angularOffset()));
   }
@@ -243,7 +244,7 @@ public class SwerveModule implements Sendable {
    * Optimises the wheel pivot direction to reduce time spent turning.
    * Uses a moving threshold to reduce flip-floping when near the 90deg point
    */
-  public SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d currentAngle) {
+  public SwerveModuleStateUpgrade optimize(SwerveModuleState desiredState, Rotation2d currentAngle) {
     var delta = desiredState.angle.minus(currentAngle);
     double error = Math.abs(delta.getDegrees());
     int threshold = lastOptimiseThreshold;
@@ -252,13 +253,13 @@ public class SwerveModule implements Sendable {
     if (error < threshold) {
       lastOptimiseThreshold = error < 20 ? 90 : 135; // release only when near the target
       // direction
-      return new SwerveModuleState(
+      return new SwerveModuleStateUpgrade(
           desiredState.speedMetersPerSecond,
           desiredState.angle);
     } else {
       lastOptimiseThreshold = error > 160 ? 90 : 45; // release only when near the inverted
       // target direction
-      return new SwerveModuleState(
+      return new SwerveModuleStateUpgrade(
           -desiredState.speedMetersPerSecond,
           desiredState.angle.rotateBy(Rotation2d.kPi));
     }
@@ -269,10 +270,6 @@ public class SwerveModule implements Sendable {
     driveMotor.setPosition(0);
   }
 
-  /** reset turn motor pid I accumulation to 0 */
-  public void resetIntegral() {
-    turnController.setIAccum(0);
-  }
 
   /** stops both the drive and turning motors. */
   public void stop() {
@@ -284,30 +281,30 @@ public class SwerveModule implements Sendable {
   public SequentialCommandGroup testFunction(){
     return new SequentialCommandGroup(
       //turn to 0 degrees and check
-      new InstantCommand(()->setDesiredState(new SwerveModuleState(MetersPerSecond.of(0), Rotation2d.kZero))),
+      new InstantCommand(()->setDesiredState(new SwerveModuleStateUpgrade(MetersPerSecond.of(0), Rotation2d.kZero))),
       new WaitCommand(1),
       new ConditionalCommand(new SolidLEDCommand(Color.kGreen).withZone(), new SolidLEDCommand(Color.kRed).withZone(),
         ()->MathUtil.isNear((getTurnRotation2d().minus(Rotation2d.kZero)).getDegrees(), 0, 5)).withTimeout(0.5),
 
       //turn to 90 and check
-      new InstantCommand(()->setDesiredState(new SwerveModuleState(MetersPerSecond.of(0), Rotation2d.kCCW_90deg))),
+      new InstantCommand(()->setDesiredState(new SwerveModuleStateUpgrade(MetersPerSecond.of(0), Rotation2d.kCCW_90deg))),
       new WaitCommand(1),
       new ConditionalCommand(new SolidLEDCommand(Color.kGreen).withZone(), new SolidLEDCommand(Color.kRed).withZone(),
         ()->MathUtil.isNear((getTurnRotation2d().minus(Rotation2d.kCCW_90deg)).getDegrees(), 0, 5)).withTimeout(0.5),
 
       //drive forwards and check
-      new InstantCommand(()->setDesiredState(new SwerveModuleState(MetersPerSecond.of(1), Rotation2d.kCCW_90deg))),
+      new InstantCommand(()->setDesiredState(new SwerveModuleStateUpgrade(MetersPerSecond.of(1), Rotation2d.kCCW_90deg))),
       new WaitCommand(0.7),
       new ConditionalCommand(new SolidLEDCommand(Color.kGreen).withZone(), new SolidLEDCommand(Color.kRed).withZone(),
         ()->MathUtil.isNear((getDriveVelocity().in(MetersPerSecond) - 1), 0, 5)).withTimeout(0.5),
 
       //drive backwards and check
-      new InstantCommand(()->setDesiredState(new SwerveModuleState(MetersPerSecond.of(-1), Rotation2d.kCCW_90deg))),
+      new InstantCommand(()->setDesiredState(new SwerveModuleStateUpgrade(MetersPerSecond.of(-1), Rotation2d.kCCW_90deg))),
       new WaitCommand(1),
       new ConditionalCommand(new SolidLEDCommand(Color.kGreen).withZone(), new SolidLEDCommand(Color.kRed).withZone(),
         ()->MathUtil.isNear((getDriveVelocity().in(MetersPerSecond) - 1), 0, 5)).withTimeout(0.5),
 
-      new InstantCommand(()->setDesiredState(new SwerveModuleState(MetersPerSecond.of(0), Rotation2d.kZero)))
+      new InstantCommand(()->setDesiredState(new SwerveModuleStateUpgrade(MetersPerSecond.of(0), Rotation2d.kZero)))
 
     );
   }
