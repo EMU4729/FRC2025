@@ -1,4 +1,4 @@
-package frc.robot.utils;
+package frc.robot.utils.LibUpgrades;
 
 public class ClosedSlewRateLimiter {
   private final double positiveRate;
