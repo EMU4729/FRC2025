@@ -53,6 +53,10 @@ public class NavigationSub extends SubsystemBase {
   private final SwerveDrivePoseEstimator poseEstimator;
 
   public NavigationSub() {
+if(imu.getAccelX() > imu.getAccelY()){
+  throw new RuntimeException("The Robot IMU IS POSITIONED WRONG");
+}
+
     zeroHeading();
     initPathPlanner();
     
@@ -74,6 +78,8 @@ public class NavigationSub extends SubsystemBase {
    */
   private void initPathPlanner() {
     try {
+
+      
       final var config = RobotConfig.fromGUISettings();
       AutoBuilderFix.configure(
           true,

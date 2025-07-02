@@ -185,16 +185,16 @@ public class DriveSub extends SubsystemBase {
         public void initSendable(SendableBuilder builder) {
           builder.setSmartDashboardType("SwerveDrive");
 
-          builder.addDoubleProperty("Front Left Angle", ()->frontLeft.getTurnAngle().in(Radians), null);
+          builder.addDoubleProperty("Front Left Angle", ()->frontLeft.getRobotAngle().in(Radians), null);
           builder.addDoubleProperty("Front Left Velocity", ()->frontLeft.getDriveVelocity().in(MetersPerSecond), null);
           
-          builder.addDoubleProperty("Front Right Angle", ()->frontRight.getTurnAngle().in(Radians), null);
+          builder.addDoubleProperty("Front Right Angle", ()->frontRight.getRobotAngle().in(Radians), null);
           builder.addDoubleProperty("Front Right Velocity", ()->frontRight.getDriveVelocity().in(MetersPerSecond), null);
           
-          builder.addDoubleProperty("Back Left Angle", ()->backLeft.getTurnAngle().in(Radians), null);
+          builder.addDoubleProperty("Back Left Angle", ()->backLeft.getRobotAngle().in(Radians), null);
           builder.addDoubleProperty("Back Left Velocity", ()->backLeft.getDriveVelocity().in(MetersPerSecond), null);
           
-          builder.addDoubleProperty("Back Right Angle", ()->backRight.getTurnAngle().in(Radians), null);
+          builder.addDoubleProperty("Back Right Angle", ()->backRight.getRobotAngle().in(Radians), null);
           builder.addDoubleProperty("Back Right Velocity", ()->backRight.getDriveVelocity().in(MetersPerSecond), null);
 
           builder.addDoubleProperty("Robot Angle", ()->Subsystems.nav != null ? Subsystems.nav.getHeading().in(Radians) : 0, null);

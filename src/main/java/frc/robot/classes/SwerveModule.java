@@ -31,6 +31,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
@@ -117,7 +118,7 @@ public class SwerveModule implements Sendable {
 
     builder.addDoubleProperty(
         "Current Turn Angle (deg)",
-        () -> getTurnAngle().in(Degrees),
+        () -> getRobotAngle().in(Degrees),
         (newValue) -> {
         });
     builder.addDoubleProperty(
@@ -151,24 +152,30 @@ public class SwerveModule implements Sendable {
         .of(driveMotor.getVelocity().getValue().in(RotationsPerSecond) * DriveConstants.WHEEL_CIRCUMFERENCE.in(Meters));
   }
 
+
+ private double getRawModuleAngle() {
+   if (Robot.isSimulation()) {
+     return desiredState.angle.getRadians();
+   }
+   return turnEncoder.getPosition();
+ }
+
+ public Angle getModuleAngle(boolean RobotRelative){
+  Angle raw = Radians.of(getRawModuleAngle());
+  if (RobotRelative) {
+    return raw.minus(Radians.of(details.angularOffset().getRadians()));
+  } else {
+    return raw;
+  } 
+ }
+
+
   /** @return the module's robot-relative turning angle (rad) */
-  public Angle getTurnAngle() {
-    return getTurnAngle(true);
+  public Angle getRobotAngle() {
+    return getModuleAngle(true);
   }
 
-  /**
-   * 
-   * @param robotRelative angles returned rel to (True : the robot front CCW+,
-   *                      False : The current module)
-   * @return the angle of the module relative to either Module Frame or Robot
-   *         Frame
-   */
-  public Angle getTurnAngle(boolean robotRelative) {
-    Angle encoderReading = Radians.of(Robot.isSimulation() ? 
-        desiredState.angle.getRadians() : turnEncoder.getPosition());
-    return encoderReading
-        .minus(Radians.of(robotRelative ? details.angularOffset().getRadians() : 0));
-  }
+  
 
   /** @return the module's robot-relative turning angle as a {@link Rotation2d} */
   public Rotation2d getTurnRotation2d() {
@@ -177,7 +184,7 @@ public class SwerveModule implements Sendable {
 
   /** @return the module's turning angle as a {@link Rotation2d} */
   public Rotation2d getTurnRotation2d(boolean robotRelative) {
-    return new Rotation2d(getTurnAngle(robotRelative));
+    return new Rotation2d(getModuleAngle(robotRelative));
   }
 
   /** @return the module's turning velocity (rad/s) */
@@ -269,6 +276,7 @@ public class SwerveModule implements Sendable {
 
   /** stops both the drive and turning motors. */
   public void stop() {
+    desiredState.angle = Rotation2d.fromRadians(0);
     driveMotor.set(0);
     turnMotor.set(0);
   }
