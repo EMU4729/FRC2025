@@ -38,15 +38,14 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.utils.pathPlannerFix.AutoBuilderFix;
 
 public class NavigationSub extends SubsystemBase {
-  //private final ADIS16470_IMU imu = new ADIS16470_IMU(IMUAxis.kX, IMUAxis.kZ, IMUAxis.kY);
-  private final ADIS16470_IMU imu = new ADIS16470_IMU();
+  private final ADIS16470_IMU imu = new ADIS16470_IMU(IMUAxis.kX, IMUAxis.kY, IMUAxis.kZ);
   private final Field2d field = new Field2d();
   private final ADIS16470_IMUSim imuSim = new ADIS16470_IMUSim(imu);
   private Pose2d poseSim = new Pose2d();
   public final PhotonBridge photon = new PhotonBridge();
 
   private final double baseReadingError = 0.2;
-  private final double maxReadingError = baseReadingError * Math.pow(2,64);
+  private final double maxReadingError = baseReadingError * Math.pow(2, 64);
   private double allowedReadingError = baseReadingError;
 
   // Pose estimation class for tracking robot pose
@@ -55,16 +54,16 @@ public class NavigationSub extends SubsystemBase {
   public NavigationSub() {
     zeroHeading();
     initPathPlanner();
-    
+
     SmartDashboard.putData("Field", field);
-    
+
     poseEstimator = new SwerveDrivePoseEstimator(
         DriveConstants.DRIVE_KINEMATICS,
         Rotation2d.fromDegrees(imu.getAngle()),
         Subsystems.drive.getModulePositions(),
         new Pose2d());
-        
-    resetOdometry(new Pose2d(8, 4, Rotation2d.k180deg)); 
+
+    resetOdometry(new Pose2d(8, 4, Rotation2d.k180deg));
   }
 
   /**
@@ -108,7 +107,7 @@ public class NavigationSub extends SubsystemBase {
   public void periodic() {
     updateOdometry();
   }
-  
+
   /**
    * Updates the robot's odometry.
    * 
@@ -127,7 +126,7 @@ public class NavigationSub extends SubsystemBase {
             final var errorMeters = visionPose.getTranslation().getDistance(currentPose.getTranslation());
             SmartDashboard.putNumber("visionErr", errorMeters);
             SmartDashboard.putNumber("visionErrLim", allowedReadingError);
-            if (errorMeters > allowedReadingError){
+            if (errorMeters > allowedReadingError) {
               allowedReadingError *= 2;
             } else {
               allowedReadingError = baseReadingError;
@@ -142,29 +141,29 @@ public class NavigationSub extends SubsystemBase {
   }
 
   private Transform2d simError = new Transform2d();
+
   /** @return the currently estimated pose of the robot. */
   public Pose2d getPose() {
-    if(Robot.isSimulation())
-      simError.plus(new Transform2d((Math.random()-0.5)*2, (Math.random()-0.5)*2, Rotation2d.fromDegrees((Math.random()-0.5)*10)));
+    if (Robot.isSimulation())
+      simError.plus(new Transform2d((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2,
+          Rotation2d.fromDegrees((Math.random() - 0.5) * 10)));
 
     return RobotBase.isReal() ? poseEstimator.getEstimatedPosition().plus(simError) : poseSim;
   }
 
-  public void normaliseOdometry(){
+  public void normaliseOdometry() {
     Translation2d poseCur = getPose().getTranslation();
     Translation2d minloc = DriveConstants.FIELD_BOUNDS[0];
     Translation2d maxloc = DriveConstants.FIELD_BOUNDS[1];
     poseCur = new Translation2d(
-        Math.max(Math.min(poseCur.getX(), maxloc.getX()),minloc.getX()),
-        Math.max(Math.min(poseCur.getY(), maxloc.getY()),minloc.getY())
-        );
-    
+        Math.max(Math.min(poseCur.getX(), maxloc.getX()), minloc.getX()),
+        Math.max(Math.min(poseCur.getY(), maxloc.getY()), minloc.getY()));
+
     poseEstimator.resetTranslation(poseCur);
-    if(Robot.isSimulation()){
+    if (Robot.isSimulation()) {
       poseSim = new Pose2d(poseCur, poseSim.getRotation());
     }
   }
-  
 
   /**
    * Resets the odometry to the specified pose.
@@ -172,7 +171,9 @@ public class NavigationSub extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    if (pose == null){ pose = new Pose2d(0,0, Rotation2d.kZero);} //path planner can pass null when an auto includes no move command
+    if (pose == null) {
+      pose = new Pose2d(0, 0, Rotation2d.kZero);
+    } // path planner can pass null when an auto includes no move command
 
     if (RobotBase.isSimulation()) {
       simImuSetAngleYaw(pose.getRotation().getDegrees());
@@ -187,7 +188,6 @@ public class NavigationSub extends SubsystemBase {
   public void zeroHeading() {
     imu.reset();
   }
-
 
   /**
    * @return the robot's heading (direction the robot is pointing field rel)
@@ -215,9 +215,9 @@ public class NavigationSub extends SubsystemBase {
 
   /** @return the current robot-relative {@link ChassisSpeeds} */
   public ChassisSpeeds getChassisSpeeds() {
-    //if (Robot.isSimulation()) {
-    //  return getDesiredChassisSpeeds();
-    //} // modules are not sim'd correctly
+    // if (Robot.isSimulation()) {
+    // return getDesiredChassisSpeeds();
+    // } // modules are not sim'd correctly
     return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(Subsystems.drive.getModuleStates());
   }
 
@@ -244,6 +244,7 @@ public class NavigationSub extends SubsystemBase {
 
   Translation2d simulationPeriodicLastRobotLocal = new Translation2d();
   double simulationPeriodicLastVel = 0;
+
   @Override
   public void simulationPeriodic() {
     final var speeds = getDesiredChassisSpeeds();
@@ -258,8 +259,8 @@ public class NavigationSub extends SubsystemBase {
 
     Translation2d pos = field.getRobotObject().getPose().getTranslation();
     Translation2d tmpPos = pos.minus(simulationPeriodicLastRobotLocal);
-    double vel = Math.hypot(tmpPos.getX(), tmpPos.getY())*50; //50 updates per sec
-    simImuSetLinAccel((vel - simulationPeriodicLastVel)*50);
+    double vel = Math.hypot(tmpPos.getX(), tmpPos.getY()) * 50; // 50 updates per sec
+    simImuSetLinAccel((vel - simulationPeriodicLastVel) * 50);
     simulationPeriodicLastRobotLocal = pos;
     simulationPeriodicLastVel = vel;
 
@@ -273,31 +274,56 @@ public class NavigationSub extends SubsystemBase {
   }
 
   private void simImuSetAngleYaw(double angle) {
-    switch(imu.getYawAxis()) {
-      case kX: imuSim.setGyroAngleX(angle); break;
-      case kY: imuSim.setGyroAngleY(angle); break;
-      case kZ: imuSim.setGyroAngleZ(angle); break;
-      case kRoll: imuSim.setGyroAngleX(angle); break;
-      case kPitch: imuSim.setGyroAngleY(angle); break;
-      case kYaw: imuSim.setGyroAngleZ(angle); break;
+    switch (imu.getYawAxis()) {
+      case kX:
+        imuSim.setGyroAngleX(angle);
+        break;
+      case kY:
+        imuSim.setGyroAngleY(angle);
+        break;
+      case kZ:
+        imuSim.setGyroAngleZ(angle);
+        break;
+      case kRoll:
+        imuSim.setGyroAngleX(angle);
+        break;
+      case kPitch:
+        imuSim.setGyroAngleY(angle);
+        break;
+      case kYaw:
+        imuSim.setGyroAngleZ(angle);
+        break;
     }
   }
 
   private void simImuSetRateYaw(double angle) {
-    switch(imu.getYawAxis()) {
-      case kX: imuSim.setGyroRateX(angle); break;
-      case kY: imuSim.setGyroRateY(angle); break;
-      case kZ: imuSim.setGyroRateZ(angle); break;
-      case kRoll: imuSim.setGyroRateX(angle); break;
-      case kPitch: imuSim.setGyroRateY(angle); break;
-      case kYaw: imuSim.setGyroRateZ(angle); break;
+    switch (imu.getYawAxis()) {
+      case kX:
+        imuSim.setGyroRateX(angle);
+        break;
+      case kY:
+        imuSim.setGyroRateY(angle);
+        break;
+      case kZ:
+        imuSim.setGyroRateZ(angle);
+        break;
+      case kRoll:
+        imuSim.setGyroRateX(angle);
+        break;
+      case kPitch:
+        imuSim.setGyroRateY(angle);
+        break;
+      case kYaw:
+        imuSim.setGyroRateZ(angle);
+        break;
     }
   }
 
-  //sim accel is broken
-  Translation3d simAccel = new Translation3d(); 
-  private void simImuSetLinAccel(double accel) {//TODO improve
+  // sim accel is broken
+  Translation3d simAccel = new Translation3d();
+
+  private void simImuSetLinAccel(double accel) {// TODO improve
     imuSim.setAccelX(accel);
-    simAccel = new Translation3d(accel,0,0);
+    simAccel = new Translation3d(accel, 0, 0);
   }
 }
