@@ -1,7 +1,5 @@
 package frc.robot.classes.photon;
 
-import java.util.Random;
-
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 
@@ -38,12 +36,12 @@ public class PhotonBridge {
             VisionConstants.ROBOT_TO_CAMERA[0],
             fieldLayout,
             camProps),
-            
+
         new PhotonCameraPoseEstimator(
-          VisionConstants.PHOTON_CAMERA_NAME[1],
-          VisionConstants.ROBOT_TO_CAMERA[1],
-          fieldLayout,
-          camProps)
+            VisionConstants.PHOTON_CAMERA_NAME[1],
+            VisionConstants.ROBOT_TO_CAMERA[1],
+            fieldLayout,
+            camProps)
     };
 
     if (RobotBase.isSimulation()) {
@@ -56,11 +54,13 @@ public class PhotonBridge {
   }
 
   private Transform2d simError = new Transform2d();
+
   public void simulationPeriodic(Pose2d pose) {
     if (visionSim != null) {
-      simError.plus(new Transform2d((Math.random()-0.5)*2, (Math.random()-0.5)*2, Rotation2d.fromDegrees((Math.random()-0.5)*10)));
+      simError.plus(new Transform2d((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2,
+          Rotation2d.fromDegrees((Math.random() - 0.5) * 10)));
       visionSim.update(pose.plus(simError));
-      
+
     }
   }
 }

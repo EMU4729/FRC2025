@@ -6,29 +6,20 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Value;
-
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.units.DimensionlessUnit;
-import edu.wpi.first.units.TimeUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Per;
 import frc.robot.classes.RangeMath.AxesFit;
 import frc.robot.classes.RangeMath.DriveBaseFit;
 
@@ -41,8 +32,8 @@ public class DriveConstants {
   /** Drivebase radius in m (distance from center of robot to farthest module) */
   public static final Distance DRIVEBASE_RADIUS = Meters
       .of(Math.hypot(WHEEL_BASE.in(Meters) / 2, TRACK_WIDTH.in(Meters) / 2));
-  
-  public static final Translation2d[] FIELD_BOUNDS = {new Translation2d(0,0), new Translation2d(17.5, 8)};
+
+  public static final Translation2d[] FIELD_BOUNDS = { new Translation2d(0, 0), new Translation2d(17.5, 8) };
 
   // Driving Parameters - Note that these are not the maximum capable speeds of
   // the robot, rather the allowed maximum speeds
@@ -86,7 +77,6 @@ public class DriveConstants {
 
   // Chassis configuration
 
-
   // Module Constants
 
   // Calculations required for driving motor conversion factors and feed forward
@@ -103,8 +93,8 @@ public class DriveConstants {
   public static final double TURNING_ENCODER_POSITION_PID_MAX_INPUT = TURNING_ENCODER_POSITION_FACTOR; // radians
 
   // TODO tune PID
-  public static final double DRIVE_P = 1.6;//0.7;
-  public static final double DRIVE_I = 5;//8;
+  public static final double DRIVE_P = 1.6;// 0.7;
+  public static final double DRIVE_I = 5;// 8;
   public static final double DRIVE_D = 0;
   public static final double DRIVING_FF = 0;
 
@@ -182,7 +172,7 @@ public class DriveConstants {
       SWERVE_MODULE_BR.location());
 
   public static record SwerveModuleDetails(
-      String name, 
+      String name,
       /** CAN ID for the module's Driving Motor */
       int driveCANID,
       /** CAN ID for the module's Steering Motor */

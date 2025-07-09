@@ -1,7 +1,6 @@
 package frc.robot.commands.utility;
 
 import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -22,6 +21,4 @@ public class TimedRunCommand extends ParallelCommandGroup {
         new WaitCommand(duration));
   }
 
- 
 }
-

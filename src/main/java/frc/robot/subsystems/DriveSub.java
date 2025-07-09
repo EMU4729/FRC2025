@@ -17,7 +17,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.Subsystems;
@@ -37,20 +36,20 @@ public class DriveSub extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public DriveSub() {
-    //SmartDashboard.putData("FL Module", frontLeft);
-    //SmartDashboard.putData("FR Module", frontRight);
-    //SmartDashboard.putData("BL Module", backLeft);
-    //SmartDashboard.putData("BR Module", backRight);
+    // SmartDashboard.putData("FL Module", frontLeft);
+    // SmartDashboard.putData("FR Module", frontRight);
+    // SmartDashboard.putData("BL Module", backLeft);
+    // SmartDashboard.putData("BR Module", backRight);
 
     setupSmartDash();
   }
 
   @Override
   public void periodic() {
-    //final var cmd = this.getCurrentCommand();
-    //if (cmd != null) {
-    //  System.out.println(cmd.getName());
-    //}
+    // final var cmd = this.getCurrentCommand();
+    // if (cmd != null) {
+    // System.out.println(cmd.getName());
+    // }
   }
 
   public void driveAtAngle(ChassisSpeeds speeds, boolean fieldRelative, Rotation2d yawAngle) {
@@ -81,9 +80,7 @@ public class DriveSub extends SubsystemBase {
     if (fieldRelative) { // convert field rel speeds to robot rel
       speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, new Rotation2d(Subsystems.nav.getIMUHeading()));
     }
-    //System.out.println(speeds.toString());
-
-    
+    // System.out.println(speeds.toString());
 
     if (Robot.isSimulation() && false) { // induce some amount of drift while moving in sim
       double speedMag = Subsystems.nav.getTranslationSpeed();
@@ -170,35 +167,36 @@ public class DriveSub extends SubsystemBase {
 
   }
 
-  public SequentialCommandGroup testFunction(){
+  public SequentialCommandGroup testFunction() {
     return new SequentialCommandGroup(
-      frontLeft.testFunction(),
-      frontRight.testFunction(),
-      backLeft.testFunction(),
-      backRight.testFunction()
-    );
+        frontLeft.testFunction(),
+        frontRight.testFunction(),
+        backLeft.testFunction(),
+        backRight.testFunction());
   }
 
-  public void setupSmartDash(){
+  public void setupSmartDash() {
     SmartDashboard.putData("Swerve Drive Sub", new Sendable() {
-        @Override
-        public void initSendable(SendableBuilder builder) {
-          builder.setSmartDashboardType("SwerveDrive");
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
 
-          builder.addDoubleProperty("Front Left Angle", ()->frontLeft.getTurnAngle().in(Radians), null);
-          builder.addDoubleProperty("Front Left Velocity", ()->frontLeft.getDriveVelocity().in(MetersPerSecond), null);
-          
-          builder.addDoubleProperty("Front Right Angle", ()->frontRight.getTurnAngle().in(Radians), null);
-          builder.addDoubleProperty("Front Right Velocity", ()->frontRight.getDriveVelocity().in(MetersPerSecond), null);
-          
-          builder.addDoubleProperty("Back Left Angle", ()->backLeft.getTurnAngle().in(Radians), null);
-          builder.addDoubleProperty("Back Left Velocity", ()->backLeft.getDriveVelocity().in(MetersPerSecond), null);
-          
-          builder.addDoubleProperty("Back Right Angle", ()->backRight.getTurnAngle().in(Radians), null);
-          builder.addDoubleProperty("Back Right Velocity", ()->backRight.getDriveVelocity().in(MetersPerSecond), null);
+        builder.addDoubleProperty("Front Left Angle", () -> frontLeft.getTurnAngle().in(Radians), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> frontLeft.getDriveVelocity().in(MetersPerSecond), null);
 
-          builder.addDoubleProperty("Robot Angle", ()->Subsystems.nav != null ? Subsystems.nav.getHeading().in(Radians) : 0, null);
-        }
+        builder.addDoubleProperty("Front Right Angle", () -> frontRight.getTurnAngle().in(Radians), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> frontRight.getDriveVelocity().in(MetersPerSecond),
+            null);
+
+        builder.addDoubleProperty("Back Left Angle", () -> backLeft.getTurnAngle().in(Radians), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> backLeft.getDriveVelocity().in(MetersPerSecond), null);
+
+        builder.addDoubleProperty("Back Right Angle", () -> backRight.getTurnAngle().in(Radians), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> backRight.getDriveVelocity().in(MetersPerSecond), null);
+
+        builder.addDoubleProperty("Robot Angle",
+            () -> Subsystems.nav != null ? Subsystems.nav.getHeading().in(Radians) : 0, null);
+      }
     });
   }
 }

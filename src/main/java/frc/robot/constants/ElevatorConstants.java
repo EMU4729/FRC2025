@@ -1,7 +1,5 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;

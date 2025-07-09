@@ -5,10 +5,6 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
-import com.fasterxml.jackson.databind.ser.std.ClassSerializer;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -42,13 +38,15 @@ public class TeleopDriveSwerve extends Command {
 
   @Override
   public void execute() {
-    if(!DriverStation.isTeleop()){return;}
+    if (!DriverStation.isTeleop()) {
+      return;
+    }
 
-    //if (OI.pilot.leftTrigger().getAsBoolean()) {
-    //  Subsystems.drive.setX();
-    //  return;
-    //}
-    
+    // if (OI.pilot.leftTrigger().getAsBoolean()) {
+    // Subsystems.drive.setX();
+    // return;
+    // }
+
     double limiter = OI.pilot.getRightTriggerAxis();
     double booster = OI.pilot.getHID().getRightBumperButton() ? 1 : 0;
     boolean fieldRelative = !OI.pilot.getHID().getLeftBumperButton();
@@ -64,7 +62,8 @@ public class TeleopDriveSwerve extends Command {
     var y = control[1] * DriveConstants.MAX_SPEED.in(MetersPerSecond);
     var r = control[2] * DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond);
 
-    final var currentSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(Subsystems.nav.getChassisSpeeds(), new Rotation2d(Subsystems.nav.getIMUHeading()));
+    final var currentSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(Subsystems.nav.getChassisSpeeds(),
+        new Rotation2d(Subsystems.nav.getIMUHeading()));
 
     // if we are on the red alliance and driving field-relative, we should invert
     // driver inputs since the field's origin is taken from the blue alliance
@@ -77,12 +76,10 @@ public class TeleopDriveSwerve extends Command {
         y *= -1;
       }
     }
-  
 
     x = xLimiter.calculate(x, currentSpeeds.vxMetersPerSecond);
     y = yLimiter.calculate(y, currentSpeeds.vyMetersPerSecond);
     r = rLimiter.calculate(r, currentSpeeds.omegaRadiansPerSecond);
-
 
     final var speeds = new ChassisSpeeds(x, y, r);
     if (r == 0) {

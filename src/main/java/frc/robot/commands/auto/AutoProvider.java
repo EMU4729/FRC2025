@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import frc.robot.utils.pathPlannerFix.AutoBuilderFix;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -51,11 +50,8 @@ public class AutoProvider {
     chooser.addOption("Angular Speed Analysis", new AngularSpeedAnalysis());
     chooser.addOption("System Test", new SystemTest());
 
-
     SmartDashboard.putData("Auto Chooser", chooser);
 
-
-    
   }
 
   public static AutoProvider getInstance() {
@@ -69,12 +65,12 @@ public class AutoProvider {
     return chooser.getSelected();
   }
 
-  public void loadPathAuto(String name, String key){
+  public void loadPathAuto(String name, String key) {
     try {
       chooser.addOption(name, new PathPlannerAuto(key));
     } catch (Exception e) {
-      System.err.println("Auto Provider : load failed : Name:"+name+", Key:"+key);
-      //e.printStackTrace();
+      System.err.println("Auto Provider : load failed : Name:" + name + ", Key:" + key);
+      // e.printStackTrace();
     }
   }
 }

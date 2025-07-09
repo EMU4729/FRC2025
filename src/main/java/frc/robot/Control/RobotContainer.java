@@ -20,9 +20,7 @@ import frc.robot.commands.auto.autoPath;
 import frc.robot.commands.teleop.TeleopProvider;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.utils.LEDs.FlashSolidLEDCommand;
-import frc.robot.utils.LEDs.RainbowLEDCommand;
 import frc.robot.utils.LEDs.RepeatedFlashLEDCommand;
-import frc.robot.utils.LEDs.SolidLEDCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -61,7 +59,7 @@ public class RobotContainer {
             (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 300).withZone()), 5));
 
     NamedCommands.registerCommand("LED Flash", new FlashSolidLEDCommand(Color.kGreen, 500).withZone());
-    
+
     // +----------------+
     // | PILOT CONTROLS |
     // +----------------+
@@ -83,7 +81,7 @@ public class RobotContainer {
 
     OI.pilot.start()
         .onTrue(new InstantCommand(Subsystems.nav::zeroHeading, Subsystems.drive));
-    //OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
+    // OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
     OI.pilot.povUp().whileTrue(Subsystems.climber.upCommand());
     OI.pilot.povDown().whileTrue(Subsystems.climber.downCommand());
     // Drive bindings handled in teleop command
@@ -113,12 +111,12 @@ public class RobotContainer {
     OI.copilot.povRight().onTrue(elevateL2);
     OI.copilot.povLeft().onTrue(elevateL2);
     NamedCommands.registerCommand("elevate L2", elevateL2);
-    
+
     Command elevateL3 = new InstantCommand(
-      () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L3),
-      Subsystems.elevator);
-      OI.copilot.povUp().onTrue(elevateL3);
-      NamedCommands.registerCommand("elevate L3", elevateL3);
+        () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L3),
+        Subsystems.elevator);
+    OI.copilot.povUp().onTrue(elevateL3);
+    NamedCommands.registerCommand("elevate L3", elevateL3);
 
     // coral holder
     OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.autoInCommand());
