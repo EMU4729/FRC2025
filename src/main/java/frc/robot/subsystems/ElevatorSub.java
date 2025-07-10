@@ -2,20 +2,19 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ElevatorConstants;
 
 public class ElevatorSub extends SubsystemBase {
   private final TalonFX motorLeft = ElevatorConstants.LEFT_MOTOR_ID.get();
-  private final TalonFX motorRight = ElevatorConstants.LEFT_MOTOR_ID.get();
+  private final TalonFX motorRight = ElevatorConstants.RIGHT_MOTOR_ID.get();
 
-  private final Encoder encoder = ElevatorConstants.ENCODER_ID.get();
   private final ProfiledPIDController controller = new ProfiledPIDController(
       ElevatorConstants.CONTROLLER_P,
       ElevatorConstants.CONTROLLER_I,
@@ -26,15 +25,16 @@ public class ElevatorSub extends SubsystemBase {
   private boolean disableEStop = false;
 
   public ElevatorSub() {
+    motorLeft.setPosition(0);
+    motorRight.setPosition(0);
+
+    motorRight.setControl(new Follower(motorLeft.getDeviceID(), true));
+
     controller.setIntegratorRange(-0.2, 0.2);
     controller.setIZone(0.05);
     controller.setTolerance(ElevatorConstants.POSITION_TOLERANCE);
 
-    motorLeft.setPosition(encoder.getDistance());
-    motorRight.setPosition(encoder.getDistance());
-
     SmartDashboard.putData("Elevator Motor", motorLeft);
-    SmartDashboard.putData("Elevator Encoder", encoder);
     SmartDashboard.putData("Elevator Controller", controller);
     SmartDashboard.putNumber("targetHeight", 0);
     SmartDashboard.putBoolean("Elevator E-Stopped", eStopped != EStopState.NONE);
@@ -67,7 +67,7 @@ public class ElevatorSub extends SubsystemBase {
 
     SmartDashboard.putNumber("motor pos", position.in(Meters));
 
-    if (motorLeftPosition.lt(Meters.of(0)) || motorRightPosition.lt(Meters.of(0))) {
+    if (motorLeftPosition.lt(Meters.of(0.02)) || motorRightPosition.lt(Meters.of(0.02))) {
       return EStopState.BOTTOM;
     }
 
@@ -83,11 +83,14 @@ public class ElevatorSub extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putBoolean("Elevator E-Stopped", eStopped != EStopState.NONE);
     SmartDashboard.putString("Elevator E-Stop State", eStopped.toString());
+    SmartDashboard.putNumber("Elevator Distance", getPosition().in(Meters));
+    SmartDashboard.putNumber("Elevator Left Dist", motorLeft.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("Elevator Right Dist", motorRight.getPosition().getValueAsDouble());
 
     var out = 0.0d;
     if (!atTargetPosition()) {
       final var position = getPosition();
-      out = controller.calculate(position.in(Meters)) + 0.1;
+      out = controller.calculate(position.in(Meters));// + 0.1;
       out = MathUtil.clamp(out, -1, 1);
     } else {
 
@@ -118,7 +121,6 @@ public class ElevatorSub extends SubsystemBase {
 
       if (preventMove) {
         motorLeft.set(0);
-        motorRight.set(0);
         return;
       } else if (slowMove) {
         out = MathUtil.clamp(out, -0.1, 0.1);
@@ -126,7 +128,6 @@ public class ElevatorSub extends SubsystemBase {
     }
 
     motorLeft.set(out);
-    motorRight.set(out);
 
     SmartDashboard.putNumber("power", out);
     SmartDashboard.putNumber("targetHeight", controller.getGoal().position);
