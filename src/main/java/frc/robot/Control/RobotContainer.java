@@ -86,8 +86,8 @@ public class RobotContainer {
     OI.pilot.povDown().whileTrue(Subsystems.climber.downCommand());
     // Drive bindings handled in teleop command
 
-    OI.pilot.povLeft().whileTrue(new autoPath(-0.15));
-    OI.pilot.povRight().whileTrue(new autoPath(0.15));
+    // OI.pilot.povLeft().whileTrue(new autoPath(-0.15));
+    // OI.pilot.povRight().whileTrue(new autoPath(0.15));
 
     // elevator elevations
     Command elevateIntake = new InstantCommand(
