@@ -82,8 +82,8 @@ public class RobotContainer {
     OI.pilot.start()
         .onTrue(new InstantCommand(Subsystems.nav::zeroHeading, Subsystems.drive));
     // OI.pilot.back().toggleOnTrue(new RainbowLEDCommand().withZone());
-    OI.pilot.povUp().whileTrue(Subsystems.climber.upCommand());
-    OI.pilot.povDown().whileTrue(Subsystems.climber.downCommand());
+    // OI.pilot.povUp().whileTrue(Subsystems.climber.upCommand());
+    // OI.pilot.povDown().whileTrue(Subsystems.climber.downCommand());
     // Drive bindings handled in teleop command
 
     // OI.pilot.povLeft().whileTrue(new autoPath(-0.15));
