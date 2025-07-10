@@ -59,6 +59,7 @@ public class AutoProvider {
       inst = Optional.of(new AutoProvider());
     }
     return inst.get();
+    
   }
 
   public Command getSelected() {
