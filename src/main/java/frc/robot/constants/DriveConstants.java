@@ -175,6 +175,8 @@ public class DriveConstants {
   );
 
   /** Swerve Kinematics */
+
+  //TODO ADD THE OFFSET HERE
   public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(
       SWERVE_MODULE_FL.location(),
       SWERVE_MODULE_FR.location(),

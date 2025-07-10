@@ -97,8 +97,8 @@ public class DriveSub extends SubsystemBase {
       speeds = speeds.plus(new ChassisSpeeds(0, 0, 0.2 * speedMag));
     }
 
-    final var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
-    setModuleStates(states);
+    final SwerveModuleState[] states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
+    setModuleStates((SwerveModuleStateUpgrade[]) states);
   }
 
   /**
