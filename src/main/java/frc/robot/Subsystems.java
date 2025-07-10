@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import frc.robot.subsystems.ClimberSub;
 import frc.robot.subsystems.CoralHolderSub;
 import frc.robot.subsystems.DriveSub;
 import frc.robot.subsystems.ElevatorSub;
@@ -19,7 +18,7 @@ public class Subsystems {
   public static final NavigationSub nav = new NavigationSub();
   public static final CoralHolderSub coralHolder = new CoralHolderSub();
   public static final ElevatorSub elevator = new ElevatorSub();
-  public static final ClimberSub climber = new ClimberSub();
+  // public static final ClimberSub climber = new ClimberSub();
 
   public static final List<LEDZone> ledZones = new ArrayList<LEDZone>(Arrays.asList(
       new LEDZone(new short[] { 0, 108 }, new short[] { 42, 149 }, 0),
