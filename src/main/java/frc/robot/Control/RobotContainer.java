@@ -119,10 +119,10 @@ public class RobotContainer {
     NamedCommands.registerCommand("elevate L3", elevateL3);
 
     // coral holder
-    OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.autoInCommand());
-    NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.autoInCommand());
+    OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.timedInCommand());
+    NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.timedInCommand());
     OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.manualOutCommand());
-    NamedCommands.registerCommand("coral outTake", Subsystems.coralHolder.autoOutCommand());
+    NamedCommands.registerCommand("coral outTake", Subsystems.coralHolder.manualOutCommand());
   }
 
   /**
