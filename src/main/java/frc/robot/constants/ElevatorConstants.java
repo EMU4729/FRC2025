@@ -35,10 +35,10 @@ public class ElevatorConstants {
 
   public static final FalconMotorSupplier LEFT_MOTOR_ID = new FalconMotorSupplier(7)
       .withEncoder(ENCODER_RATIO)
+      .withInvert()
       .withBrake();
 
   public static final FalconMotorSupplier RIGHT_MOTOR_ID = new FalconMotorSupplier(8)
       .withEncoder(ENCODER_RATIO)
-      .withInvert()
       .withBrake();
 }
