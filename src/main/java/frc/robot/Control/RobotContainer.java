@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Robot;
 import frc.robot.Subsystems;
 import frc.robot.commands.auto.AutoProvider;
-import frc.robot.commands.auto.autoPath;
 import frc.robot.commands.teleop.TeleopProvider;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.utils.LEDs.FlashSolidLEDCommand;
