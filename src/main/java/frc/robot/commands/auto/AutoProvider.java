@@ -41,6 +41,8 @@ public class AutoProvider {
     loadPathAuto("(middle) run this auto", "Mobility");
     loadPathAuto("Test L1", "Test Auto L1");
     loadPathAuto("Test L2", "Test Auto L2");
+    loadPathAuto("Left Starting Position", "Left Starting Position");
+    loadPathAuto("Right Starting Position", "Right Starting Position");
 
     chooser.addOption("Pathfind to Pose Test",
         AutoBuilderFix.pathfindToPose(
@@ -59,7 +61,7 @@ public class AutoProvider {
       inst = Optional.of(new AutoProvider());
     }
     return inst.get();
-    
+
   }
 
   public Command getSelected() {

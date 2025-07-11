@@ -1,0 +1,145 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate L3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "StartR, to FarR"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral outTake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FarR to FeederR"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate L3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FeederR to NearR [2]"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral outTake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NearR to FeederR"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate L3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FeederR to NearMid"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral outTake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NearMid to FeederR"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate L3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate Intake"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
