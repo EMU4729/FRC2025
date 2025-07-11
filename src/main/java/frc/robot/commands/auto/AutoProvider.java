@@ -34,15 +34,10 @@ public class AutoProvider {
     @SuppressWarnings("unused")
     final var _nav = Subsystems.nav;
 
-    loadPathAuto("Test Move", "Test Move");
-    loadPathAuto("Test Turn", "Test Turn");
-    loadPathAuto("(left) run this auto", "test left");
-    loadPathAuto("(right) run this auto", "test right");
-    loadPathAuto("(middle) run this auto", "Mobility");
-    loadPathAuto("Test L1", "Test Auto L1");
-    loadPathAuto("Test L2", "Test Auto L2");
+   
     loadPathAuto("Left Starting Position", "Left Starting Position");
     loadPathAuto("Right Starting Position", "Right Starting Position");
+    loadPathAuto("Mid Starting Position", "Mid Starting Position");
 
     chooser.addOption("Pathfind to Pose Test",
         AutoBuilderFix.pathfindToPose(
