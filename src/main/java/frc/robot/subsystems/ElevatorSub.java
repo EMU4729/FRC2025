@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.Meters;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,11 +15,8 @@ public class ElevatorSub extends SubsystemBase {
   private final TalonFX motorLeft = ElevatorConstants.LEFT_MOTOR_ID.get();
   private final TalonFX motorRight = ElevatorConstants.RIGHT_MOTOR_ID.get();
 
-  private final ProfiledPIDController controller = new ProfiledPIDController(
-      ElevatorConstants.CONTROLLER_P,
-      ElevatorConstants.CONTROLLER_I,
-      ElevatorConstants.CONTROLLER_D,
-      ElevatorConstants.MOTION_CONSTRAINTS);
+  private final PIDController controller = new PIDController(
+    ElevatorConstants.CONTROLLER_P, ElevatorConstants.CONTROLLER_I, ElevatorConstants.CONTROLLER_D);
 
   private EStopState eStopped = EStopState.NONE;
   private boolean disableEStop = false;
@@ -45,15 +42,15 @@ public class ElevatorSub extends SubsystemBase {
   }
 
   public void setTargetPosition(Distance position) {
-    controller.setGoal(position.in(Meters));
+    controller.setSetpoint(position.in(Meters));
   }
 
   public Distance getTargetPosition() {
-    return Meters.of(controller.getGoal().position);
+    return Meters.of(controller.getSetpoint());
   }
 
   public boolean atTargetPosition() {
-    return controller.atGoal();
+    return controller.atSetpoint();
   }
 
   private EStopState shouldEStop() {
@@ -90,7 +87,7 @@ public class ElevatorSub extends SubsystemBase {
     var out = 0.0d;
     if (!atTargetPosition()) {
       final var position = getPosition();
-      out = controller.calculate(position.in(Meters));// + 0.1;
+      out = controller.calculate(position.in(Meters)) + 0.1;
       out = MathUtil.clamp(out, -1, 1);
     } else {
 
@@ -130,7 +127,7 @@ public class ElevatorSub extends SubsystemBase {
     motorLeft.set(out);
 
     SmartDashboard.putNumber("power", out);
-    SmartDashboard.putNumber("targetHeight", controller.getGoal().position);
+    SmartDashboard.putNumber("targetHeight", controller.getSetpoint());
   }
 
   public void toggleDisableEStop() {

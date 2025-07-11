@@ -29,16 +29,20 @@ public class CoralHolderSub extends SubsystemBase {
   }
 
   public Command manualOutCommand() {
+    
     return this.startEnd(this::forward, this::stop);
   }
 
   public Command manualReverseCommand() {
     return this.startEnd(this::reverse, this::stop);
+
   }
 
   public Command timedInCommand() {
     return manualOutCommand().withTimeout(CoralHolderConstants.INTAKE_DURATION);
   }
+
+
 
   private void setupSmartDash() {
     SmartDashboard.putData("Coral Sub", new Sendable() {
