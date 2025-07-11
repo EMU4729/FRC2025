@@ -139,6 +139,7 @@ public class DriveConstants {
       1, // Drive motor CAN ID
       1, // Steer motor CAN ID
       Rotation2d.kCW_90deg, // offset relative to FL
+      false,
       new Translation2d(WHEEL_BASE.div(2), TRACK_WIDTH.div(2)) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_FR = new SwerveModuleDetails(
@@ -146,6 +147,8 @@ public class DriveConstants {
       2, // Drive motor CAN ID
       2, // Steer motor CAN ID
       Rotation2d.kZero, // offset relative to FL
+      false,
+
       new Translation2d(WHEEL_BASE.div(2), TRACK_WIDTH.div(-2)) // location rel to centre
   );
 
@@ -154,6 +157,7 @@ public class DriveConstants {
       3, // Drive motor CAN ID
       3, // Steer motor CAN ID
       Rotation2d.k180deg, // Offset rel to FL module
+      true,
       new Translation2d(WHEEL_BASE.div(-2), TRACK_WIDTH.div(2)) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_BR = new SwerveModuleDetails(
@@ -161,6 +165,7 @@ public class DriveConstants {
       4, // Drive motor CAN ID
       4, // Steer motor CAN ID
       Rotation2d.kCCW_90deg, // Offset rel to FL module
+      false,
       new Translation2d(WHEEL_BASE.div(-2), TRACK_WIDTH.div(-2)) // location rel to centre
   );
 
@@ -182,6 +187,7 @@ public class DriveConstants {
        * module.
        */
       Rotation2d angularOffset,
+      boolean invertDrive,
       /**
        * Location of module relative to robot center. Mainly for sim purposes.
        */
