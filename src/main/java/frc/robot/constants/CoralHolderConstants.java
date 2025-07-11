@@ -8,6 +8,9 @@ import frc.robot.utils.TypeSupliers.motorsupplier.FalconMotorSupplier;
 public class CoralHolderConstants {
   public static final Time OUTTAKE_DURATION = Seconds.of(0.5);
   public static final Time INTAKE_DURATION = Seconds.of(1);
-  public static final double THROTTLE = 0.2;
-  public static final FalconMotorSupplier MOTOR_ID = new FalconMotorSupplier(5).withInvert();
+  public static final double SPEED_RPS = 1;
+  public static final FalconMotorSupplier MOTOR_ID = new FalconMotorSupplier(5)
+      .withPID(1, 0, 0)
+      .withEncoder(9)
+      .withInvert();
 }
