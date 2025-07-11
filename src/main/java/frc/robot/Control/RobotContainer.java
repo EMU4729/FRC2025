@@ -17,6 +17,7 @@ import frc.robot.Robot;
 import frc.robot.Subsystems;
 import frc.robot.commands.auto.AutoProvider;
 import frc.robot.commands.teleop.TeleopProvider;
+import frc.robot.constants.CoralHolderConstants;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.utils.LEDs.FlashSolidLEDCommand;
 import frc.robot.utils.LEDs.RepeatedFlashLEDCommand;
@@ -121,7 +122,7 @@ public class RobotContainer {
     OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.timedInCommand());
     NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.timedInCommand());
     OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.manualOutCommand());
-    NamedCommands.registerCommand("coral outTake", Subsystems.coralHolder.manualOutCommand());
+    NamedCommands.registerCommand("coral outTake", Subsystems.coralHolder.manualOutCommand().withTimeout(CoralHolderConstants.OUTTAKE_DURATION));
   }
 
   /**
