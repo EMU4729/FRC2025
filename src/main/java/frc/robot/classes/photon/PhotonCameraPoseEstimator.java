@@ -34,7 +34,7 @@ public class PhotonCameraPoseEstimator {
         fieldLayout,
         PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
         robotToCam);
-    poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
   }
 
   public Transform3d getRobotToCameraTransform() {
@@ -69,8 +69,8 @@ public class PhotonCameraPoseEstimator {
     poseEstimator.setReferencePose(pose);
   }
 
-  public void printErr(String message){
-    if(errorCounter <= 0){
+  public void printErr(String message) {
+    if (errorCounter <= 0) {
       System.err.println(message);
       errorCounter = 100;
     }
