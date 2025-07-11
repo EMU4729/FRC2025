@@ -5,12 +5,16 @@ import frc.robot.utils.pathPlannerFix.AutoBuilderFix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystems;
 import frc.robot.constants.DriveConstants;
 
 public class autoPath extends Command {
-  private final Translation2d reefCentre = new Translation2d(13.1, 4);
+  private Translation2d reefCentre = new Translation2d();//13.1, 4);
+
+
   private final double reefRadius = 1.4; 
   private Pose2d targetLocation;
   private double leftRightOffset = 0;
@@ -23,6 +27,14 @@ public class autoPath extends Command {
   
   @Override
   public void initialize() {
+    final var isRedAlliance = DriverStation.getAlliance()
+        .map((alliance) -> alliance == Alliance.Red)
+        .orElse(false);
+    if (isRedAlliance) {
+      reefCentre = new Translation2d(13.1, 4);
+    } else {
+      reefCentre = new Translation2d(4.5, 4);
+    }
     targetLocation = closestReefSide();
     pathCommand = AutoBuilderFix.pathfindToPose(targetLocation, DriveConstants.PATH_CONSTRAINTS);
     pathCommand.schedule();

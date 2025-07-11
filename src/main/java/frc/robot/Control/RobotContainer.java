@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Robot;
 import frc.robot.Subsystems;
 import frc.robot.commands.auto.AutoProvider;
+import frc.robot.commands.auto.autoPath;
 import frc.robot.commands.teleop.TeleopProvider;
 import frc.robot.constants.CoralHolderConstants;
 import frc.robot.constants.ElevatorConstants;
@@ -65,6 +66,7 @@ public class RobotContainer {
     // +----------------+
 
     // --- Manual Controls ---
+    OI.pilot.a().whileTrue(new autoPath(0));
 
     // OI.pilot.y().onTrue(new
     // InstantCommand(()->BatteryPercentLEDCommand.runFor(50)));
