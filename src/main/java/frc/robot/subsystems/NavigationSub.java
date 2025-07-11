@@ -20,6 +20,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.ADIS16470_IMUSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -57,7 +58,14 @@ public class NavigationSub extends SubsystemBase {
         Subsystems.drive.getModulePositions(),
         new Pose2d());
 
-    resetOdometry(new Pose2d(8, 4, Rotation2d.k180deg));
+    final var onRedAlliance = DriverStation.getAlliance()
+          .map(alliance -> alliance == Alliance.Red)
+          .orElse(false);
+    if (onRedAlliance) {
+      resetOdometry(new Pose2d(8, 4, Rotation2d.kZero));
+    } else {
+      resetOdometry(new Pose2d(8, 4, Rotation2d.k180deg));
+    }
   }
 
   /**
@@ -132,6 +140,8 @@ public class NavigationSub extends SubsystemBase {
     normaliseOdometry();
 
     field.setRobotPose(getPose());
+
+    SmartDashboard.putString("pose", getPose().toString());
   }
 
   private Transform2d simError = new Transform2d();
