@@ -54,11 +54,12 @@ public class autoPath extends Command {
 
   private Pose2d closestReefSide(){
     Translation2d curLoc = Subsystems.nav.getPose().getTranslation();
+    //Rotation2d curAngle = Subsystems.nav.getPose().getRotation();
 
     Translation2d minLoc = new Translation2d(100000, 100000);
     double minDist = 1000000000;
     Rotation2d minAngle = new Rotation2d();
-    for(int i = 0; i < 360; i+=60){
+    for(int i = 30; i < 360; i+=60){
       Rotation2d sideAngle = Rotation2d.fromDegrees(i);
       Translation2d sideLoc = new Translation2d(reefRadius, leftRightOffset).rotateBy(sideAngle).plus(reefCentre);
       double curDist = sideLoc.getDistance(curLoc);
