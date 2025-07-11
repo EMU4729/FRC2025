@@ -13,7 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "StartL to FarL"
+            "pathName": "StartR, to FarR"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral outTake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FarR to FeederR"
           }
         },
         {
@@ -23,27 +35,39 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Coral FLL to feederL"
-          }
-        },
-        {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.5
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "elevate L2"
+            "name": "coral Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate L3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "FeederL to NearL"
+            "pathName": "FeederR to NearR [2]"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral outTake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NearR to FeederR"
           }
         },
         {
@@ -53,57 +77,63 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "NearL to FeederL"
-          }
-        },
-        {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.5
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "elevate L2"
+            "name": "coral Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate L3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "FeederL to NearMid"
+            "pathName": "FeederR to NearMid"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral outTake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NearMid to FeederR"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate L3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "coral Intake"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "elevate Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NearMid to FeederL"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "elevate L2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FeederL to NearL [2]"
           }
         }
       ]
