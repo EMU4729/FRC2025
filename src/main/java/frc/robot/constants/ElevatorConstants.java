@@ -26,8 +26,8 @@ public class ElevatorConstants {
   public static class ElevatorStops {
     // TODO: tune these at field calibration
     public static final Distance INTAKE = Meters.of(0);
-    public static final Distance L1 = Meters.of(0.15);
-    public static final Distance L2 = Meters.of(0.3);
+    public static final Distance L1 = Meters.of(0);
+    public static final Distance L2 = Meters.of(0.1);
     public static final Distance L3 = Meters.of(0.5);
   }
 
