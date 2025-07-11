@@ -15,8 +15,8 @@ public class ElevatorConstants {
   public static final EncoderSupplier ENCODER_ID = new EncoderSupplier(new int[] { 8, 9 }, 0.00003896311201);
   public static final Distance GROUND_TO_ELEVATOR = Meters.of(0.55);
 
-  public static final double CONTROLLER_P = 4;
-  public static final double CONTROLLER_I = 0;
+  public static final double CONTROLLER_P = 7;
+  public static final double CONTROLLER_I = 1;
   public static final double CONTROLLER_D = 0;
   public static final TrapezoidProfile.Constraints MOTION_CONSTRAINTS = new TrapezoidProfile.Constraints(1, 1);
   public static final double POSITION_TOLERANCE = 0.02;
