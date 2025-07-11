@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "elevate L3"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "StartL to FarL"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "elevate L3"
           }
         },
         {
@@ -23,15 +23,15 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "NearL to FeederL"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "elevate Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NearL to FeederL"
           }
         },
         {
@@ -44,12 +44,6 @@
           "type": "named",
           "data": {
             "name": "coral Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "elevate L3"
           }
         },
         {
@@ -61,19 +55,25 @@
         {
           "type": "named",
           "data": {
-            "name": "coral outTake"
+            "name": "elevate L3"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "New New New PathNearL[2] to FeederL"
+            "name": "coral outTake"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "elevate Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "New New New PathNearL[2] to FeederL"
           }
         },
         {
@@ -86,12 +86,6 @@
           "type": "named",
           "data": {
             "name": "coral Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "elevate L3"
           }
         },
         {
@@ -103,19 +97,25 @@
         {
           "type": "named",
           "data": {
-            "name": "coral outTake"
+            "name": "elevate L3"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "NearL[3] to FeederR"
+            "name": "coral outTake"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "elevate Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NearL[3] to FeederR"
           }
         },
         {
@@ -128,12 +128,6 @@
           "type": "named",
           "data": {
             "name": "coral Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "elevate L3"
           }
         }
       ]
