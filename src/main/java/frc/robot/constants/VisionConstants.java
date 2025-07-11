@@ -13,11 +13,11 @@ public class VisionConstants {
   public static final Transform3d[] ROBOT_TO_CAMERA = {
       new Transform3d(
           new Translation3d(0.31-0.03,0.31-0.375,0.16),
-          new Rotation3d(0, Math.toRadians(-30), 0)
+          new Rotation3d(0, Math.toRadians(-30), Math.PI)
       ),
       new Transform3d(
         new Translation3d(-0.215,0.155,0.51),
-        new Rotation3d(0, Math.toRadians(0), Math.toRadians(180))
+        new Rotation3d(0, Math.toRadians(0), 0)
       )};
   // Here is what the PhotonVision docs had:
   // Our camera is mounted 0.1 meters forward and 0.5 meters up from the robot
