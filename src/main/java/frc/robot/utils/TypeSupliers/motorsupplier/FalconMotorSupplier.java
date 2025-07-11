@@ -28,6 +28,14 @@ public class FalconMotorSupplier {
     return this;
   }
 
+  public FalconMotorSupplier withFeedForward(double s, double v, double a) {
+    motorConfig.Slot0.kS = s;
+    motorConfig.Slot0.kV = v;
+    motorConfig.Slot0.kA = a;
+
+    return this;
+  }
+
   public FalconMotorSupplier withPID(double p, double i, double d) {
     motorConfig.Slot0.kP = p;
     motorConfig.Slot0.kI = i;
