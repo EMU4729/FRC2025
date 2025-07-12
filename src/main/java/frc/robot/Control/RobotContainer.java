@@ -117,9 +117,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("elevate L2", elevateL2);
 
     OI.copilot.b().onTrue(new InstantCommand(
-      () -> Subsystems.elevator.setTargetPosition(Meters.of(0.57)),
-      Subsystems.elevator
-    ));
+        () -> Subsystems.elevator.setTargetPosition(Meters.of(0.57)),
+        Subsystems.elevator));
 
     Command elevateL3 = new InstantCommand(
         () -> Subsystems.elevator.setTargetPosition(ElevatorConstants.ElevatorStops.L3),
@@ -129,9 +128,10 @@ public class RobotContainer {
 
     // coral holder
     OI.copilot.rightTrigger().whileTrue(Subsystems.coralHolder.runCommand(0.6));
-    NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.timedInCommand());
+    NamedCommands.registerCommand("coral Intake", Subsystems.coralHolder.runUntilLoadCommand().withTimeout(4));
     OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.runCommand(0.4));
-    NamedCommands.registerCommand("coral outTake", Subsystems.coralHolder.manualOutCommand().withTimeout(CoralHolderConstants.OUTTAKE_DURATION));
+    NamedCommands.registerCommand("coral outTake",
+        Subsystems.coralHolder.runCommand(0.6).withTimeout(CoralHolderConstants.OUTTAKE_DURATION));
     OI.copilot.rightBumper().whileTrue(Subsystems.coralHolder.runCommand(0.8));
     OI.copilot.leftBumper().whileTrue(Subsystems.coralHolder.runUntilLoadCommand());
   }
