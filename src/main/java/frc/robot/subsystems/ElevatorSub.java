@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Control.OI;
 import frc.robot.constants.ElevatorConstants;
 
 public class ElevatorSub extends SubsystemBase {
@@ -24,6 +25,8 @@ public class ElevatorSub extends SubsystemBase {
   public ElevatorSub() {
     motorLeft.setPosition(0);
     motorRight.setPosition(0);
+
+    
 
     motorRight.setControl(new Follower(motorLeft.getDeviceID(), true));
 
@@ -74,6 +77,14 @@ public class ElevatorSub extends SubsystemBase {
     }
 
     return EStopState.NONE;
+  }
+
+  public Distance getAnaloguePosition(){
+    Distance DifferenceDistance = getTargetPosition().minus(getPosition());
+  }
+
+  public Distance getAnalogueTargetPosition(){
+    return Meters.of(OI.copilot.getLeftTriggerAxis());
   }
 
   @Override

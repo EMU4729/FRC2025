@@ -19,6 +19,7 @@ public class CoralHolderSub extends SubsystemBase {
 
   public CoralHolderSub() {
     setupSmartDash();
+    Calibrate();
   }
 
   public void Calibrate(){
