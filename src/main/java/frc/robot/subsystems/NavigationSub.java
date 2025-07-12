@@ -33,18 +33,21 @@ import frc.robot.constants.DriveConstants;
 import frc.robot.utils.pathPlannerFix.AutoBuilderFix;
 
 public class NavigationSub extends SubsystemBase {
-  private final ADIS16470_IMU imu = new ADIS16470_IMU(IMUAxis.kX, IMUAxis.kY, IMUAxis.kZ);
-  private final Field2d field = new Field2d();
-  private final ADIS16470_IMUSim imuSim = new ADIS16470_IMUSim(imu);
-  private Pose2d poseSim = new Pose2d();
-  public final PhotonBridge photon = new PhotonBridge();
+  private final static ADIS16470_IMU imu = new ADIS16470_IMU(IMUAxis.kX, IMUAxis.kY, IMUAxis.kZ);
+    private final Field2d field = new Field2d();
+    private final ADIS16470_IMUSim imuSim = new ADIS16470_IMUSim(imu);
+    private Pose2d poseSim = new Pose2d();
+    public final PhotonBridge photon = new PhotonBridge();
+  
+    private final double baseReadingError = 0.2;
+    // private final double maxReadingError = baseReadingError * Math.pow(2, 64);
+    private double allowedReadingError = baseReadingError;
+  
+    // Pose estimation class for tracking robot pose
+    private final SwerveDrivePoseEstimator poseEstimator;
+    private double AngleOffset = 0;
+    public static Angle initial_Angle = Degrees.of(imu.getAngle());
 
-  private final double baseReadingError = 0.2;
-  // private final double maxReadingError = baseReadingError * Math.pow(2, 64);
-  private double allowedReadingError = baseReadingError;
-
-  // Pose estimation class for tracking robot pose
-  private final SwerveDrivePoseEstimator poseEstimator;
 
   public NavigationSub() {
     zeroHeading();
@@ -57,7 +60,7 @@ public class NavigationSub extends SubsystemBase {
         Rotation2d.fromDegrees(imu.getAngle()),
         Subsystems.drive.getModulePositions(),
         new Pose2d());
-
+    
     final var onRedAlliance = DriverStation.getAlliance()
           .map(alliance -> alliance == Alliance.Red)
           .orElse(false);
@@ -67,6 +70,8 @@ public class NavigationSub extends SubsystemBase {
       resetOdometry(new Pose2d(8, 4, Rotation2d.k180deg));
     }
   }
+
+ 
 
   /**
    * Initializes PathPlanner.
@@ -83,7 +88,7 @@ public class NavigationSub extends SubsystemBase {
           this::getChassisSpeeds,
           (speeds, feedforwards) -> {
             Subsystems.drive.drive(speeds, false);
-            System.out.println(feedforwards.toString());
+            //System.out.println(feedforwards.toString());
           },
           new PPHolonomicDriveController(
               DriveConstants.AUTO_TRANSLATION_PID,
@@ -142,6 +147,8 @@ public class NavigationSub extends SubsystemBase {
     field.setRobotPose(getPose());
 
     SmartDashboard.putString("pose", getPose().toString());
+    SmartDashboard.putString("IMU_ANGLE", getIMUHeading().toString());
+    //System.out.println(getIMUHeading());
   }
 
   private Transform2d simError = new Transform2d();
@@ -168,6 +175,8 @@ public class NavigationSub extends SubsystemBase {
       poseSim = new Pose2d(poseCur, poseSim.getRotation());
     }
   }
+
+
 
   /**
    * Resets the odometry to the specified pose.

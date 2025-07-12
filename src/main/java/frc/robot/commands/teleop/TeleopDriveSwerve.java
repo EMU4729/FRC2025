@@ -7,12 +7,14 @@ import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystems;
 import frc.robot.Control.OI;
 import frc.robot.classes.RangeMath.DriveBaseFit;
+import frc.robot.commands.auto.AutoProvider;
 import frc.robot.constants.DriveConstants;
 import frc.robot.utils.LibUpgrades.ClosedSlewRateLimiter;
 
@@ -28,8 +30,11 @@ public class TeleopDriveSwerve extends Command {
   private final ClosedSlewRateLimiter rLimiter = new ClosedSlewRateLimiter(
       DriveConstants.MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond),
       DriveConstants.MAX_ANGULAR_DECELERATION.in(RadiansPerSecondPerSecond));
+  private Angle AngleAfterAuto;
 
   private Rotation2d targetYaw = new Rotation2d(0);
+
+  //private Angle angleoffset = Rotation2d.k180deg;
 
   public TeleopDriveSwerve(DriveBaseFit settings) {
     this.settings = settings;
@@ -41,6 +46,10 @@ public class TeleopDriveSwerve extends Command {
     if (!DriverStation.isTeleop()) {
       return;
     }
+   // AngleAfterAuto = AutoProvider.getAngleAfterAuto();
+    //Angle offsetAngle = AngleAfterAuto.minus(Subsystems.nav.getIMUHeading());
+   // Angle StartAngle = Subsystems.nav.getIMUHeading().plus(angleoffset);
+
 
     // if (OI.pilot.leftTrigger().getAsBoolean()) {
     // Subsystems.drive.setX();
