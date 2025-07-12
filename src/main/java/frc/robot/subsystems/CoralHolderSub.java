@@ -8,12 +8,32 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CoralHolderConstants;
+import frc.robot.constants.DriveConstants;
 
 public class CoralHolderSub extends SubsystemBase {
   private final TalonFX motor = CoralHolderConstants.MOTOR_ID.get();
+  private final double loadcurrentThreshold = CoralHolderConstants.loadcurrentThreshold;
+
+  private double baselineTorqueCurrent = 0; //TODO CHANGE THIS
+  private boolean isCalibrated = false;
 
   public CoralHolderSub() {
     setupSmartDash();
+  }
+
+  public void Calibrate(){
+    this.baselineTorqueCurrent = motor.getTorqueCurrent().getValueAsDouble();
+    this.isCalibrated = true;
+  }
+
+  public boolean isLoadDetected(){
+    if (!isCalibrated){
+      return false;
+    }
+    double currentTorque = motor.getTorqueCurrent().getValueAsDouble();
+    double difference = currentTorque - baselineTorqueCurrent;
+
+    return difference > loadcurrentThreshold;
   }
 
   public void stop() {
@@ -50,6 +70,10 @@ public class CoralHolderSub extends SubsystemBase {
     return manualOutCommand().withTimeout(CoralHolderConstants.INTAKE_DURATION);
   }
 
+  public double getTorqueCurrent(){
+    return motor.getTorqueCurrent().getValueAsDouble();
+  }
+
   private void setupSmartDash() {
     SmartDashboard.putData("Coral Sub", new Sendable() {
       @Override
@@ -59,4 +83,8 @@ public class CoralHolderSub extends SubsystemBase {
       }
     });
   }
+  @Override
+  public void periodic(){
+    Double TorqueDifference = getTorqueCurrent() - getTorqueCurrent();
+  } 
 }
