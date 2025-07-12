@@ -16,16 +16,25 @@ public class CoralHolderSub extends SubsystemBase {
     setupSmartDash();
   }
 
+  public void stop() {
+    set(0);
+  }
+
   public void forward() {
-    motor.set(CoralHolderConstants.THROTTLE);
+    set(CoralHolderConstants.THROTTLE);
   }
 
   public void reverse() {
-    motor.set(-CoralHolderConstants.THROTTLE);
+    set(-CoralHolderConstants.THROTTLE);
   }
 
-  public void stop() {
-    motor.set(0);
+
+  public void set(double speed) {
+    motor.set(speed);
+  }
+
+  public Command runCommand(double speed) {
+    return this.startEnd(() -> set(speed), this::stop);
   }
 
   public Command manualOutCommand() {
