@@ -10,5 +10,4 @@ public class CoralHolderConstants {
   public static final Time INTAKE_DURATION = Seconds.of(0.4);
   public static final double THROTTLE = 0.6;
   public static final FalconMotorSupplier MOTOR_ID = new FalconMotorSupplier(5).withInvert();
-  public static final double loadcurrentThreshold = 1;
 }

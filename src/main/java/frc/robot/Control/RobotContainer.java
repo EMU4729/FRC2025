@@ -133,6 +133,7 @@ public class RobotContainer {
     OI.copilot.leftTrigger().whileTrue(Subsystems.coralHolder.runCommand(0.4));
     NamedCommands.registerCommand("coral outTake", Subsystems.coralHolder.manualOutCommand().withTimeout(CoralHolderConstants.OUTTAKE_DURATION));
     OI.copilot.rightBumper().whileTrue(Subsystems.coralHolder.runCommand(0.8));
+    OI.copilot.leftBumper().whileTrue(Subsystems.coralHolder.runUntilLoadCommand());
   }
 
   /**

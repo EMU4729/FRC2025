@@ -6,34 +6,17 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.constants.CoralHolderConstants;
-import frc.robot.constants.DriveConstants;
 
 public class CoralHolderSub extends SubsystemBase {
   private final TalonFX motor = CoralHolderConstants.MOTOR_ID.get();
-  private final double loadcurrentThreshold = CoralHolderConstants.loadcurrentThreshold;
-
-  private double baselineTorqueCurrent = 0; //TODO CHANGE THIS
-  private boolean isCalibrated = false;
 
   public CoralHolderSub() {
     setupSmartDash();
-  }
-
-  public void Calibrate(){
-    this.baselineTorqueCurrent = motor.getTorqueCurrent().getValueAsDouble();
-    this.isCalibrated = true;
-  }
-
-  public boolean isLoadDetected(){
-    if (!isCalibrated){
-      return false;
-    }
-    double currentTorque = motor.getTorqueCurrent().getValueAsDouble();
-    double difference = currentTorque - baselineTorqueCurrent;
-
-    return difference > loadcurrentThreshold;
   }
 
   public void stop() {
@@ -74,17 +57,40 @@ public class CoralHolderSub extends SubsystemBase {
     return motor.getTorqueCurrent().getValueAsDouble();
   }
 
+  public double getTorque() {
+    final var power = motor.getTorqueCurrent().getValueAsDouble() * motor.getSupplyVoltage().getValueAsDouble();
+    final var rps = motor.getRotorVelocity().getValueAsDouble();
+    return (60 * power) / (2 * Math.PI * rps);
+  }
+
+  public Command runUntilLoadCommand() {
+    return new SequentialCommandGroup(
+      // set shooter speed
+      this.runOnce(() -> this.set(0.4)),
+      // wait so we don't detect initial current peak
+      new WaitCommand(0.1),
+      // wait until the current exceeds a threshold which indicates the coral is loaded
+      new WaitUntilCommand(() -> this.getTorqueCurrent() > 25),
+      // wait some more to make sure the coral is fully in the shooter
+      new WaitCommand(0.3)
+    ).finallyDo(this::stop);
+  }
+
   private void setupSmartDash() {
     SmartDashboard.putData("Coral Sub", new Sendable() {
       @Override
       public void initSendable(SendableBuilder builder) {
         builder.addDoubleProperty("Duty Cycle", () -> motor.get(), null);
         builder.addDoubleProperty("Torque Current", () -> motor.getTorqueCurrent().getValueAsDouble(), null);
+        builder.addDoubleProperty("Supply Current", () -> motor.getSupplyCurrent().getValueAsDouble(), null);
+        builder.addDoubleProperty("Stator Current", () -> motor.getStatorCurrent().getValueAsDouble(), null);
+        builder.addDoubleProperty("Calculated Torque", () -> getTorque(), null);
+        builder.addDoubleProperty("RPS", () -> motor.getRotorVelocity().getValueAsDouble(), null);
       }
     });
   }
   @Override
   public void periodic(){
     Double TorqueDifference = getTorqueCurrent() - getTorqueCurrent();
-  } 
+  }
 }
