@@ -39,6 +39,7 @@ public class AutoProvider {
     loadPathAuto("Left Starting Position", "Left Starting Position");
     loadPathAuto("Right Starting Position", "Right Starting Position");
     loadPathAuto("Mid Starting Position", "Mid Starting Position");
+    loadPathAuto("Newtest", "Newtest");
 
     chooser.addOption("Pathfind to Pose Test",
         AutoBuilderFix.pathfindToPose(
