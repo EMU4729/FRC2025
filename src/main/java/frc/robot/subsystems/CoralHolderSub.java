@@ -28,7 +28,6 @@ public class CoralHolderSub extends SubsystemBase {
     set(-CoralHolderConstants.THROTTLE);
   }
 
-
   public void set(double speed) {
     motor.set(speed);
   }
@@ -38,7 +37,7 @@ public class CoralHolderSub extends SubsystemBase {
   }
 
   public Command manualOutCommand() {
-    
+
     return this.startEnd(this::forward, this::stop);
   }
 
@@ -51,13 +50,18 @@ public class CoralHolderSub extends SubsystemBase {
     return manualOutCommand().withTimeout(CoralHolderConstants.INTAKE_DURATION);
   }
 
-
+  private double getTorque() {
+    final var power = motor.getTorqueCurrent().getValueAsDouble() * motor.getMotorVoltage().getValueAsDouble();
+    final var rpm = motor.getRotorVelocity().getValueAsDouble();
+    return (60 * power) / (2 * Math.PI * rpm);
+  }
 
   private void setupSmartDash() {
     SmartDashboard.putData("Coral Sub", new Sendable() {
       @Override
       public void initSendable(SendableBuilder builder) {
-        builder.addDoubleProperty("Power", () -> motor.get(), null);
+        builder.addDoubleProperty("Duty Cycle", () -> motor.get(), null);
+        builder.addDoubleProperty("Torque", () -> getTorque(), null);
       }
     });
   }
