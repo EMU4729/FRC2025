@@ -136,7 +136,7 @@ public class RobotContainer {
     OI.copilot.leftBumper().whileTrue(Subsystems.coralHolder.runUntilLoadCommand());
     OI.copilot.start().and(OI.copilot.axisMagnitudeGreaterThan(XboxController.Axis.kLeftY.value, 0.1)).whileTrue(
       Subsystems.elevator.run(() -> {
-        Subsystems.elevator.modifyTargetPosition(Meters.of(OI.copilot.getLeftY() * 8 * 0.02));
+        Subsystems.elevator.modifyTargetPosition(Meters.of(-OI.copilot.getLeftY() * 1 * 0.02));
       }));
   }
 
