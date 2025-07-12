@@ -79,12 +79,14 @@ public class ElevatorSub extends SubsystemBase {
     return EStopState.NONE;
   }
 
-  public Distance getAnaloguePosition(){
-    Distance DifferenceDistance = getTargetPosition().minus(getPosition());
-  }
-
-  public Distance getAnalogueTargetPosition(){
-    return Meters.of(OI.copilot.getLeftTriggerAxis());
+  public void modifyTargetPosition(Distance amount) {
+    Distance newTarget = getTargetPosition().plus(amount);
+    if (newTarget.gt(ElevatorConstants.MAX_ALLOWABLE_POSITION)) {
+      newTarget = ElevatorConstants.MAX_ALLOWABLE_POSITION;
+    } else if (newTarget.lt(Meters.of(0))) {
+      newTarget = Meters.of(0);
+    }
+    setTargetPosition(newTarget);
   }
 
   @Override
