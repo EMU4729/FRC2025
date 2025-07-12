@@ -21,7 +21,7 @@ public class ElevatorConstants {
   public static final TrapezoidProfile.Constraints MOTION_CONSTRAINTS = new TrapezoidProfile.Constraints(1, 1);
   public static final double POSITION_TOLERANCE = 0.02;
 
-  public static final Distance MAX_ALLOWABLE_POSITION = Meters.of(0.55);
+  public static final Distance MAX_ALLOWABLE_POSITION = Meters.of(0.6);
 
   public static class ElevatorStops {
     public static final Distance INTAKE = Meters.of(0);
