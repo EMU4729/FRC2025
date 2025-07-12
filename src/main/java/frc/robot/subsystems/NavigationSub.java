@@ -148,7 +148,7 @@ public class NavigationSub extends SubsystemBase {
 
     SmartDashboard.putString("pose", getPose().toString());
     SmartDashboard.putString("IMU_ANGLE", getIMUHeading().toString());
-    System.out.println(getIMUHeading());
+    // System.out.println(getIMUHeading());
   }
 
   private Transform2d simError = new Transform2d();
