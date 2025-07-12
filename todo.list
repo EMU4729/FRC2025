@@ -1,0 +1,8 @@
+Things to do for MRT:
+1. Fix the 180 offset after auto
+2. Better Auto Allignmnet - either edit pathplanner, or change the odometry, and tune it
+
+LAB THINGS:
+-ADD Magic motion, for the shooter
+
+- add motion magic for shooter timing, sin ce torque invrease sugnifacntly

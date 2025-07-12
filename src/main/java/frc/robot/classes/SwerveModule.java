@@ -80,6 +80,7 @@ public class SwerveModule implements Sendable {
     
     if (moduleDetails.invertDrive()) {
       driveMotorSupplier = driveMotorSupplier.withInvert();
+      
     }
     
     driveMotor = driveMotorSupplier.get();
