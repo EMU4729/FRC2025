@@ -67,8 +67,8 @@ public class TeleopDriveSwerve extends Command {
         booster,
         limiter);
 
-    var x = control[0] * DriveConstants.MAX_SPEED.in(MetersPerSecond);
-    var y = control[1] * DriveConstants.MAX_SPEED.in(MetersPerSecond);
+    var x = -control[0] * DriveConstants.MAX_SPEED.in(MetersPerSecond);
+    var y = -control[1] * DriveConstants.MAX_SPEED.in(MetersPerSecond);
     var r = control[2] * DriveConstants.MAX_ANGULAR_SPEED.in(RadiansPerSecond);
 
     final var currentSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(Subsystems.nav.getChassisSpeeds(),
@@ -76,15 +76,15 @@ public class TeleopDriveSwerve extends Command {
 
     // if we are on the red alliance and driving field-relative, we should invert
     // driver inputs since the field's origin is taken from the blue alliance
-    if (fieldRelative) {
-      final var onRedAlliance = DriverStation.getAlliance()
-          .map(alliance -> alliance == Alliance.Red)
-          .orElse(false);
-      if (onRedAlliance) {
-        x *= -1;
-        y *= -1;
-      }
-    }
+    // if (fieldRelative) {
+    //   final var onRedAlliance = DriverStation.getAlliance()
+    //       .map(alliance -> alliance == Alliance.Red)
+    //       .orElse(false);
+    //   if (onRedAlliance) {
+    //     x *= -1;
+    //     y *= -1;
+    //   }
+    // }
 
     x = xLimiter.calculate(x, currentSpeeds.vxMetersPerSecond);
     y = yLimiter.calculate(y, currentSpeeds.vyMetersPerSecond);
