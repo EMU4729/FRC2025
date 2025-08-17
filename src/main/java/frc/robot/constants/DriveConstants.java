@@ -131,8 +131,8 @@ public class DriveConstants {
    * 0.6, 1);
    */
   public static DriveBaseFit PILOT_DEMO_SETTINGS = new DriveBaseFit(
-      new AxesFit().withOutputMinMax(0, 0.2).withPow(2).withDeadBand(0.1).withLimiter(0.15),
-      new AxesFit().withOutputMinMax(0, 0.2).withPow(2).withDeadBand(0.1).withLimiter(0.15));
+      new AxesFit().withOutputMinMax(0, 0.07).withPow(2).withDeadBand(0.1),
+      new AxesFit().withOutputMinMax(0, 0.1).withPow(2).withDeadBand(0.1));
 
   public static final SwerveModuleDetails SWERVE_MODULE_FL = new SwerveModuleDetails(
       "Swerve_FL",
