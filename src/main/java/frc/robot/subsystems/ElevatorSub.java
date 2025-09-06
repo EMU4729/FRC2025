@@ -31,7 +31,7 @@ public class ElevatorSub extends SubsystemBase {
     motorRight.setControl(new Follower(motorLeft.getDeviceID(), true));
 
     controller.setIntegratorRange(-0.2, 0.2);
-    controller.setIZone(0.05);
+    controller.setIZone(0.1);
     controller.setTolerance(ElevatorConstants.POSITION_TOLERANCE);
 
     SmartDashboard.putData("Elevator Motor", motorLeft);
@@ -98,12 +98,18 @@ public class ElevatorSub extends SubsystemBase {
     SmartDashboard.putNumber("Elevator Right Dist", motorRight.getPosition().getValueAsDouble());
 
     var out = 0.0d;
+    final var position = getPosition();
+    out = controller.calculate(position.in(Meters)) + 0.1;
+    if (Math.abs(controller.getError())<0.04) {
+
+      out = MathUtil.clamp(out, -0.03, 0.03);
+
+    }
     if (!atTargetPosition()) {
-      final var position = getPosition();
-      out = controller.calculate(position.in(Meters)) + 0.1;
-      out = MathUtil.clamp(out, -1, 1);
+      out = MathUtil.clamp(out, -0.4, 0.4);
     } else {
 
+      out = 0;
       // motor.setPosition(getPosition().in(Meters));
     }
 

@@ -131,8 +131,8 @@ public class DriveConstants {
    * 0.6, 1);
    */
   public static DriveBaseFit PILOT_DEMO_SETTINGS = new DriveBaseFit(
-      new AxesFit().withOutputMinMax(0, 0.07).withPow(2).withDeadBand(0.1),
-      new AxesFit().withOutputMinMax(0, 0.1).withPow(2).withDeadBand(0.1));
+      new AxesFit().withOutputMinMax(0, 0.15).withPow(2).withDeadBand(0.1).withBooster(0.35),
+      new AxesFit().withOutputMinMax(0, 0.2).withPow(2).withDeadBand(0.1));
 
   public static final SwerveModuleDetails SWERVE_MODULE_FL = new SwerveModuleDetails(
       "Swerve_FL",
@@ -147,7 +147,7 @@ public class DriveConstants {
       2, // Drive motor CAN ID
       2, // Steer motor CAN ID
       Rotation2d.kZero, // offset relative to FL
-      false,
+      true,
 
       new Translation2d(WHEEL_BASE.div(2), TRACK_WIDTH.div(-2)) // location rel to centre
   );
@@ -165,7 +165,7 @@ public class DriveConstants {
       4, // Drive motor CAN ID
       4, // Steer motor CAN ID
       Rotation2d.kCCW_90deg, // Offset rel to FL module
-      false,
+      true,
       new Translation2d(WHEEL_BASE.div(-2), TRACK_WIDTH.div(-2)) // location rel to centre
   );
 
