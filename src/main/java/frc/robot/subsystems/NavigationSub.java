@@ -87,7 +87,7 @@ public class NavigationSub extends SubsystemBase {
           this::resetOdometry,
           this::getChassisSpeeds,
           (speeds, feedforwards) -> {
-            Subsystems.drive.drive(speeds, false);
+            Subsystems.drive.drive(speeds, false, false);
             //System.out.println(feedforwards.toString());
           },
           new PPHolonomicDriveController(

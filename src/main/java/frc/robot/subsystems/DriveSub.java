@@ -7,7 +7,9 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -15,20 +17,27 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
 import frc.robot.Subsystems;
 import frc.robot.classes.SwerveModule;
-import frc.robot.commands.auto.AutoProvider;
-import frc.robot.commands.teleop.TeleopDriveSwerve;
 import frc.robot.constants.DriveConstants;
+import frc.robot.utils.LibUpgrades.ClosedSlewRateLimiter;
+import frc.robot.utils.LibUpgrades.SwerveModuleStateUpgrade;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSub extends SubsystemBase {
+  private final ClosedSlewRateLimiter xLimiter = new ClosedSlewRateLimiter(
+      DriveConstants.MAX_ACCELERATION.in(MetersPerSecondPerSecond),
+      DriveConstants.MAX_DECELERATION.in(MetersPerSecondPerSecond));
+  private final ClosedSlewRateLimiter yLimiter = new ClosedSlewRateLimiter(
+      DriveConstants.MAX_ACCELERATION.in(MetersPerSecondPerSecond),
+      DriveConstants.MAX_DECELERATION.in(MetersPerSecondPerSecond));
+  private final ClosedSlewRateLimiter rLimiter = new ClosedSlewRateLimiter(
+      DriveConstants.MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond),
+      DriveConstants.MAX_ANGULAR_DECELERATION.in(RadiansPerSecondPerSecond));
   // Swerve Modules
   private final SwerveModule frontLeft = new SwerveModule(DriveConstants.SWERVE_MODULE_FL);
   private final SwerveModule frontRight = new SwerveModule(DriveConstants.SWERVE_MODULE_FR);
@@ -39,24 +48,11 @@ public class DriveSub extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public DriveSub() {
-    // SmartDashboard.putData("FL Module", frontLeft);
-    // SmartDashboard.putData("FR Module", frontRight);
-    // SmartDashboard.putData("BL Module", backLeft);
-    // SmartDashboard.putData("BR Module", backRight);
-
     setupSmartDash();
   }
 
-  @Override
-  public void periodic() {
-    // final var cmd = this.getCurrentCommand();
-    // if (cmd != null) {
-    // System.out.println(cmd.getName());
-    // }
-  }
-
-  public void driveAtAngle(ChassisSpeeds speeds, boolean fieldRelative, Rotation2d yawAngle) {
-    drive(speeds, fieldRelative);
+  public void driveAtAngle(ChassisSpeeds speeds, boolean fieldRelative, Rotation2d yawAngle) { //TODO
+    drive(speeds, fieldRelative, true);
     Rotation2d currentYaw = Subsystems.nav.getHeadingR2D();
     Rotation2d err = currentYaw.minus(yawAngle);
     err.getDegrees();
@@ -66,36 +62,20 @@ public class DriveSub extends SubsystemBase {
   /**
    * drives the robot
    * 
-   * @param speeds field-relative speeds to drive at
-   */
-  public void drive(ChassisSpeeds speeds) {
-    drive(speeds, true);
-    
-  }
-
-  /**
-   * drives the robot
-   * 
    * @param speeds        speeds to drive at
    * @param fieldRelative true if the provided speeds are field-relative, false if
    *                      they are robot-relative
    */
-  public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
+  public void drive(ChassisSpeeds speeds, boolean fieldRelative, boolean accelerationLimit) {
     if (fieldRelative) { // convert field rel speeds to robot rel
-   
       speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, new Rotation2d(Subsystems.nav.getIMUHeading()));
     }
-    // System.out.println(speeds.toString());
 
-    if (Robot.isSimulation() && false) { // induce some amount of drift while moving in sim
-      double speedMag = Subsystems.nav.getTranslationSpeed();
-      Rotation2d speedDir = Rotation2d.fromRadians(Subsystems.nav.getTranslationAngle());
-      // System.out.println(speedMag + " " + speedDir);
-      speedDir = speedDir.plus(Rotation2d.fromDegrees(-45));
-      speedMag *= Math.cos(speedDir.getRadians());
-      // System.out.println(speedMag + " - " + speedDir);
-
-      speeds = speeds.plus(new ChassisSpeeds(0, 0, 0.2 * speedMag));
+    if (accelerationLimit){
+      final var currentSpeeds = Subsystems.nav.getChassisSpeeds();
+      speeds.vxMetersPerSecond = xLimiter.calculate(speeds.vxMetersPerSecond, currentSpeeds.vxMetersPerSecond);
+      speeds.vyMetersPerSecond = yLimiter.calculate(speeds.vyMetersPerSecond, currentSpeeds.vyMetersPerSecond);
+      speeds.omegaRadiansPerSecond = rLimiter.calculate(speeds.omegaRadiansPerSecond, currentSpeeds.omegaRadiansPerSecond);
     }
 
     final var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
@@ -106,10 +86,10 @@ public class DriveSub extends SubsystemBase {
    * Sets the wheels into an X formation to prevent movement.
    */
   public void setX() {
-    frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-    frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    backLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    backRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+    frontLeft.setDesiredState(new SwerveModuleStateUpgrade(0, Rotation2d.fromDegrees(45)));
+    frontRight.setDesiredState(new SwerveModuleStateUpgrade(0, Rotation2d.fromDegrees(-45)));
+    backLeft.setDesiredState(new SwerveModuleStateUpgrade(0, Rotation2d.fromDegrees(-45)));
+    backRight.setDesiredState(new SwerveModuleStateUpgrade(0, Rotation2d.fromDegrees(45)));
   }
 
   /**
@@ -161,15 +141,6 @@ public class DriveSub extends SubsystemBase {
     frontRight.resetEncoders();
     backLeft.resetEncoders();
     backRight.resetEncoders();
-  }
-
-  /** reset turn motor pid I accumulation to 0 */
-  public void resetIntegral() {
-    frontLeft.resetIntegral();
-    frontRight.resetIntegral();
-    backLeft.resetIntegral();
-    backRight.resetIntegral();
-
   }
 
   public SequentialCommandGroup testFunction() {

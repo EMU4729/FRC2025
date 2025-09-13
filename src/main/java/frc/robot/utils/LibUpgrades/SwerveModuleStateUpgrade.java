@@ -1,8 +1,5 @@
 package frc.robot.utils.LibUpgrades;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
@@ -68,6 +65,10 @@ public class SwerveModuleStateUpgrade extends SwerveModuleState {
     return RotationsPerSecond.of(speedMetersPerSecond / circumference.in(Meters));
   }
 
+  public boolean isOptimized(){
+    return optimised_last_loop;
+  }
+
   public void setAngle(Angle angle){
     this.angle = new Rotation2d(angle);
   }
@@ -77,9 +78,7 @@ public class SwerveModuleStateUpgrade extends SwerveModuleState {
   
   @Override
   public void optimize(Rotation2d angle){
-
-
-    //throw new UnsupportedOperationException("Do Not Use : optimize(Angle currentAngle, AngularVelocity speed, AngularAcceleration maxAcceleration, AngularVelocity maxSpeed) is better");
+    throw new UnsupportedOperationException("Do Not Use : optimize(Angle currentAngle, AngularVelocity speed, AngularAcceleration maxAcceleration, AngularVelocity maxSpeed) is better");
   }
 
   public void optimize(Angle currentAngle, AngularVelocity currentVelocity, AngularVelocity maxVelocity, AngularAcceleration maxAcceleration){
@@ -89,30 +88,39 @@ public class SwerveModuleStateUpgrade extends SwerveModuleState {
     //is this right no, but the time difference is also almost nothing
     //so it is close enough
 
-    currentVelocity = RadiansPerSecond.of(Math.copySign(maxVelocity.in(RadiansPerSecond), currentVelocity.in(RadiansPerSecond)));
-
-    double d1 = currentAngle.minus(getAngle()).in(Radians);
-    double d2 = currentAngle.minus(Radians.of(Math.PI)).minus(getAngle()).in(Radians);
+    //get the distance to our target and target +180deg in the range -180->180 (radians)
+    double d1 = getAngle().minus(currentAngle).in(Radians);
+    double d2 = getAngle().minus(Radians.of(Math.PI)).minus(currentAngle).in(Radians);
     d1 += d1 < -Math.PI ? 2*Math.PI : (d1 > Math.PI ? -2*Math.PI : 0);
     d2 += d2 < -Math.PI ? 2*Math.PI : (d2 > Math.PI ? -2*Math.PI : 0);  
     
-    double t1 = Math.abs(d1 / currentVelocity.in(RadiansPerSecond));
-    double t2 = Math.abs(d2 / currentVelocity.in(RadiansPerSecond));
+    //assume we are already travelling in the right direction at top speed.
+    //how long will it take to travel that distance
+    double t1 = Math.abs(d1 / maxVelocity.in(RadiansPerSecond));
+    double t2 = Math.abs(d2 / maxVelocity.in(RadiansPerSecond));
 
-    double t_inv = 2*Math.abs(currentVelocity.in(RadiansPerSecond)) / maxAcceleration.in(RadiansPerSecondPerSecond);
+    //assume we are traveling in the wrong direction at full speed
+    //how long will it take to turn around and re-reach full speed
+    double t_inv = 2*Math.abs(maxVelocity.in(RadiansPerSecond)) / maxAcceleration.in(RadiansPerSecondPerSecond);
 
-    if (Math.signum(d1) == Math.signum(currentVelocity.in(RadiansPerSecond))){
+    //add that time to the direction we are not moving in
+    if (Math.abs(currentVelocity.in(RadiansPerSecond)) < 0.1){
+      //ignore
+    } else if (Math.signum(d1) == Math.signum(currentVelocity.in(RadiansPerSecond))){
       t2 += t_inv;
     } else {
       t1 += t_inv;
     }
 
+    //bias towards the last choice to avoid rapid changes
+    //the extra time is worth it to reduce damage
     if(optimised_last_loop){
       t1 *= 1.05;
     } else {
       t2 *= 1.05;
     }
 
+    //apply
     if(t1 > t2){
       optimised_last_loop = true;
       speedMetersPerSecond *= -1;
@@ -120,6 +128,5 @@ public class SwerveModuleStateUpgrade extends SwerveModuleState {
     } else {
       optimised_last_loop = false;
     }
-    System.out.println(d1+" "+d2+" "+t1+" "+t2+" "+optimised_last_loop);
   }
 }
