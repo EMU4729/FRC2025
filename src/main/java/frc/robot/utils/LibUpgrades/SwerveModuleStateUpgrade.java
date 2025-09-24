@@ -16,7 +16,8 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 
 public class SwerveModuleStateUpgrade extends SwerveModuleState {
-  private boolean optimised_last_loop = false;
+  protected boolean optimised_last_loop = false;
+  protected int optimize_lockout = 0;
   
   /** Constructs a SwerveModuleState with zeros for speed and angle. */
   public SwerveModuleStateUpgrade() {}
@@ -81,7 +82,19 @@ public class SwerveModuleStateUpgrade extends SwerveModuleState {
     throw new UnsupportedOperationException("Do Not Use : optimize(Angle currentAngle, AngularVelocity speed, AngularAcceleration maxAcceleration, AngularVelocity maxSpeed) is better");
   }
 
-  public void optimize(Angle currentAngle, AngularVelocity currentVelocity, AngularVelocity maxVelocity, AngularAcceleration maxAcceleration){
+  public void optimize(Angle currentAngle, AngularVelocity currentVelocity, AngularVelocity maxVelocity, AngularAcceleration maxAcceleration, SwerveModuleStateUpgrade last){
+    optimize_lockout = last.optimize_lockout;
+    optimised_last_loop = last.optimised_last_loop;
+    
+    if (optimize_lockout > 0){
+      if(optimised_last_loop){
+        speedMetersPerSecond *= -1;
+        angle = angle.plus(Rotation2d.k180deg);
+      }
+      optimize_lockout--;
+      return;
+    }
+    
     //there is a big simplification here
     //we expect acceleration to be high
     //high enough to assume it is near infinite
@@ -91,8 +104,10 @@ public class SwerveModuleStateUpgrade extends SwerveModuleState {
     //get the distance to our target and target +180deg in the range -180->180 (radians)
     double d1 = getAngle().minus(currentAngle).in(Radians);
     double d2 = getAngle().minus(Radians.of(Math.PI)).minus(currentAngle).in(Radians);
-    d1 += d1 < -Math.PI ? 2*Math.PI : (d1 > Math.PI ? -2*Math.PI : 0);
-    d2 += d2 < -Math.PI ? 2*Math.PI : (d2 > Math.PI ? -2*Math.PI : 0);  
+    d1 = d1 % (2*Math.PI);
+    d1 = (d1 < -Math.PI ? 2*Math.PI + d1 : (d1 > Math.PI ? -2*Math.PI + d1 : d1));
+    d2 = d2 % (2*Math.PI);
+    d2 = (d2 < -Math.PI ? 2*Math.PI + d2 : (d2 > Math.PI ? -2*Math.PI + d2 : d2));
     
     //assume we are already travelling in the right direction at top speed.
     //how long will it take to travel that distance
@@ -122,10 +137,12 @@ public class SwerveModuleStateUpgrade extends SwerveModuleState {
 
     //apply
     if(t1 > t2){
+      if(!optimised_last_loop){optimize_lockout = 25;}
       optimised_last_loop = true;
       speedMetersPerSecond *= -1;
       angle = angle.plus(Rotation2d.k180deg);
     } else {
+      if(optimised_last_loop){optimize_lockout = 25;}
       optimised_last_loop = false;
     }
   }

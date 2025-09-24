@@ -33,6 +33,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -200,14 +201,17 @@ public class SwerveModule implements Sendable {
     // if the desired state's speed is low enough, 
     // and we are close enough to the target angle
     // we can just stop the motors to prevent motor weirdness
-    if (Math.abs(state.speedMetersPerSecond) < 0.001 && 
-        Math.abs(state.angle.minus(getTurnRotation2d()).getRadians()) < Math.PI/16) { //rougly 11 degrees
-      desiredState = state;
-      stop();
-      return;
+    if (Math.abs(state.speedMetersPerSecond) < 0.001){
+      state.speedMetersPerSecond = 0;
+      if(Math.abs((state.angle.minus(getTurnRotation2d()).getRadians())%2*Math.PI) < Math.PI/16) { //rougly 11 degrees
+        desiredState = state;
+        stop();
+        return;
+      }
     }
 
-    state.optimize(getTurnAngle(), getTurnVelocity(), DriveConstants.MAX_ANGULAR_SPEED, DriveConstants.MAX_ANGULAR_ACCELERATION); // TODO wrong constants
+
+    state.optimize(getTurnAngle(), getTurnVelocity(), RadiansPerSecond.of(3), RadiansPerSecondPerSecond.of(24), desiredState); // TODO wrong constants
     desiredState = state;
     applyState();
   }
